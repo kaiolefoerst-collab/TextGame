@@ -1,0 +1,1201 @@
+# Story-Datei, Schema-Version 0.0 (Arbeitsentwurf gemäß Spielkonzept + Autorenregeln).
+# Feldkonventionen:
+#   header: Kopfdaten inkl. Kapitel-Zugehörigkeit und Startelement.
+#   layers: bekannte Ebenen dieser Geschichte.
+#   resolution: globale Abschlussbedingung (Kapitel D05 des Elementkatalogs).
+#   elements: alle physischen und reinen Story-Elemente.
+# Konditionstypen: stateEquals[elementId,property,value], partOfExists[elementId,target], partOfMissing[elementId,target]
+# Effekttypen: discoverFragment, revealElement, hideElement, addPartOf[elementId,target], removePartOf[elementId,target],
+#              replacePartOf{elementId,remove,add}, setElementState[elementId,property,value], setLocatedIn[elementId,value],
+#              setCurrentElement, showText, showTextFrom("elementId.presentation.feld"), disableSelfTrigger, disableTrigger[elementId,triggerId],
+#              enableTrigger[elementId,triggerId], finishGame
+
+header:
+  id: cursed_mill
+  title: Die verfluchte Mühle
+  author: Kai Olefoerst
+  version: 1
+  teaser: >-
+    Ein verlassenes Mühlendorf, dichter Nebel, der niemanden hinauslässt -
+    und eine vierzig Jahre alte Flutkatastrophe, die anders geschah, als der
+    Gedenkstein behauptet.
+  partOf: null
+  chapterIndex: null
+  startElement: village_square_present
+
+layers:
+  - id: present
+    name: Gegenwart
+    description: Der verfluchte Ort, den der Spieler direkt erkundet.
+  - id: flood_night
+    name: Die Nacht der Überschwemmung
+    description: Die zentrale vergangene Zeitebene vor etwa 40 Jahren.
+  - id: clara_return
+    name: Claras Rückkehr
+    description: Claras heimliche Rückkehr zwölf Jahre nach der Flut.
+
+resolution:
+  conditions:
+    - partOfExists: [richard_brandt_past, illegal_channel_closure]
+    - partOfExists: [hannes_past, emergency_opening]
+    - partOfExists: [clara_past, clara_imprisonment]
+    - partOfExists: [clara_past, clara_survived_story]
+    - partOfExists: [clara_past, clara_secret_return]
+    - partOfMissing: [hannes_past, hannes_guilt_rumor]
+    - partOfMissing: [clara_past, clara_death_story]
+  effects:
+    - setElementState: [case_resolution, visible, true]
+    - setElementState: [case_resolution, complete, true]
+    - setElementState: [case_cursed_mill, resolved, true]
+    - setElementState: [cursed_site_present, curseActive, false]
+    - setElementState: [road_out_present, blockedByCurse, false]
+    - showTextFrom: case_resolution.presentation.releaseText
+
+elements:
+
+  # ---------------------------------------------------------------------
+  # Teil A - Gegenwart: physische Elemente
+  # ---------------------------------------------------------------------
+
+  - id: player
+    name: Ich
+    type: player
+    physical: true
+    layers: [present]
+    locatedIn: village_square_present
+    initialState: {}
+    initialPartOf: []
+    presentation:
+      firstView: Du durchsuchst deine Habseligkeiten.
+      repeatView: Du durchsuchst erneut deine Habseligkeiten.
+
+  - id: cursed_site_present
+    name: Verlassenes Mühlendorf
+    type: area
+    physical: true
+    layers: [present]
+    locatedIn: null
+    image: "Dichter, undurchdringlicher Nebel umschließt ein verlassenes Dorf mit einer zerstörten Wassermühle in der Ferne. Düstere, melancholische Stimmung, keine Menschen sichtbar, gedämpftes Licht."
+    initialState:
+      visible: true
+      curseActive: true
+      investigation: open
+    initialPartOf: [case_cursed_mill]
+    presentation:
+      firstView: Dichter Nebel umschließt das verlassene Gelände und verhindert jede Sicht auf die Umgebung.
+      repeatView: Der Nebel liegt weiterhin wie eine geschlossene Wand um das Gelände.
+    fragments:
+      - id: f_site_fog
+        fact: Dichter Nebel umschließt das Gelände und verhindert die Abreise.
+        assumption: Der Ort scheint mich festzuhalten, bis ich etwas verstanden habe.
+
+  - id: village_square_present
+    name: Verlassener Dorfplatz
+    type: room
+    physical: true
+    layers: [present]
+    locatedIn: cursed_site_present
+    exitLabel: Gelände verlassen
+    image: "Ein kleiner, verlassener Dorfplatz mit feuchten Pflastersteinen, die am Rand im Nebel verschwinden. Ein alter, moosbewachsener Gedenkstein steht in der Mitte, verlassene Fachwerkhäuser im Hintergrund, dichter Nebel."
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [case_cursed_mill]
+    presentation:
+      firstView: Du stehst auf einem kleinen, verlassenen Dorfplatz. Feuchte Pflastersteine verschwinden am Rand im dichten Nebel. In der Mitte steht ein alter Gedenkstein.
+      repeatView: Du stehst wieder auf dem feuchten Dorfplatz. Der Nebel liegt unbeweglich zwischen den verlassenen Häusern.
+    fragments:
+      - id: f_square_abandoned
+        fact: Der Dorfplatz ist verlassen; nur der alte Gedenkstein wird noch gepflegt.
+        assumption: Die Überschwemmung scheint das zentrale Ereignis dieses Ortes gewesen zu sein.
+
+  - id: memorial_stone_present
+    name: Gedenkstein der Flut
+    type: object
+    physical: true
+    layers: [present]
+    locatedIn: village_square_present
+    image: "Ein alter, verwitterter Gedenkstein aus grauem Stein mit einer moosbedeckten Inschrift, darunter eine zweite, später eingeritzte Zeile in unregelmäßigerer Schrift."
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [official_flood_story]
+    presentation:
+      firstUse: Du wischst Moos von der verwitterten Inschrift. Unter dem offiziellen Text wurde später ein weiterer Satz eingeritzt.
+      repeatUse: Die Inschrift und der später eingeritzte Satz sind bereits vollständig lesbar.
+      contentText: |
+        Zum Gedenken an Clara Voss, die in der großen Flut ihr Leben verlor.
+        Verursacht durch die schuldhafte Bedienung des Mühlenwehrs durch ihren Vater Hannes Voss.
+
+        Später eingeritzt:
+        "Die Wahrheit liegt noch immer im Wasser."
+    fragments:
+      - id: f_memorial_text
+        fact: Der Stein nennt Clara Voss als Opfer und Hannes Voss als Verursacher der Flut.
+        assumption: Der Müller verursachte die Katastrophe, bei der seine Tochter starb.
+      - id: f_memorial_scratched_sentence
+        fact: Unter der Inschrift steht eingeritzt "Die Wahrheit liegt noch immer im Wasser."
+        assumption: Jemand zweifelte an der offiziellen Darstellung der Flut.
+    onUse:
+      - id: use_memorial_first
+        enabled: true
+        effects:
+          - discoverFragment: f_memorial_text
+          - discoverFragment: f_memorial_scratched_sentence
+          - revealElement: official_flood_story
+          - revealElement: hannes_guilt_rumor
+          - revealElement: clara_death_story
+          - addPartOf: [hannes_past, hannes_guilt_rumor]
+          - addPartOf: [clara_past, clara_death_story]
+          - setElementState: [memorial_stone_present, investigation, complete]
+          - disableSelfTrigger: use_memorial_first
+
+  - id: path_to_mill
+    name: Weg zur Mühle
+    type: door
+    physical: true
+    layers: [present]
+    locatedIn: village_square_present
+    initialState:
+      visible: true
+    initialPartOf: []
+    onUse:
+      - id: enter_mill
+        enabled: true
+        effects:
+          - setCurrentElement: mill_ruin_present
+
+  - id: path_to_sawmill
+    name: Weg zum Sägewerk
+    type: door
+    physical: true
+    layers: [present]
+    locatedIn: village_square_present
+    initialState:
+      visible: true
+    initialPartOf: []
+    onUse:
+      - id: enter_sawmill
+        enabled: true
+        effects:
+          - setCurrentElement: sawmill_ruin_present
+
+  - id: road_out_present
+    name: Weg aus dem Dorf
+    type: door
+    physical: true
+    layers: [present]
+    locatedIn: village_square_present
+    initialState:
+      visible: true
+      blockedByCurse: true
+    initialPartOf: [curse_of_place]
+    presentation:
+      blockedText: Der Weg verschwindet im Nebel. Wenige Schritte später stehst du auf dem Dorfplatz.
+      exitText: Du folgst dem Weg aus dem Dorf. Der Gedenkstein verschwindet hinter dir, und der Ort zieht dich nicht zurück. Die Geschichte der verfluchten Mühle ist abgeschlossen.
+    onUse:
+      - id: exit_blocked
+        enabled: true
+        conditions:
+          - stateEquals: [cursed_site_present, curseActive, true]
+        effects:
+          - showTextFrom: road_out_present.presentation.blockedText
+          - setCurrentElement: village_square_present
+      - id: exit_released
+        enabled: true
+        conditions:
+          - stateEquals: [cursed_site_present, curseActive, false]
+        effects:
+          - showTextFrom: road_out_present.presentation.exitText
+          - finishGame: true
+
+  - id: mill_ruin_present
+    name: Ruine der Wassermühle
+    type: room
+    physical: true
+    layers: [present]
+    locatedIn: cursed_site_present
+    exitLabel: Mühle verlassen
+    image: "Eine halb eingestürzte, alte Wassermühle mit einem großen Wasserrad. Die stärksten Schäden liegen auf der flussabgewandten Seite, als sei eine gewaltige Wassermenge mitten durch das Gebäude geströmt. Moos und Schlamm überall."
+    initialState:
+      visible: true
+      investigation: open
+      currentHint: null
+    initialPartOf: [case_cursed_mill, history_mill]
+    presentation:
+      firstView: Der Weg endet an einer halb eingestürzten Wassermühle. Die stärksten Schäden befinden sich auf der flussabgewandten Seite. Es wirkt, als sei eine gewaltige Wassermenge mitten durch die Mühle geströmt.
+      repeatView: Du stehst wieder zwischen den eingestürzten Balken der alten Mühle.
+      openLeadView: An der Wand neben dem Schreibtisch sitzt die dritte Bohle deutlich lockerer als die übrigen.
+    fragments:
+      - id: f_mill_damage
+        fact: Die stärksten Schäden liegen auf der flussabgewandten Seite der Mühle.
+        assumption: Die Mühle wurde von einer gewaltigen Wassermenge durchströmt.
+
+  - id: mill_desk_present
+    name: Vermoderter Schreibtisch
+    type: furniture
+    physical: true
+    layers: [present]
+    locatedIn: mill_ruin_present
+    exitLabel: Schreibtisch schließen
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_mill, hannes_past]
+    presentation:
+      firstView: Im geöffneten Schreibtisch liegen zerfallene Rechnungen, verrostete Schreibfedern und ein dickes altes Geschäftsbuch.
+      repeatView: Im Schreibtisch scheint es derzeit nichts Weiteres zu entdecken zu geben.
+    onUse:
+      - id: focus_desk
+        enabled: true
+        effects:
+          - setCurrentElement: mill_desk_present
+
+  - id: business_ledger_present
+    name: Altes Geschäftsbuch
+    type: document
+    physical: true
+    layers: [present]
+    locatedIn: mill_desk_present
+    exitLabel: Buch zuklappen
+    image: "Ein dickes, altes, ledergebundenes Geschäftsbuch, aufgeschlagen, mit vergilbten, teils verklebten und schlammverschmutzten Seiten."
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_mill, hannes_past]
+    presentation:
+      firstUse: Die ersten Seiten enthalten gewöhnliche Einträge über Mehl, Getreide und Lieferungen. Die letzten Seiten sind durch Schlamm und Feuchtigkeit miteinander verklebt.
+      blockedUse: Ohne einen konkreten Hinweis kannst du zwischen den beschädigten Zeilen nichts Auffälliges erkennen.
+      openLeadUse: Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren Handschrift. Unter ihr stehen die Initialen "C. V.".
+      completeUse: Claras Eintrag ist bereits vollständig gelesen. Im Buch gibt es derzeit nichts Weiteres zu entdecken.
+    fragments:
+      - id: f_ledger_general
+        fact: Das Geschäftsbuch gehörte Hannes Voss. Die letzten Seiten sind verschmutzt und teilweise verklebt.
+        assumption: Vielleicht enthält das Buch noch Informationen über die Zeit vor der Flut.
+    onUse:
+      - id: open_ledger
+        enabled: true
+        effects:
+          - discoverFragment: f_ledger_general
+          - setCurrentElement: business_ledger_present
+
+  - id: clara_ledger_entry_present
+    name: Claras Eintrag auf der letzten Seite
+    type: document_entry
+    physical: true
+    layers: [present]
+    locatedIn: business_ledger_present
+    exitLabel: Eintrag schließen
+    voice: Standard
+    initialState:
+      visible: false
+      investigation: open
+    initialPartOf: []
+    presentation:
+      firstUse: Claras verblasste Notiz auf der letzten beschriebenen Seite wird vollständig lesbar.
+      repeatUse: Der Eintrag beschreibt die Blockade des Kanals und Claras Absicht, Brandt zur Rede zu stellen. Weitere Informationen enthält er nicht.
+      contentText: |
+        Brandts Männer haben den Entlastungskanal mit Balken und Steinen verschlossen.
+        Das Wasser läuft deshalb nur noch durch seine Turbine.
+        Vater sagt, dass dies bei starkem Regen gefährlich ist.
+
+        Über dem Wald stehen dunkle Wolken. Ich gehe zum Sägewerk und verlange von Herrn Brandt, dass er den Kanal öffnen lässt.
+
+        C. V.
+    fragments:
+      - id: f_clara_saw_channel_closed
+        fact: Clara notierte, dass Brandts Arbeiter den Entlastungskanal mit Balken und Steinen verschlossen.
+        assumption: Brandt könnte die spätere Flutgefahr selbst verursacht haben.
+      - id: f_clara_confront_brandt
+        fact: Clara schrieb, sie werde Brandt bei aufziehendem Regen zur Rede stellen.
+        assumption: Clara ging in der Flutnacht freiwillig zum Sägewerk.
+    onUse:
+      - id: read_clara_entry
+        enabled: true
+        effects:
+          - discoverFragment: f_clara_saw_channel_closed
+          - discoverFragment: f_clara_confront_brandt
+          - revealElement: illegal_channel_closure
+          - revealElement: confrontation_at_sawmill
+          - addPartOf: [richard_brandt_past, illegal_channel_closure]
+          - addPartOf: [clara_past, illegal_channel_closure]
+          - addPartOf: [clara_past, confrontation_at_sawmill]
+          - revealElement: old_store_room_present
+          - revealElement: question_clara_at_sawmill
+          - setElementState: [sawmill_ruin_present, investigation, open]
+          - setElementState: [sawmill_ruin_present, currentHint, "Claras Spur führt zum alten Lagerraum im Sägewerk. Du kannst das Sägewerk untersuchen."]
+          - setElementState: [business_ledger_present, investigation, complete]
+          - setElementState: [mill_ruin_present, currentHint, null]
+          - setElementState: [clara_ledger_entry_present, investigation, complete]
+          - disableSelfTrigger: read_clara_entry
+      - id: complete_mill_if_gate_already_examined
+        enabled: true
+        conditions:
+          - stateEquals: [emergency_gate_mechanism_present, investigation, complete]
+        effects:
+          - setElementState: [mill_ruin_present, investigation, complete]
+          - setElementState: [mill_ruin_present, currentHint, null]
+          - disableSelfTrigger: complete_mill_if_gate_already_examined
+
+  - id: emergency_gate_mechanism_present
+    name: Mechanik des alten Notwehrs
+    type: mechanism
+    physical: true
+    layers: [present]
+    locatedIn: mill_ruin_present
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_mill]
+    presentation:
+      firstUse: Du entfernst Schlamm von der Mechanik. Der Stellhebel steht in äußerster Position. Die Markierungen zeigen, dass das Notwehr vollständig geöffnet wurde und das Wasser vom Dorf weg durch die Mühle leitete.
+      repeatUse: Die Mechanik bestätigt weiterhin die vollständige, offenbar bewusste Öffnung des Notwehrs. Weitere Informationen gibt sie nicht preis.
+    fragments:
+      - id: f_gate_direction
+        fact: Die Mechanik wurde vollständig geöffnet. In dieser Stellung leitete sie Wasser durch die Mühle und vom Dorf weg.
+        assumption: Wer das Wehr öffnete, nahm die Zerstörung der Mühle bewusst in Kauf, um das Dorf zu schützen.
+    onUse:
+      - id: inspect_gate
+        enabled: true
+        effects:
+          - discoverFragment: f_gate_direction
+          - revealElement: emergency_opening
+          - addPartOf: [hannes_past, emergency_opening]
+          - addPartOf: [history_mill, emergency_opening]
+          - setElementState: [emergency_gate_mechanism_present, investigation, complete]
+          - disableSelfTrigger: inspect_gate
+      - id: reveal_hannes_contradiction_if_unresolved
+        enabled: true
+        conditions:
+          - stateEquals: [corrected_flood_cause_story, visible, false]
+        effects:
+          - revealElement: contradiction_hannes_guilt
+          - addPartOf: [hannes_past, contradiction_hannes_guilt]
+          - addPartOf: [official_flood_story, contradiction_hannes_guilt]
+          - disableSelfTrigger: reveal_hannes_contradiction_if_unresolved
+      - id: reveal_silence_question_after_gate
+        enabled: true
+        conditions:
+          - stateEquals: [corrected_flood_cause_story, visible, true]
+        effects:
+          - revealElement: question_hannes_silence
+          - addPartOf: [hannes_past, question_hannes_silence]
+          - addPartOf: [official_flood_story, question_hannes_silence]
+          - disableSelfTrigger: reveal_silence_question_after_gate
+      - id: complete_mill_if_ledger_already_read
+        enabled: true
+        conditions:
+          - stateEquals: [clara_ledger_entry_present, investigation, complete]
+        effects:
+          - setElementState: [mill_ruin_present, investigation, complete]
+          - setElementState: [mill_ruin_present, currentHint, null]
+          - disableSelfTrigger: complete_mill_if_ledger_already_read
+
+  - id: loose_wall_board_present
+    name: Lose Wandbohle
+    type: object
+    physical: true
+    layers: [present]
+    locatedIn: mill_ruin_present
+    exitLabel: Bohle zurücklegen
+    initialState:
+      visible: false
+      investigation: open
+    initialPartOf: []
+    presentation:
+      firstView: Die dritte Wandbohle neben Hannes' Schreibtisch sitzt deutlich lockerer als die übrigen.
+      firstUse: Hinter der Bohle befindet sich ein schmaler Hohlraum mit einem in Tuch gewickelten Brief.
+      repeatUse: Der Hohlraum hinter der dritten Bohle ist bereits geöffnet.
+    onUse:
+      - id: open_wall_board
+        enabled: true
+        effects:
+          - revealElement: clara_letter_present
+          - setCurrentElement: loose_wall_board_present
+          - disableSelfTrigger: open_wall_board
+
+  - id: clara_letter_present
+    name: Claras versteckter Brief
+    type: document
+    physical: true
+    layers: [present]
+    locatedIn: loose_wall_board_present
+    exitLabel: Brief zurücklegen
+    voice: female1
+    image: "Ein vergilbter, spröder, handgeschriebener Brief, halb aufgefaltet, mit verblasster Tinte, auf rauem altem Papier."
+    initialState:
+      visible: false
+      investigation: open
+    initialPartOf: []
+    presentation:
+      firstUse: Du faltest den trockenen, spröden Brief auseinander. Er ist mit "Clara Voss" unterzeichnet.
+      repeatUse: Claras Brief enthält die vollständige Erklärung der Flutnacht und ihrer späteren Rückkehr.
+      contentText: |
+        Für denjenigen, der noch nach der Wahrheit sucht.
+
+        Ich habe die Flut überlebt.
+
+        Richard Brandt sperrte mich im Lagerraum ein, nachdem ich ihn wegen des verschlossenen Kanals zur Rede gestellt hatte. Mein Vater öffnete das Notwehr und leitete das Wasser durch unsere Mühle. Er verlor alles, aber das Dorf wurde gerettet. Danach holte er mich aus dem Sägewerk.
+
+        Brandt drohte, mich zum Schweigen zu bringen. Mein Vater schickte mich zu meiner Tante und ließ alle glauben, ich sei gestorben. Er nahm die Schuld an der Flut auf sich, damit niemand nach mir suchte.
+
+        Zwölf Jahre sind vergangen. Ich bin zur Mühle gekommen, um diesen Brief zu hinterlassen. Auf der letzten beschriebenen Seite von Vaters Geschäftsbuch steht, was ich vor dem Unwetter gesehen habe.
+
+        Vielleicht wird jemand verstehen, was mein Vater für das Dorf und für mich getan hat.
+
+        Clara Voss
+    fragments:
+      - id: f_clara_survived
+        fact: Der Brief wurde von Clara zwölf Jahre nach der Flut geschrieben.
+        assumption: Clara starb nicht bei der Überschwemmung.
+      - id: f_hannes_rescued_clara
+        fact: Clara schreibt, ihr Vater habe sie aus Brandts Lagerraum befreit.
+        assumption: Hannes verschwieg ihr Überleben, um sie vor Brandt zu schützen.
+      - id: f_letter_ledger_hint
+        fact: Clara verweist auf ihren Eintrag auf der letzten beschriebenen Seite des Geschäftsbuchs.
+        assumption: Das alte Geschäftsbuch enthält den entscheidenden Hinweis auf die Ursache der Flut.
+    onUse:
+      - id: read_clara_letter
+        enabled: true
+        effects:
+          - discoverFragment: f_clara_survived
+          - discoverFragment: f_hannes_rescued_clara
+          - discoverFragment: f_letter_ledger_hint
+          - revealElement: clara_survived_story
+          - revealElement: rescue_of_clara
+          - revealElement: protective_silence
+          - revealElement: clara_secret_return
+          - hideElement: contradiction_clara_death
+          - hideElement: question_clara_at_sawmill
+          - hideElement: question_hannes_silence
+          - hideElement: clara_death_story
+          - hideElement: ghost_woman_rumor
+          - addPartOf: [clara_past, clara_survived_story]
+          - addPartOf: [hannes_past, rescue_of_clara]
+          - addPartOf: [clara_past, rescue_of_clara]
+          - addPartOf: [hannes_past, protective_silence]
+          - addPartOf: [clara_past, protective_silence]
+          - addPartOf: [clara_past, clara_secret_return]
+          - removePartOf: [clara_past, clara_death_story]
+          - revealElement: clara_ledger_entry_present
+          - setElementState: [clara_letter_present, investigation, complete]
+          - setElementState: [mill_ruin_present, investigation, complete]
+          - setElementState: [mill_ruin_present, currentHint, null]
+          - disableSelfTrigger: read_clara_letter
+
+  - id: sawmill_ruin_present
+    name: Ruine des Sägewerks
+    type: room
+    physical: true
+    layers: [present]
+    locatedIn: cursed_site_present
+    exitLabel: Sägewerk verlassen
+    image: "Ein teilweise eingestürztes altes Sägewerksgebäude aus Holz und Stein, dahinter ein vollständig mit Balken und Steinen verschlossener Wasserkanal, Nebel im Hintergrund."
+    initialState:
+      visible: true
+      investigation: open
+      currentHint: null
+    initialPartOf: [case_cursed_mill, history_sawmill]
+    presentation:
+      firstView: Das Hauptgebäude des alten Sägewerks ist teilweise eingestürzt. Hinter ihm verläuft ein vollständig verschlossener Entlastungskanal.
+      repeatView: Du stehst wieder zwischen den verfallenen Gebäudeteilen des Sägewerks.
+      openLeadView: Im eingestürzten Seitenflügel befindet sich der Zugang zu einem alten Lagerraum.
+
+  - id: sawmill_office_present
+    name: Verfallenes Büro
+    type: room
+    physical: true
+    layers: [present]
+    locatedIn: sawmill_ruin_present
+    exitLabel: Büro verlassen
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_sawmill, richard_brandt_past]
+    presentation:
+      firstView: Im verfallenen Büro liegt unter einer losen Glasplatte eine noch lesbare Wartungsnotiz mit dem Stempel des Sägewerks.
+      repeatView: Im Büro scheint es derzeit nichts Weiteres zu entdecken zu geben.
+    onUse:
+      - id: focus_office
+        enabled: true
+        effects:
+          - setCurrentElement: sawmill_office_present
+
+  - id: maintenance_note_present
+    name: Verblasste Wartungsnotiz
+    type: document
+    physical: true
+    layers: [present]
+    locatedIn: sawmill_office_present
+    exitLabel: Notiz zurücklegen
+    voice: Standard
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_sawmill]
+    presentation:
+      firstUse: Die Notiz trägt Brandts Unterschrift. Eine Bleistiftnotiz eines Arbeiters erwähnt das Mädchen von der Mühle und Hannes' Geschäftsbuch.
+      repeatUse: Brandt ordnete die Blockade selbst an. Das Mädchen von der Mühle schrieb ihre Beobachtung in Hannes' Buch. Weitere Informationen enthält die Notiz nicht.
+      contentText: |
+        Arbeitsanweisung
+
+        Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen.
+        Der gesamte Wasserlauf ist der Turbine zuzuführen.
+
+        Richard Brandt
+
+        Bleistiftnotiz eines Arbeiters:
+        "Das Mädchen von der Mühle hat uns gesehen. Sie sagte, sie hätte alles in Hannes' Buch geschrieben."
+    fragments:
+      - id: f_maintenance_order
+        fact: Eine Arbeitsanweisung Brandts ordnet an, den Entlastungskanal dauerhaft zu blockieren.
+        assumption: Die Blockade war kein Unfall und geschah auf Brandts ausdrücklichen Befehl.
+      - id: f_worker_ledger_reference
+        fact: Ein Arbeiter vermerkte, dass "das Mädchen von der Mühle" alles gesehen und in Hannes' Buch geschrieben habe.
+        assumption: Im Geschäftsbuch der Mühle muss ein verborgener Eintrag Claras existieren.
+    onUse:
+      - id: read_maintenance_note
+        enabled: true
+        effects:
+          - discoverFragment: f_maintenance_order
+          - discoverFragment: f_worker_ledger_reference
+          - revealElement: illegal_channel_closure
+          - addPartOf: [richard_brandt_past, illegal_channel_closure]
+          - addPartOf: [sawmill_workers_past, illegal_channel_closure]
+          - revealElement: clara_ledger_entry_present
+          - hideElement: contradiction_hannes_guilt
+          - hideElement: hannes_guilt_rumor
+          - revealElement: corrected_flood_cause_story
+          - removePartOf: [hannes_past, hannes_guilt_rumor]
+          - addPartOf: [richard_brandt_past, corrected_flood_cause_story]
+          - addPartOf: [illegal_channel_closure, corrected_flood_cause_story]
+          - setElementState: [business_ledger_present, investigation, open]
+          - setElementState: [mill_ruin_present, investigation, open]
+          - setElementState: [mill_ruin_present, currentHint, "Im Geschäftsbuch auf Hannes' Schreibtisch befindet sich ein Eintrag des Mädchens von der Mühle. Du kannst die Mühle untersuchen."]
+          - setElementState: [maintenance_note_present, investigation, complete]
+          - setElementState: [sawmill_office_present, investigation, complete]
+          - disableSelfTrigger: read_maintenance_note
+      - id: reveal_silence_question_after_brandt_evidence
+        enabled: true
+        conditions:
+          - stateEquals: [emergency_opening, visible, true]
+        effects:
+          - revealElement: question_hannes_silence
+          - addPartOf: [hannes_past, question_hannes_silence]
+          - addPartOf: [official_flood_story, question_hannes_silence]
+          - disableSelfTrigger: reveal_silence_question_after_brandt_evidence
+
+  - id: old_store_room_present
+    name: Alter Lagerraum
+    type: room
+    physical: true
+    layers: [present]
+    locatedIn: sawmill_ruin_present
+    exitLabel: Lagerraum verlassen
+    image: "Ein kleiner, fensterloser Lagerraum mit einer schweren Holztür, verrottete Säcke stapeln sich an den Wänden, gedämpftes Licht durch Ritzen im Dach."
+    initialState:
+      visible: false
+      investigation: open
+    initialPartOf: [history_sawmill]
+    presentation:
+      firstView: Der kleine Lagerraum besitzt kein Fenster. Seine schwere Tür kann nur von außen verriegelt werden. Zwischen verrotteten Säcken liegt ein verblasstes Haarband.
+      repeatView: Haarband, Verriegelung und Kratzspuren sind untersucht. Im Lagerraum gibt es derzeit nichts Weiteres zu entdecken.
+    onUse:
+      - id: focus_store_room
+        enabled: true
+        effects:
+          - setCurrentElement: old_store_room_present
+
+  - id: store_room_lock_present
+    name: Verriegelung des Lagerraums
+    type: object
+    physical: true
+    layers: [present]
+    locatedIn: old_store_room_present
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: []
+    presentation:
+      firstUse: Die schwere Verriegelung befindet sich ausschließlich außen. Auf der Innenseite der Tür sind tiefe Kratzspuren zu erkennen.
+      repeatUse: Die Verriegelung kann nur von außen bedient werden. Die Kratzspuren innen sind bereits dokumentiert.
+    fragments:
+      - id: f_lock_outside
+        fact: Die alte Tür konnte nur von außen verriegelt werden.
+        assumption: Wer sich im Lagerraum befand, konnte sich nicht selbst einschließen.
+      - id: f_lock_inside_scratches
+        fact: Auf der Innenseite der Tür befinden sich tiefe Kratzspuren.
+        assumption: Eine eingeschlossene Person versuchte, den Lagerraum zu verlassen.
+    onUse:
+      - id: inspect_store_lock
+        enabled: true
+        effects:
+          - discoverFragment: f_lock_outside
+          - discoverFragment: f_lock_inside_scratches
+          - revealElement: clara_imprisonment
+          - addPartOf: [richard_brandt_past, clara_imprisonment]
+          - addPartOf: [clara_past, clara_imprisonment]
+          - hideElement: question_clara_at_sawmill
+          - setElementState: [store_room_lock_present, investigation, complete]
+          - setElementState: [sawmill_ruin_present, currentHint, null]
+          - disableSelfTrigger: inspect_store_lock
+      - id: complete_sawmill_after_lock
+        enabled: true
+        conditions:
+          - stateEquals: [clara_ribbon_present, investigation, complete]
+        effects:
+          - setElementState: [old_store_room_present, investigation, complete]
+          - setElementState: [sawmill_ruin_present, investigation, complete]
+          - setElementState: [sawmill_ruin_present, currentHint, null]
+          - disableSelfTrigger: complete_sawmill_after_lock
+
+  - id: clara_ribbon_present
+    name: Verblasstes Haarband
+    type: object
+    physical: true
+    layers: [present]
+    locatedIn: old_store_room_present
+    voice: Standard
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: []
+    presentation:
+      firstUse: In den Saum sind die Initialen "C. V." eingestickt. Auf der Rückseite befindet sich eine handschriftliche Notiz.
+      repeatUse: Das Haarband gehörte Clara. Der Hinweis auf der Rückseite nennt eindeutig das Versteck in der Mühle.
+      contentText: "Wenn ich zur Mühle zurückkomme: hinter der dritten Wandbohle neben Vaters Schreibtisch."
+    fragments:
+      - id: f_ribbon_initials
+        fact: In das Band sind die Initialen "C. V." eingestickt.
+        assumption: Clara war in der Flutnacht in diesem Lagerraum.
+      - id: f_ribbon_wall_marks
+        fact: Auf der Rückseite steht "Wenn ich zur Mühle zurückkomme, hinter der dritten Wandbohle neben Vaters Schreibtisch."
+        assumption: Clara plante, später etwas an einem eindeutig bezeichneten Ort in der Mühle zu verstecken.
+    onUse:
+      - id: inspect_ribbon
+        enabled: true
+        effects:
+          - discoverFragment: f_ribbon_initials
+          - discoverFragment: f_ribbon_wall_marks
+          - addPartOf: [clara_past, clara_imprisonment]
+          - revealElement: loose_wall_board_present
+          - revealElement: clara_secret_return
+          - revealElement: contradiction_clara_death
+          - addPartOf: [clara_past, contradiction_clara_death]
+          - addPartOf: [clara_death_story, contradiction_clara_death]
+          - addPartOf: [clara_secret_return, contradiction_clara_death]
+          - setElementState: [mill_ruin_present, investigation, open]
+          - setElementState: [mill_ruin_present, currentHint, "Claras Hinweis nennt ein Versteck in der Mühle hinter der dritten Wandbohle neben Hannes' Schreibtisch. Du kannst die Mühle untersuchen."]
+          - setElementState: [sawmill_ruin_present, currentHint, null]
+          - setElementState: [clara_ribbon_present, investigation, complete]
+          - disableSelfTrigger: inspect_ribbon
+      - id: complete_sawmill_after_ribbon
+        enabled: true
+        conditions:
+          - stateEquals: [store_room_lock_present, investigation, complete]
+        effects:
+          - setElementState: [old_store_room_present, investigation, complete]
+          - setElementState: [sawmill_ruin_present, investigation, complete]
+          - setElementState: [sawmill_ruin_present, currentHint, null]
+          - disableSelfTrigger: complete_sawmill_after_ribbon
+
+  - id: blocked_relief_channel_present
+    name: Verschlossener Entlastungskanal
+    type: place
+    physical: true
+    layers: [present]
+    locatedIn: sawmill_ruin_present
+    initialState:
+      visible: true
+      investigation: open
+    initialPartOf: [history_sawmill]
+    presentation:
+      firstUse: Passend zugeschnittene Balken und gesetzte Steine zeigen, dass der Kanal absichtlich und mit erheblichem Aufwand verschlossen wurde.
+      repeatUse: Die Blockade ist eindeutig menschengemacht. Weitere Informationen sind hier derzeit nicht zu finden.
+    fragments:
+      - id: f_channel_deliberate_block
+        fact: Im Kanal stecken behauene Balken und gesetzte Steine; die Blockade wurde absichtlich gebaut.
+        assumption: Der Entlastungskanal wurde gezielt unbrauchbar gemacht.
+    onUse:
+      - id: inspect_blocked_channel
+        enabled: true
+        effects:
+          - discoverFragment: f_channel_deliberate_block
+          - revealElement: illegal_channel_closure
+          - addPartOf: [blocked_relief_channel_past, illegal_channel_closure]
+          - setElementState: [blocked_relief_channel_present, investigation, complete]
+          - disableSelfTrigger: inspect_blocked_channel
+
+  - id: path_mill_to_square
+    name: Weg zurück zum Dorfplatz
+    type: door
+    physical: true
+    layers: [present]
+    locatedIn: mill_ruin_present
+    initialState:
+      visible: true
+    initialPartOf: []
+    onUse:
+      - id: leave_mill
+        enabled: true
+        effects:
+          - setCurrentElement: village_square_present
+
+  - id: path_sawmill_to_square
+    name: Weg zurück zum Dorfplatz
+    type: door
+    physical: true
+    layers: [present]
+    locatedIn: sawmill_ruin_present
+    initialState:
+      visible: true
+    initialPartOf: []
+    onUse:
+      - id: leave_sawmill
+        enabled: true
+        effects:
+          - setCurrentElement: village_square_present
+
+  # ---------------------------------------------------------------------
+  # Teil B - Vergangenheit: physische Elemente (nur als partOf-Knoten genutzt)
+  # ---------------------------------------------------------------------
+
+  - id: hannes_past
+    name: Hannes Voss
+    type: person
+    physical: true
+    layers: [flood_night]
+    locatedIn: mill_past
+    voice: Standard
+    initialState:
+      visible: false
+    initialPartOf: [history_mill, case_cursed_mill]
+    fragments:
+      - id: f_hannes_miller
+        fact: Hannes war der Müller und Claras Vater.
+        assumption: Er trug als Betreiber die Verantwortung für das Wehr.
+
+  - id: clara_past
+    name: Clara Voss
+    type: person
+    physical: true
+    layers: [flood_night, clara_return]
+    locatedIn: mill_past
+    voice: Standard
+    initialState:
+      visible: false
+    initialPartOf: [history_mill, case_cursed_mill]
+    fragments:
+      - id: f_clara_daughter
+        fact: Clara war Hannes' 16-jährige Tochter.
+        assumption: Nach der öffentlichen Darstellung starb sie bei der Flut.
+
+  - id: richard_brandt_past
+    name: Richard Brandt
+    type: person
+    physical: true
+    layers: [flood_night]
+    locatedIn: sawmill_past
+    voice: Standard
+    initialState:
+      visible: false
+    initialPartOf: [history_sawmill, case_cursed_mill]
+    fragments:
+      - id: f_brandt_owner
+        fact: Brandt besaß das Sägewerk und hatte großen Einfluss im Dorf.
+        assumption: Seine öffentliche Stellung machte seine Darstellung glaubwürdig.
+
+  - id: sawmill_workers_past
+    name: Arbeiter des Sägewerks
+    type: group
+    physical: true
+    layers: [flood_night]
+    locatedIn: sawmill_past
+    initialState:
+      visible: false
+    initialPartOf: [history_sawmill]
+
+  - id: mill_past
+    name: Wassermühle vor der Flut
+    type: building
+    physical: true
+    layers: [flood_night]
+    locatedIn: village_past
+    initialState:
+      visible: false
+    initialPartOf: [history_mill]
+
+  - id: sawmill_past
+    name: Brandts Sägewerk
+    type: building
+    physical: true
+    layers: [flood_night]
+    locatedIn: village_past
+    initialState:
+      visible: false
+    initialPartOf: [history_sawmill]
+
+  - id: village_past
+    name: Dorf vor der Überschwemmung
+    type: area
+    physical: true
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill]
+
+  - id: blocked_relief_channel_past
+    name: Entlastungskanal
+    type: mechanism
+    physical: true
+    layers: [flood_night]
+    locatedIn: sawmill_past
+    initialState:
+      visible: false
+      blocked: true
+    initialPartOf: [history_sawmill]
+
+  - id: emergency_gate_past
+    name: Notwehr der Mühle
+    type: mechanism
+    physical: true
+    layers: [flood_night]
+    locatedIn: mill_past
+    initialState:
+      visible: false
+      open: false
+    initialPartOf: [history_mill]
+
+  - id: store_room_past
+    name: Lagerraum des Sägewerks
+    type: room
+    physical: true
+    layers: [flood_night]
+    locatedIn: sawmill_past
+    initialState:
+      visible: false
+      lockedFromOutside: true
+    initialPartOf: [history_sawmill]
+
+  # ---------------------------------------------------------------------
+  # Teil C - Reine Story-Elemente
+  # ---------------------------------------------------------------------
+
+  - id: case_cursed_mill
+    name: Das Geheimnis der verfluchten Mühle
+    type: story
+    physical: false
+    layers: [present, flood_night, clara_return]
+    locatedIn: null
+    initialState:
+      visible: true
+      resolved: false
+    initialPartOf: []
+
+  - id: history_mill
+    name: Die Geschichte der Mühle
+    type: story
+    physical: false
+    layers: [present, flood_night, clara_return]
+    locatedIn: null
+    initialState:
+      visible: true
+    initialPartOf: [case_cursed_mill, hannes_past, clara_past]
+
+  - id: history_sawmill
+    name: Die Geschichte des Sägewerks
+    type: story
+    physical: false
+    layers: [present, flood_night]
+    locatedIn: null
+    initialState:
+      visible: true
+    initialPartOf: [case_cursed_mill, richard_brandt_past]
+
+  - id: official_flood_story
+    name: Die offizielle Geschichte der Flut
+    type: story
+    physical: false
+    layers: [present]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill]
+    fragments:
+      - id: f_official_version
+        fact: Laut Gedenkstein öffnete Hannes das Wehr falsch; Clara starb in der Mühle.
+        assumption: Hannes verursachte aus Fahrlässigkeit die Katastrophe.
+
+  - id: hannes_guilt_rumor
+    name: Der schuldige Müller
+    type: rumor
+    physical: false
+    layers: [present]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [official_flood_story]
+    fragments:
+      - id: f_hannes_rumor
+        fact: Im Dorf wurde erzählt, Hannes sei in der Flutnacht betrunken gewesen.
+        assumption: Hannes habe das Wehr versehentlich geöffnet.
+
+  - id: clara_death_story
+    name: Claras Tod in der Mühle
+    type: story
+    physical: false
+    layers: [present]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [official_flood_story, ghost_woman_rumor]
+    fragments:
+      - id: f_clara_declared_dead
+        fact: Clara wurde nach der Flut für tot erklärt; ihr Körper wurde nie gefunden.
+        assumption: Sie wurde von der Flut fortgerissen.
+
+  - id: ghost_woman_rumor
+    name: Die Frau im Regen
+    type: rumor
+    physical: false
+    layers: [present, clara_return]
+    locatedIn: null
+    initialState:
+      visible: true
+    initialPartOf: [case_cursed_mill, clara_death_story]
+    fragments:
+      - id: f_ghost_sighting
+        fact: Zwölf Jahre nach der Flut wurde nachts eine Frau in der verlassenen Mühle gesehen.
+        assumption: Claras Geist kehrte zur Mühle zurück.
+
+  - id: illegal_channel_closure
+    name: Die absichtliche Schließung des Entlastungskanals
+    type: event
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [history_sawmill, true_flood_cause]
+    fragments:
+      - id: f_channel_truth
+        fact: Brandt ließ den Kanal sperren, damit mehr Wasser seine Turbine antrieb.
+        assumption: Brandt nahm die erhöhte Flutgefahr aus wirtschaftlichem Interesse in Kauf.
+
+  - id: true_flood_cause
+    name: Die wahre Ursache der Flutgefahr
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill]
+    fragments:
+      - id: f_true_cause
+        fact: Starkregen traf auf den absichtlich blockierten Entlastungskanal.
+        assumption: Ohne die Blockade hätte das Wasser kontrolliert abfließen können.
+
+  - id: confrontation_at_sawmill
+    name: Claras Konfrontation mit Brandt
+    type: event
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [clara_past, richard_brandt_past, history_sawmill]
+
+  - id: clara_imprisonment
+    name: Clara im Lagerraum
+    type: event
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [history_sawmill]
+    fragments:
+      - id: f_imprisonment_truth
+        fact: Brandt sperrte Clara von außen im Lagerraum ein.
+        assumption: Er wollte verhindern, dass sie das Dorf vor dem verschlossenen Kanal warnte.
+
+  - id: emergency_opening
+    name: Die Öffnung des Notwehrs
+    type: event
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [history_mill, true_rescue_story]
+    fragments:
+      - id: f_emergency_truth
+        fact: Hannes öffnete das Notwehr vollständig und leitete das Wasser durch seine eigene Mühle.
+        assumption: Er opferte die Mühle bewusst, um das Dorf zu retten.
+
+  - id: true_rescue_story
+    name: Die Rettung des Dorfes
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill, hannes_past]
+
+  - id: rescue_of_clara
+    name: Claras Befreiung aus dem Lagerraum
+    type: event
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [hannes_past, clara_past, history_sawmill]
+
+  - id: clara_survived_story
+    name: Clara überlebte die Flut
+    type: story
+    physical: false
+    layers: [flood_night, clara_return]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill, clara_past]
+
+  - id: protective_silence
+    name: Hannes' schützendes Schweigen
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [hannes_past, clara_past, case_cursed_mill]
+    fragments:
+      - id: f_silence_truth
+        fact: Hannes widersprach der öffentlichen Anschuldigung nicht und schickte Clara heimlich zu ihrer Tante.
+        assumption: Er nahm die Schuld auf sich, damit Brandt Clara nicht finden konnte.
+
+  - id: clara_secret_return
+    name: Claras heimliche Rückkehr
+    type: event
+    physical: false
+    layers: [clara_return]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [clara_past, history_mill, ghost_woman_rumor]
+    fragments:
+      - id: f_return_truth
+        fact: Clara kehrte zwölf Jahre später zurück und versteckte ihren Brief in der Mühle.
+        assumption: Die vermeintliche Geistererscheinung war Clara selbst.
+
+  - id: curse_of_place
+    name: Der Fluch des verschwiegenen Geschehens
+    type: story
+    physical: false
+    layers: [present]
+    locatedIn: null
+    initialState:
+      visible: true
+    initialPartOf: [case_cursed_mill, official_flood_story]
+    fragments:
+      - id: f_curse_meaning
+        fact: Der Ort hält Besucher fest, solange die falsche öffentliche Geschichte unangetastet bleibt.
+        assumption: Der Weg öffnet sich, wenn die wesentlichen Zusammenhänge erkannt wurden.
+
+  - id: case_resolution
+    name: Die Wahrheit über die Flut
+    type: story
+    physical: false
+    layers: [present, flood_night, clara_return]
+    locatedIn: null
+    initialState:
+      visible: false
+      complete: false
+    initialPartOf: [case_cursed_mill]
+    presentation:
+      heading: Die Wahrheit über die Flut
+      body: >-
+        Richard Brandt erzeugte durch die absichtliche Blockade des Entlastungskanals die Flutgefahr und
+        sperrte Clara ein. Hannes opferte seine Mühle, rettete das Dorf und befreite seine Tochter. Clara
+        überlebte. Hannes nahm die öffentliche Schuld auf sich, um sie vor Brandt zu schützen. Die
+        vermeintliche Geistererscheinung war Claras heimliche Rückkehr zur Mühle.
+      releaseText: Der Nebel über dem Weg wird dünner. Der Ort hält dich nicht länger fest.
+
+  - id: contradiction_hannes_guilt
+    name: "Widerspruch: Hannes' Schuld"
+    type: story
+    physical: false
+    layers: [present, flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: []
+    presentation:
+      style: contradiction
+      heading: "Neuer Widerspruch: Hannes' Schuld"
+      body: Das Notwehr wurde vollständig geöffnet. Dadurch floss das Wasser vom Dorf weg und zerstörte Hannes' eigene Mühle. Warum bezeichnet der Gedenkstein dies als schuldhafte Fehlbedienung?
+      openQuestion: Wollte Hannes die Flut verursachen - oder hat er das Dorf geschützt?
+
+  - id: corrected_flood_cause_story
+    name: Brandts Eingriff verursachte die Flutgefahr
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [case_cursed_mill]
+    presentation:
+      style: discovery
+      heading: "Neue Erkenntnis: Die Flutgefahr entstand am Sägewerk"
+      body: Brandt ließ den Entlastungskanal absichtlich verschließen. Dadurch konnte das Wasser bei starkem Regen nicht kontrolliert abfließen. Die offizielle Geschichte nennt diesen Eingriff nicht.
+
+  - id: question_clara_at_sawmill
+    name: "Offene Frage: Was geschah mit Clara im Sägewerk?"
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [clara_past, confrontation_at_sawmill]
+    presentation:
+      style: contradiction
+      heading: "Neue offene Frage: Claras Verschwinden"
+      body: Clara ging kurz vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen. Danach galt sie als vermisst und später als tot.
+      openQuestion: Was geschah mit Clara im Sägewerk?
+
+  - id: contradiction_clara_death
+    name: "Widerspruch: Claras Tod"
+    type: story
+    physical: false
+    layers: [present, flood_night, clara_return]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: []
+    presentation:
+      style: contradiction
+      heading: "Neuer Widerspruch: Claras Tod"
+      body: Der Gedenkstein nennt Clara als Todesopfer. Auf ihrem Haarband kündigt sie jedoch ausdrücklich eine spätere Rückkehr zur Mühle an.
+      openQuestion: Hat Clara die Überschwemmung überlebt?
+
+  - id: question_hannes_silence
+    name: "Offene Frage: Warum schwieg Hannes?"
+    type: story
+    physical: false
+    layers: [flood_night]
+    locatedIn: null
+    initialState:
+      visible: false
+    initialPartOf: [hannes_past, official_flood_story]
+    presentation:
+      style: contradiction
+      heading: "Neuer Widerspruch: Hannes' Schweigen"
+      body: Die Stellung des Notwehrs zeigt, dass Hannes das Dorf schützte. Trotzdem nennt ihn die offizielle Geschichte als Verursacher der Flut.
+      openQuestion: Warum widersprach Hannes der Anschuldigung nicht?

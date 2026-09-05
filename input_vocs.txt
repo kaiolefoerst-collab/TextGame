@@ -1,0 +1,69 @@
+# Automatisch erzeugt von export_vocs.py aus Stories/*.yaml - nicht von Hand bearbeiten,
+# Aenderungen werden beim naechsten Export ueberschrieben.
+# Format pro Zeile: Nummer "Text";Sprecher (Sprecher optional)
+
+00001 "Du durchsuchst deine Habseligkeiten.";
+00002 "Du durchsuchst erneut deine Habseligkeiten.";
+00003 "Dichter Nebel umschließt das verlassene Gelände und verhindert jede Sicht auf die Umgebung.";
+00004 "Der Nebel liegt weiterhin wie eine geschlossene Wand um das Gelände.";
+00005 "Du stehst auf einem kleinen, verlassenen Dorfplatz. Feuchte Pflastersteine verschwinden am Rand im dichten Nebel. In der Mitte steht ein alter Gedenkstein.";
+00006 "Du stehst wieder auf dem feuchten Dorfplatz. Der Nebel liegt unbeweglich zwischen den verlassenen Häusern.";
+00007 "Du wischst Moos von der verwitterten Inschrift. Unter dem offiziellen Text wurde später ein weiterer Satz eingeritzt.";
+00008 "Die Inschrift und der später eingeritzte Satz sind bereits vollständig lesbar.";
+00009 "Zum Gedenken an Clara Voss, die in der großen Flut ihr Leben verlor. Verursacht durch die schuldhafte Bedienung des Mühlenwehrs durch ihren Vater Hannes Voss. Später eingeritzt: 'Die Wahrheit liegt noch immer im Wasser.'";
+00010 "Der Weg verschwindet im Nebel. Wenige Schritte später stehst du auf dem Dorfplatz.";
+00011 "Du folgst dem Weg aus dem Dorf. Der Gedenkstein verschwindet hinter dir, und der Ort zieht dich nicht zurück. Die Geschichte der verfluchten Mühle ist abgeschlossen.";
+00012 "Der Weg endet an einer halb eingestürzten Wassermühle. Die stärksten Schäden befinden sich auf der flussabgewandten Seite. Es wirkt, als sei eine gewaltige Wassermenge mitten durch die Mühle geströmt.";
+00013 "Du stehst wieder zwischen den eingestürzten Balken der alten Mühle.";
+00014 "An der Wand neben dem Schreibtisch sitzt die dritte Bohle deutlich lockerer als die übrigen.";
+00015 "Im geöffneten Schreibtisch liegen zerfallene Rechnungen, verrostete Schreibfedern und ein dickes altes Geschäftsbuch.";
+00016 "Im Schreibtisch scheint es derzeit nichts Weiteres zu entdecken zu geben.";
+00017 "Die ersten Seiten enthalten gewöhnliche Einträge über Mehl, Getreide und Lieferungen. Die letzten Seiten sind durch Schlamm und Feuchtigkeit miteinander verklebt.";
+00018 "Ohne einen konkreten Hinweis kannst du zwischen den beschädigten Zeilen nichts Auffälliges erkennen.";
+00019 "Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren Handschrift. Unter ihr stehen die Initialen 'C. V.'.";
+00020 "Claras Eintrag ist bereits vollständig gelesen. Im Buch gibt es derzeit nichts Weiteres zu entdecken.";
+00021 "Claras verblasste Notiz auf der letzten beschriebenen Seite wird vollständig lesbar.";Standard
+00022 "Der Eintrag beschreibt die Blockade des Kanals und Claras Absicht, Brandt zur Rede zu stellen. Weitere Informationen enthält er nicht.";Standard
+00023 "Brandts Männer haben den Entlastungskanal mit Balken und Steinen verschlossen. Das Wasser läuft deshalb nur noch durch seine Turbine. Vater sagt, dass dies bei starkem Regen gefährlich ist. Über dem Wald stehen dunkle Wolken. Ich gehe zum Sägewerk und verlange von Herrn Brandt, dass er den Kanal öffnen lässt. C. V.";Standard
+00024 "Du entfernst Schlamm von der Mechanik. Der Stellhebel steht in äußerster Position. Die Markierungen zeigen, dass das Notwehr vollständig geöffnet wurde und das Wasser vom Dorf weg durch die Mühle leitete.";
+00025 "Die Mechanik bestätigt weiterhin die vollständige, offenbar bewusste Öffnung des Notwehrs. Weitere Informationen gibt sie nicht preis.";
+00026 "Die dritte Wandbohle neben Hannes' Schreibtisch sitzt deutlich lockerer als die übrigen.";
+00027 "Hinter der Bohle befindet sich ein schmaler Hohlraum mit einem in Tuch gewickelten Brief.";
+00028 "Der Hohlraum hinter der dritten Bohle ist bereits geöffnet.";
+00029 "Du faltest den trockenen, spröden Brief auseinander. Er ist mit 'Clara Voss' unterzeichnet.";female1
+00030 "Claras Brief enthält die vollständige Erklärung der Flutnacht und ihrer späteren Rückkehr.";female1
+00031 "Für denjenigen, der noch nach der Wahrheit sucht. Ich habe die Flut überlebt. Richard Brandt sperrte mich im Lagerraum ein, nachdem ich ihn wegen des verschlossenen Kanals zur Rede gestellt hatte. Mein Vater öffnete das Notwehr und leitete das Wasser durch unsere Mühle. Er verlor alles, aber das Dorf wurde gerettet. Danach holte er mich aus dem Sägewerk. Brandt drohte, mich zum Schweigen zu bringen. Mein Vater schickte mich zu meiner Tante und ließ alle glauben, ich sei gestorben. Er nahm die Schuld an der Flut auf sich, damit niemand nach mir suchte. Zwölf Jahre sind vergangen. Ich bin zur Mühle gekommen, um diesen Brief zu hinterlassen. Auf der letzten beschriebenen Seite von Vaters Geschäftsbuch steht, was ich vor dem Unwetter gesehen habe. Vielleicht wird jemand verstehen, was mein Vater für das Dorf und für mich getan hat. Clara Voss";female1
+00032 "Das Hauptgebäude des alten Sägewerks ist teilweise eingestürzt. Hinter ihm verläuft ein vollständig verschlossener Entlastungskanal.";
+00033 "Du stehst wieder zwischen den verfallenen Gebäudeteilen des Sägewerks.";
+00034 "Im eingestürzten Seitenflügel befindet sich der Zugang zu einem alten Lagerraum.";
+00035 "Im verfallenen Büro liegt unter einer losen Glasplatte eine noch lesbare Wartungsnotiz mit dem Stempel des Sägewerks.";
+00036 "Im Büro scheint es derzeit nichts Weiteres zu entdecken zu geben.";
+00037 "Die Notiz trägt Brandts Unterschrift. Eine Bleistiftnotiz eines Arbeiters erwähnt das Mädchen von der Mühle und Hannes' Geschäftsbuch.";Standard
+00038 "Brandt ordnete die Blockade selbst an. Das Mädchen von der Mühle schrieb ihre Beobachtung in Hannes' Buch. Weitere Informationen enthält die Notiz nicht.";Standard
+00039 "Arbeitsanweisung Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen. Der gesamte Wasserlauf ist der Turbine zuzuführen. Richard Brandt Bleistiftnotiz eines Arbeiters: 'Das Mädchen von der Mühle hat uns gesehen. Sie sagte, sie hätte alles in Hannes' Buch geschrieben.'";Standard
+00040 "Der kleine Lagerraum besitzt kein Fenster. Seine schwere Tür kann nur von außen verriegelt werden. Zwischen verrotteten Säcken liegt ein verblasstes Haarband.";
+00041 "Haarband, Verriegelung und Kratzspuren sind untersucht. Im Lagerraum gibt es derzeit nichts Weiteres zu entdecken.";
+00042 "Die schwere Verriegelung befindet sich ausschließlich außen. Auf der Innenseite der Tür sind tiefe Kratzspuren zu erkennen.";
+00043 "Die Verriegelung kann nur von außen bedient werden. Die Kratzspuren innen sind bereits dokumentiert.";
+00044 "In den Saum sind die Initialen 'C. V.' eingestickt. Auf der Rückseite befindet sich eine handschriftliche Notiz.";Standard
+00045 "Das Haarband gehörte Clara. Der Hinweis auf der Rückseite nennt eindeutig das Versteck in der Mühle.";Standard
+00046 "Wenn ich zur Mühle zurückkomme: hinter der dritten Wandbohle neben Vaters Schreibtisch.";Standard
+00047 "Passend zugeschnittene Balken und gesetzte Steine zeigen, dass der Kanal absichtlich und mit erheblichem Aufwand verschlossen wurde.";
+00048 "Die Blockade ist eindeutig menschengemacht. Weitere Informationen sind hier derzeit nicht zu finden.";
+00049 "Die Wahrheit über die Flut";
+00050 "Richard Brandt erzeugte durch die absichtliche Blockade des Entlastungskanals die Flutgefahr und sperrte Clara ein. Hannes opferte seine Mühle, rettete das Dorf und befreite seine Tochter. Clara überlebte. Hannes nahm die öffentliche Schuld auf sich, um sie vor Brandt zu schützen. Die vermeintliche Geistererscheinung war Claras heimliche Rückkehr zur Mühle.";
+00051 "Der Nebel über dem Weg wird dünner. Der Ort hält dich nicht länger fest.";
+00052 "Neuer Widerspruch: Hannes' Schuld";
+00053 "Das Notwehr wurde vollständig geöffnet. Dadurch floss das Wasser vom Dorf weg und zerstörte Hannes' eigene Mühle. Warum bezeichnet der Gedenkstein dies als schuldhafte Fehlbedienung?";
+00054 "Wollte Hannes die Flut verursachen - oder hat er das Dorf geschützt?";
+00055 "Neue Erkenntnis: Die Flutgefahr entstand am Sägewerk";
+00056 "Brandt ließ den Entlastungskanal absichtlich verschließen. Dadurch konnte das Wasser bei starkem Regen nicht kontrolliert abfließen. Die offizielle Geschichte nennt diesen Eingriff nicht.";
+00057 "Neue offene Frage: Claras Verschwinden";
+00058 "Clara ging kurz vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen. Danach galt sie als vermisst und später als tot.";
+00059 "Was geschah mit Clara im Sägewerk?";
+00060 "Neuer Widerspruch: Claras Tod";
+00061 "Der Gedenkstein nennt Clara als Todesopfer. Auf ihrem Haarband kündigt sie jedoch ausdrücklich eine spätere Rückkehr zur Mühle an.";
+00062 "Hat Clara die Überschwemmung überlebt?";
+00063 "Neuer Widerspruch: Hannes' Schweigen";
+00064 "Die Stellung des Notwehrs zeigt, dass Hannes das Dorf schützte. Trotzdem nennt ihn die offizielle Geschichte als Verursacher der Flut.";
+00065 "Warum widersprach Hannes der Anschuldigung nicht?";

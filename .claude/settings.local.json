@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory \"d:\\\\Develop\\\\ml-game\\\\client-kai\")",
+      "Bash(python -m py_compile client/main.py)",
+      "Bash(python -m py_compile client/network.py)",
+      "Bash(python -m py_compile client/renderer.py)",
+      "Bash(python -m py_compile client/sound.py)",
+      "Bash(python -m py_compile env.py)",
+      "Bash(python -m py_compile opponent.py)",
+      "Bash(python -m py_compile train.py)",
+      "Bash(python -m py_compile run_bot.py)",
+      "Bash(python -m py_compile generate_samples.py)",
+      "Bash(python -m pip install -r requirements.txt --quiet)",
+      "PowerShell(ffmpeg -version 2>&1)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); ffmpeg -version | Select-Object -First 1)"
+    ]
+  }
+}

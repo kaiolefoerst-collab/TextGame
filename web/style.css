@@ -1,0 +1,359 @@
+:root {
+  --bg: #1b1c1f;
+  --panel: #26282c;
+  --panel-alt: #2f3237;
+  --text: #e8e6e1;
+  --text-dim: #a9a6a0;
+  --accent: #8fae8b;
+  --accent-strong: #c9a24b;
+  --contradiction: #b8544a;
+  --border: #3c3f45;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Ohne diese Regel gewinnt "display: flex" oben gegen die Browser-Standardregel
+   fuer [hidden] (gleiche Spezifitaet, spaeter deklariert) - der Bildschirm bliebe
+   sichtbar, obwohl JS ihn per element.hidden=true ausblenden will. */
+.screen[hidden] {
+  display: none;
+}
+
+h1 {
+  font-size: 1.4rem;
+  margin: 0.6em 0 0.2em;
+}
+
+/* ---------- Story selection ---------- */
+
+#screen-select {
+  padding: 1.2rem;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 0;
+}
+
+.story-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.story-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.story-card:hover {
+  background: var(--panel-alt);
+}
+
+.story-card h2 {
+  margin: 0 0 0.3em;
+  font-size: 1.1rem;
+  color: var(--accent-strong);
+}
+
+.story-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.story-card .meta {
+  margin-top: 0.5em;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+.empty-note {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ---------- Game topbar ---------- */
+
+.game-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+
+.topbar-title {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--accent-strong);
+  text-align: center;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.topbar-btn {
+  background: var(--panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.topbar-btn:hover {
+  background: var(--border);
+}
+
+.topbar-btn[aria-pressed="true"] {
+  background: var(--accent);
+  color: #14150f;
+  border-color: var(--accent);
+}
+
+/* ---------- Window stack ---------- */
+
+.window-stack {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.window {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow-y: auto;
+  transition: filter 0.15s, opacity 0.15s;
+}
+
+.window.dimmed {
+  filter: brightness(0.55) blur(1px);
+  pointer-events: none;
+}
+
+.window-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.window-header .close-btn {
+  background: var(--panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.window-header .close-btn:hover {
+  background: var(--border);
+}
+
+.window-header .window-name {
+  font-weight: bold;
+  color: var(--accent-strong);
+}
+
+.window-image {
+  width: 100%;
+  max-height: 40vh;
+  overflow: hidden;
+  background: var(--panel-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.window-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.window-text {
+  padding: 1rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.window-menu {
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.menu-btn {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-btn:hover {
+  background: var(--panel-alt);
+  border-color: var(--accent);
+}
+
+/* ---------- Log ---------- */
+
+.log-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.log-section {
+  margin-bottom: 1.4rem;
+}
+
+.log-section h2 {
+  font-size: 1rem;
+  color: var(--accent-strong);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2em;
+}
+
+.log-entry {
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+
+.log-entry.contradiction {
+  border-left-color: var(--contradiction);
+}
+
+.log-entry .fact {
+  margin: 0 0 0.3em;
+}
+
+.log-entry .assumption {
+  margin: 0;
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.log-entry .open-question {
+  margin: 0.4em 0 0;
+  color: var(--contradiction);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.relation-line {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  padding: 0.15rem 0;
+}
+
+/* ---------- End screen ---------- */
+
+#screen-end {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.end-content {
+  max-width: 32rem;
+}
+
+.end-content p {
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.end-content button {
+  margin-top: 1.2rem;
+  background: var(--accent);
+  color: #14150f;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.2rem;
+  transform: translateX(-50%);
+  background: var(--panel-alt);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  max-width: 90vw;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+@media (max-width: 480px) {
+  .window-image {
+    max-height: 30vh;
+  }
+}

@@ -1,0 +1,10 @@
+# Zeilen mit '#' werden ignoriert (Kommentare).
+# Format pro Zeile: Nummer "Prompt";"Zusatzinfo"
+# - Nummer: 5-stellig, bestimmt den Dateinamen des Bildes (pic_<Nummer>)
+# - Prompt: Bildbeschreibung in Anführungszeichen
+# - Zusatzinfo (optional, nach dem Semikolon, in Anführungszeichen): zusätzlicher
+#   System-Prompt / Kontext für die Bildgenerierung. Wird nichts angegeben,
+#   entfällt die Zusatzinfo.
+00001 "Ein ruhiger Bergsee bei Sonnenaufgang, umgeben von Nadelwald.";"Fotorealistisch, warmes Licht, keine Menschen im Bild."
+00002 "Eine futuristische Stadtskyline bei Nacht mit beleuchteten Wolkenkratzern.";"Cyberpunk-Stil, kräftige Neonfarben."
+00003 "Ein gemütliches Wohnzimmer mit Kamin und Bücherregal.";

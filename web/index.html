@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elementbasiertes Erzaehlspiel - Prototyp v0.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section id="screen-select" class="screen">
+  <h1>Geschichten</h1>
+  <p class="hint">Waehle eine Geschichte aus.</p>
+  <div id="story-list" class="story-list"></div>
+</section>
+
+<section id="screen-game" class="screen" hidden>
+  <header class="game-topbar">
+    <button id="btn-back-to-select" class="topbar-btn" title="Zur Geschichtenauswahl">&larr; Geschichten</button>
+    <div class="topbar-title" id="game-title"></div>
+    <div class="topbar-actions">
+      <button id="btn-narration" class="topbar-btn" aria-pressed="false">🔇 Vorlesen: Aus</button>
+      <button id="btn-inventory" class="topbar-btn">Inventar</button>
+      <button id="btn-log" class="topbar-btn">Logbuch</button>
+    </div>
+  </header>
+  <div id="window-stack" class="window-stack"></div>
+</section>
+
+<section id="screen-log" class="screen" hidden>
+  <header class="game-topbar">
+    <button id="btn-log-close" class="topbar-btn" title="Zurueck zum Spiel">&larr; Zurueck</button>
+    <div class="topbar-title">Logbuch</div>
+    <div class="topbar-actions"></div>
+  </header>
+  <div id="log-content" class="log-content"></div>
+</section>
+
+<section id="screen-end" class="screen" hidden>
+  <div class="end-content">
+    <h1 id="end-heading"></h1>
+    <p id="end-body"></p>
+    <button id="btn-end-to-select">Zur Geschichtenauswahl</button>
+  </div>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="game.js"></script>
+</body>
+</html>
