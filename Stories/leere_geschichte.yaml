@@ -7,6 +7,9 @@ header:
   partOf: null
   chapterIndex: null
   startElement: start_point
+  imageMasterPrompt: 'Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter
+    um die Atmosphäre aufzubauen. '
+  narratorVoice: male1
 layers:
 - id: present
   name: Gegenwart
@@ -23,14 +26,19 @@ elements:
     visible: true
   initialPartOf: []
   presentation:
-    firstView: |-
-      Seit ich vor einigen Monaten von Titan, dem Mond des Saturn, aufgebrochen bin, verfluche ich meine Bereitschaft, mit diesem Mini-Raumschiff eine Solo-Mission zu fliegen. Ein paar Medikamente zu einer Forschungsstation weit draußen im Sonnensystem bringen, ungefähr 65 astronomische Einheiten von der Sonne entfernt. Eine Strecke, auf der man kaum jemandem begegnet, und die Reise sollte ohnehin mehrere Monate dauern. An sich schon eine äußerst langweilige Angelegenheit, aber dann kam noch dieser technische Defekt und jetzt sieht es düster aus.
+    firstView: |+
+      Der Weltraum ist riesig. Und verdammt einsam.
 
-      Unser Geschichte Beginnt. Du sitzt im Coockpit der Glover IV
+      Eigentlich sollte es ein ganz gewöhnlicher Transportflug werden. Ein paar medizinische Güter von Titan zu einer Forschungsstation weit draußen im Sonnensystem. Langweilig, aber gut bezahlt.
+
+      Doch dann gab es technische Probleme, und seit Wochen treibst du nun durchs All. Der Treibstoff ist fast aufgebraucht, die Vorräte werden knapp und Hilfe ist nicht in Sicht.
+
+      Und genau hier beginnt die Geschichte …
 
 
-      Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.
   exitLabel: ''
+  image: 'Ein Bild mit einem Weltall Hintergrund. Beeindruckend mit Sternen und Nebeln. Darüber der Schriftzug
+    als Titelbeschriebung "Space Trace" '
 - id: end_point
   name: Endpunkt
   type: room
@@ -59,7 +67,7 @@ elements:
   exitLabel: Tisch verlassen
 - id: tuer_ztum_startpunkt
   name: Tür ztum Startpunkt
-  type: object
+  type: door
   physical: true
   layers:
   - present
@@ -67,9 +75,12 @@ elements:
   initialState:
     visible: true
   initialPartOf: []
-  presentation:
-    firstView: Hier geht es zum Startpinkt
-    firstUse: start_point
+  onUse:
+  - id: go_tuer_ztum_startpunkt
+    enabled: true
+    effects:
+    - setCurrentElement: start_point
+  presentation: {}
 - id: cockpit_glover_iv
   name: Cockpit Glover IV
   type: room
@@ -92,20 +103,9 @@ elements:
       die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit
       Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig
       hin. Als würde sich dadurch etwas ändern.
-  onUse:
-  - id: reaktion_1
-    enabled: true
-    conditions:
-    - stateEquals:
-      - cockpit_glover_iv
-      - investigation
-      - complete
-    effects:
-    - hideElement: cockpit_glover_iv
-    - setElementState:
-      - cockpit_glover_iv
-      - investigation
-      - complete
+  onUse: []
+  image: Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine
+    Person. Aus dem Fenster sieht man  Weltall mit ein paar Sternen
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door
@@ -147,6 +147,7 @@ elements:
   presentation:
     firstView: |
       Kommunikation auch tot. Die würde viele Probleme lösen. Wäre zwar teuer, mich abschleppen zu lassen, aber immerhin würde ich überleben. Da muss man Prioritäten setzen. Ich frage mich gelegentlich, wie hoch wohl die Rechnung für einen solchen Einsatz wäre. Vermutlich mehr, als ich mit diesem Transport verdiene. Aber das ist im Moment wirklich mein kleinstes Problem.
+  image: 'Ein Detailbild von einer Raumschiff-Kommunikationsanlage aus Sicht des Piloten. '
 - id: laderaum
   name: Laderaum
   type: room
@@ -160,6 +161,8 @@ elements:
   presentation:
     firstView: |
       Im Laderaum stehen die Transportbehälter mit den Medikamenten. Ordentlich verzurrt und völlig uninteressant. Die Temperaturregelung funktioniert wenigstens noch. Ein paar kleine grüne Kontrollleuchten zeigen mir, dass mit der Fracht alles in Ordnung ist. Schön für die Medikamente.
+  image: 'Das Bild eines kleinen Laderaumen eines Raumschiffes mit etwas Fracht die nicht genauer spezifiert
+    ist. Der Raaum ist ca. 10m x 6m groß. '
 - id: weg_cockpit_glover_iv_laderaum
   name: Durchgang zum Laderaum
   type: door

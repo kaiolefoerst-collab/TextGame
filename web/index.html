@@ -125,6 +125,14 @@
         <span class="field-label">Version <span class="info-icon" data-tip="Versionsnummer der Geschichte. Erhöhe sie, wenn du eine überarbeitete Fassung veröffentlichst – hilft, verschiedene Stände auseinanderzuhalten.">ⓘ</span></span>
         <input data-meta="version" type="number" min="1" step="1" class="meta-short">
       </label>
+      <label class="field-row">
+        <span class="field-label">Erzählstimme <span class="info-icon" data-tip="Mit dieser Stimme werden alle Texte vorgelesen, für die kein eigener Sprecher eingestellt ist.&#10;Einzelnen Elementen (z.B. Personen) kannst du in deren Fenster unter „Sprecher“ eine andere Stimme geben.&#10;Wirkt erst nach dem Neuerzeugen der Sprachdateien: python generate_samples.py">ⓘ</span></span>
+        <select id="meta-narrator" data-meta="narratorVoice"></select>
+      </label>
+      <label class="field-row">
+        <span class="field-label">Bild-Masterprompt <span class="info-icon" data-tip="Stil für ALLE Bilder dieser Geschichte – Malstil, Farben, Licht, Stimmung. Wird bei jedem Bild automatisch mitgegeben, damit alle zusammenpassen.&#10;Die einzelnen Elemente beschreiben dann nur noch das Motiv.&#10;Achtung: Eine Änderung hier lässt beim nächsten Erzeugen alle Bilder der Geschichte neu entstehen.">ⓘ</span></span>
+        <textarea data-meta="imageMasterPrompt" rows="3" placeholder="z.B. Düstere, malerische Illustration im Stil alter Buchillustrationen, gedämpfte Erdtöne, Nebel, weiches Licht, keine Schrift im Bild."></textarea>
+      </label>
     </div>
     <div class="modal-actions">
       <button id="btn-meta-close" class="modal-btn primary" data-tip="Dialog schließen. Die Änderungen bleiben erhalten, bis du speicherst (Esc).">Fertig</button>
@@ -137,5 +145,6 @@
 <script src="game.js"></script>
 <script src="editor.js"></script>
 <script src="editor-triggers.js"></script>
+<script src="editor-images.js"></script>
 </body>
 </html>

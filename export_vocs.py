@@ -1,6 +1,6 @@
 """Exportiert vorlesbare Texte aus allen Stories/*.yaml nach input_vocs.txt.
 
-Jedes erfasste Textfeld (siehe vocs_fields.NARRATED_FIELDS) bekommt eine stabile,
+Jeder zu sprechende Text (Auswahl: vocs_fields.narrated_texts) bekommt eine stabile,
 dauerhafte Nummer, gespeichert in .vocs_index.json. Bei erneutem Export behalten
 bereits bekannte Texte ihre Nummer (damit bereits erzeugte output_vocs/sample_*.mp3
 weiter passen); neue Texte bekommen die naechste freie Nummer. Verschwindet ein Text
@@ -24,21 +24,30 @@ from pathlib import Path
 
 import yaml
 
-from vocs_fields import NARRATED_FIELDS, sample_key
+from vocs_fields import narrated_texts, sample_key
 
 ROOT_DIR = Path(__file__).resolve().parent
 
 
 def load_stories(stories_dir: Path) -> list[dict]:
-    stories = []
+    """Laedt alle Stories. Bei doppelter header.id gewinnt - wie in game.py
+    (load_story_files) - die alphabetisch spaetere Datei, damit Export und Spiel
+    dieselbe Fassung verwenden."""
+    stories: dict[str, dict] = {}
+    files: dict[str, str] = {}
     for path in sorted(stories_dir.glob("*.yaml")):
         with path.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
         if not data or "header" not in data or "id" not in data["header"]:
             print(f"Warnung: {path.name} hat keinen header.id und wird uebersprungen.", file=sys.stderr)
             continue
-        stories.append(data)
-    return stories
+        story_id = data["header"]["id"]
+        if story_id in stories:
+            print(f"Warnung: {files[story_id]} und {path.name} haben dieselbe Story-ID '{story_id}' - "
+                  f"verwendet wird {path.name} (wie im Spiel).", file=sys.stderr)
+        stories[story_id] = data
+        files[story_id] = path.name
+    return list(stories.values())
 
 
 def collapse_for_tts(text: str) -> str:
@@ -57,15 +66,15 @@ def collect_entries(stories: list[dict]) -> list[tuple[str, str, str | None]]:
     entries: list[tuple[str, str, str | None]] = []
     for story in stories:
         story_id = story["header"]["id"]
-        for el in story.get("elements", []):
-            presentation = el.get("presentation") or {}
-            speaker = el.get("voice")
-            for field in NARRATED_FIELDS:
-                value = presentation.get(field)
-                if not isinstance(value, str) or not value.strip():
-                    continue
-                key = sample_key(story_id, el["id"], field)
-                entries.append((key, collapse_for_tts(value), speaker))
+        # Sprecher: der des Elements, sonst die Erzaehlstimme der Geschichte, sonst leer
+        # (dann nimmt generate_samples.py seine Standardstimme).
+        narrator = story["header"].get("narratorVoice") or None
+        # Welche Texte gesprochen werden, entscheidet vocs_fields.narrated_texts (z.B. keine
+        # Wege, kein Logbuch, nur erzaehlende Meldungen).
+        for el, field, value in narrated_texts(story):
+            speaker = el.get("voice") or narrator
+            key = sample_key(story_id, el["id"], field)
+            entries.append((key, collapse_for_tts(value), speaker))
     return entries
 
 

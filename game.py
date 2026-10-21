@@ -22,13 +22,16 @@ from urllib.parse import urlparse
 
 import yaml
 
-from vocs_fields import NARRATED_FIELDS, sample_key
+from pics_fields import image_entries, image_key
+from vocs_fields import DEFAULT_SPEAKER, SPEAKERS, narrated_texts, sample_key
 
 ROOT_DIR = Path(__file__).resolve().parent
 STORIES_DIR = ROOT_DIR / "Stories"
 WEB_DIR = ROOT_DIR / "web"
 OUTPUT_VOCS_DIR = ROOT_DIR / "output_vocs"
 VOCS_INDEX_PATH = ROOT_DIR / ".vocs_index.json"
+OUTPUT_PICS_DIR = ROOT_DIR / "output_pics"
+PICS_INDEX_PATH = ROOT_DIR / ".pics_index.json"
 
 # Schuetzt Lese-Aendern-Schreiben-Zyklen auf self.stories/Story-Dateien, da
 # ThreadingHTTPServer jede Anfrage in einem eigenen Thread bearbeitet.
@@ -107,20 +110,35 @@ def enrich_with_samples(story: dict) -> dict:
     story = copy.deepcopy(story)
     index = load_vocs_index()
     story_id = story["header"]["id"]
+    # Nur Texte, die laut vocs_fields.narrated_texts gesprochen werden - ein altes mp3 zu
+    # einem inzwischen ausgeschlossenen Text (z.B. Logbuch) wird so nie abgespielt.
+    for el, field, _text in narrated_texts(story):
+        number = index.get(sample_key(story_id, el["id"], field))
+        if number is not None and (OUTPUT_VOCS_DIR / f"sample_{number:05d}.mp3").is_file():
+            el.setdefault("_samples", {})[field] = number
+    return story
+
+
+def load_pics_index() -> dict[str, int]:
+    """Wie load_vocs_index: bei jeder Anfrage frisch, damit neue Bilder ohne Neustart erscheinen."""
+    if not PICS_INDEX_PATH.exists():
+        return {}
+    with PICS_INDEX_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def enrich_with_images(story: dict) -> dict:
+    """Haengt `_image` (Bildnummer) an das Element (Standardbild) bzw. an den passenden
+    stateImages-Eintrag - nur, wenn output_pics/pic_NNNNN.jpg tatsaechlich existiert.
+    Welches Bild gerade gilt (Zustand), entscheidet der Browser zur Laufzeit.
+    Erwartet eine bereits kopierte Story (wird in-place ergaenzt)."""
+    index = load_pics_index()
+    story_id = story["header"]["id"]
     for el in story.get("elements", []):
-        presentation = el.get("presentation") or {}
-        samples: dict[str, int] = {}
-        for field in NARRATED_FIELDS:
-            value = presentation.get(field)
-            if not isinstance(value, str) or not value.strip():
-                continue
-            number = index.get(sample_key(story_id, el["id"], field))
-            if number is None:
-                continue
-            if (OUTPUT_VOCS_DIR / f"sample_{number:05d}.mp3").is_file():
-                samples[field] = number
-        if samples:
-            el["_samples"] = samples
+        for state, _prompt, target in image_entries(el):
+            number = index.get(image_key(story_id, el["id"], state))
+            if number is not None and (OUTPUT_PICS_DIR / f"pic_{number:05d}.jpg").is_file():
+                target["_image"] = number
     return story
 
 
@@ -155,6 +173,9 @@ class GameRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type or "application/octet-stream")
         self.send_header("Content-Length", str(len(body)))
+        # Neu erzeugte Sprach-/Bilddateien behalten ihren Namen (sample_00066.mp3) - ohne
+        # diesen Header spielt der Browser sonst die alte Fassung aus seinem Zwischenspeicher.
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 
@@ -177,17 +198,29 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             self._send_json(index)
             return
 
+        if path == "/api/voices":
+            # Sprecherliste fuer den Editor - dieselbe Quelle wie generate_samples.py.
+            self._send_json({
+                "default": DEFAULT_SPEAKER,
+                "speakers": [{"id": key, "label": label, "voice": voice} for key, label, voice in SPEAKERS],
+            })
+            return
+
         if path.startswith("/api/story/"):
             story_id = path[len("/api/story/"):]
             story = self.stories.get(story_id)
             if story is None:
                 self._send_json({"error": f"Unbekannte Story-ID '{story_id}'"}, status=404)
                 return
-            self._send_json(enrich_with_samples(story))
+            self._send_json(enrich_with_images(enrich_with_samples(story)))
             return
 
         if path.startswith("/output_vocs/"):
             self._send_from_dir(OUTPUT_VOCS_DIR, path[len("/output_vocs/"):])
+            return
+
+        if path.startswith("/output_pics/"):
+            self._send_from_dir(OUTPUT_PICS_DIR, path[len("/output_pics/"):])
             return
 
         self._send_from_dir(WEB_DIR, path)

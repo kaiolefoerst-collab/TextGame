@@ -1,10 +1,29 @@
-# Zeilen mit '#' werden ignoriert (Kommentare).
-# Format pro Zeile: Nummer "Prompt";"Zusatzinfo"
-# - Nummer: 5-stellig, bestimmt den Dateinamen des Bildes (pic_<Nummer>)
-# - Prompt: Bildbeschreibung in Anführungszeichen
-# - Zusatzinfo (optional, nach dem Semikolon, in Anführungszeichen): zusätzlicher
-#   System-Prompt / Kontext für die Bildgenerierung. Wird nichts angegeben,
-#   entfällt die Zusatzinfo.
-00001 "Ein ruhiger Bergsee bei Sonnenaufgang, umgeben von Nadelwald.";"Fotorealistisch, warmes Licht, keine Menschen im Bild."
-00002 "Eine futuristische Stadtskyline bei Nacht mit beleuchteten Wolkenkratzern.";"Cyberpunk-Stil, kräftige Neonfarben."
-00003 "Ein gemütliches Wohnzimmer mit Kamin und Bücherregal.";
+# Automatisch erzeugt von export_pics.py aus Stories/*.yaml - nicht von Hand bearbeiten,
+# Aenderungen werden beim naechsten Export ueberschrieben.
+# Format pro Zeile: Nummer "Prompt";"Masterprompt der Geschichte" (Masterprompt optional)
+
+00004 "Dichter, undurchdringlicher Nebel umschließt ein verlassenes Dorf mit einer zerstörten Wassermühle in der Ferne. Düstere, melancholische Stimmung, keine Menschen sichtbar, gedämpftes Licht.";
+00005 "Ein kleiner, verlassener Dorfplatz mit feuchten Pflastersteinen, die am Rand im Nebel verschwinden. Ein alter, moosbewachsener Gedenkstein steht in der Mitte, verlassene Fachwerkhäuser im Hintergrund, dichter Nebel.";
+00006 "Ein alter, verwitterter Gedenkstein aus grauem Stein mit einer moosbedeckten Inschrift, darunter eine zweite, später eingeritzte Zeile in unregelmäßigerer Schrift.";
+00007 "Eine halb eingestürzte, alte Wassermühle mit einem großen Wasserrad. Die stärksten Schäden liegen auf der flussabgewandten Seite, als sei eine gewaltige Wassermenge mitten durch das Gebäude geströmt. Moos und Schlamm überall.";
+00008 "Ein dickes, altes, ledergebundenes Geschäftsbuch, aufgeschlagen, mit vergilbten, teils verklebten und schlammverschmutzten Seiten.";
+00009 "Ein vergilbter, spröder, handgeschriebener Brief, halb aufgefaltet, mit verblasster Tinte, auf rauem altem Papier.";
+00010 "Ein teilweise eingestürztes altes Sägewerksgebäude aus Holz und Stein, dahinter ein vollständig mit Balken und Steinen verschlossener Wasserkanal, Nebel im Hintergrund.";
+00011 "Ein kleiner, fensterloser Lagerraum mit einer schweren Holztür, verrottete Säcke stapeln sich an den Wänden, gedämpftes Licht durch Ritzen im Dach.";
+00012 "Ein Bild mit einem Weltall Hintergrund. Beeindruckend mit Sternen und Nebeln. Darüber der Schriftzug als Titelbeschriebung 'Space Trace'";"Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter um die Atmosphäre aufzubauen."
+00013 "Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Aus dem Fenster sieht man Weltall mit ein paar Sternen";"Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter um die Atmosphäre aufzubauen."
+00014 "Ein Detailbild von einer Raumschiff-Kommunikationsanlage aus Sicht des Piloten.";"Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter um die Atmosphäre aufzubauen."
+00015 "Das Bild eines kleinen Laderaumen eines Raumschiffes mit etwas Fracht die nicht genauer spezifiert ist. Der Raaum ist ca. 10m x 6m groß.";"Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter um die Atmosphäre aufzubauen."
+00016 "Ein riesiges unterirdisches gotisches Gemäuer aus schwarzem, feuchtem Stein, von Kerzen schwach erhellt, überwucherte Wurzeln in den Decken, melancholischer Horror, keine Menschen.";
+00017 "Eine hohe, dunkle Halle aus feuchtem Stein. Erloschene Wandhalter, schwere Vorhänge, Wurzeln zwischen den Deckenplatten und drei abzweigende Gänge.";
+00018 "Eine verfallene gotische Bibliothek mit mannshohen Regalen, schimmeligen Büchern, einem leeren ovalen Spiegelrahmen und einem Lesepult unter Staub und Spinnweben.";
+00019 "Eine schwere, schimmelbefleckte Familienchronik auf einem steinernen Lesepult, mit verblasstem Wappen und vergilbten Seiten.";
+00020 "Ein unterirdischer Gang mit steinernen Sarkophagen, leeren Wandnischen, bleichen Knochen und flachen Reliefs im schwachen Kerzenlicht.";
+00021 "Ein geöffneter schwarzer Marmorsarkophag, innen zerfallene Seide und eine körperförmige Vertiefung, Staub auf dem Boden davor.";
+00022 "Das Innere eines engen schwarzen Rundturms, dessen steinerne Wendeltreppe nach wenigen Stufen abbricht. Darüber liegen grifflose Steine in völliger Dunkelheit.";
+00023 "Eine steinerne Grabkammer mit Marmorsärgen in Wandregalen, einer offenen Bodenplatte und einem eisernen Gitter, hinter dem silbernes Mondlicht sichtbar ist.";
+00024 "Ein alter überwucherter Friedhof im Mondlicht, schiefe Grabsteine, eine verfallene kleine Kirche und eine offene steinerne Grufttür, düstere romantische Nacht.";
+00025 "Ein altes efeubewachsenes Herrenhaus in einem nächtlichen Park. Viele Fenster leuchten warm, im Inneren sind festlich gekleidete Menschen zu erkennen.";
+00026 "Ein heller historischer Festsaal unmittelbar nach einer panischen Flucht, umgestürzte Stühle, gedeckte Tische, offene Türen und ein großer vergoldeter Torbogen. Keine Menschen mehr im Raum.";
+00027 "Ein stiller Nebenraum eines alten Herrenhauses, fast dunkel, mit einem riesigen blinden Spiegel in einem vergoldeten Rahmen. Kerzenlicht aus dem Festsaal fällt durch einen Torbogen.";
+00028 "Ein riesiger alter Spiegel in einem reich vergoldeten Rahmen. Im Glas steht eine einzelne verweste, nur noch entfernt menschliche Gestalt in zerfallener vornehmer Kleidung.";

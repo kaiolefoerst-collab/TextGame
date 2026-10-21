@@ -28,7 +28,6 @@
 00024 "Du entfernst Schlamm von der Mechanik. Der Stellhebel steht in äußerster Position. Die Markierungen zeigen, dass das Notwehr vollständig geöffnet wurde und das Wasser vom Dorf weg durch die Mühle leitete.";
 00025 "Die Mechanik bestätigt weiterhin die vollständige, offenbar bewusste Öffnung des Notwehrs. Weitere Informationen gibt sie nicht preis.";
 00026 "Die dritte Wandbohle neben Hannes' Schreibtisch sitzt deutlich lockerer als die übrigen.";
-00027 "Hinter der Bohle befindet sich ein schmaler Hohlraum mit einem in Tuch gewickelten Brief.";
 00028 "Der Hohlraum hinter der dritten Bohle ist bereits geöffnet.";
 00029 "Du faltest den trockenen, spröden Brief auseinander. Er ist mit 'Clara Voss' unterzeichnet.";female1
 00030 "Claras Brief enthält die vollständige Erklärung der Flutnacht und ihrer späteren Rückkehr.";female1
@@ -50,20 +49,15 @@
 00046 "Wenn ich zur Mühle zurückkomme: hinter der dritten Wandbohle neben Vaters Schreibtisch.";Standard
 00047 "Passend zugeschnittene Balken und gesetzte Steine zeigen, dass der Kanal absichtlich und mit erheblichem Aufwand verschlossen wurde.";
 00048 "Die Blockade ist eindeutig menschengemacht. Weitere Informationen sind hier derzeit nicht zu finden.";
-00049 "Die Wahrheit über die Flut";
-00050 "Richard Brandt erzeugte durch die absichtliche Blockade des Entlastungskanals die Flutgefahr und sperrte Clara ein. Hannes opferte seine Mühle, rettete das Dorf und befreite seine Tochter. Clara überlebte. Hannes nahm die öffentliche Schuld auf sich, um sie vor Brandt zu schützen. Die vermeintliche Geistererscheinung war Claras heimliche Rückkehr zur Mühle.";
 00051 "Der Nebel über dem Weg wird dünner. Der Ort hält dich nicht länger fest.";
-00052 "Neuer Widerspruch: Hannes' Schuld";
-00053 "Das Notwehr wurde vollständig geöffnet. Dadurch floss das Wasser vom Dorf weg und zerstörte Hannes' eigene Mühle. Warum bezeichnet der Gedenkstein dies als schuldhafte Fehlbedienung?";
-00054 "Wollte Hannes die Flut verursachen - oder hat er das Dorf geschützt?";
-00055 "Neue Erkenntnis: Die Flutgefahr entstand am Sägewerk";
-00056 "Brandt ließ den Entlastungskanal absichtlich verschließen. Dadurch konnte das Wasser bei starkem Regen nicht kontrolliert abfließen. Die offizielle Geschichte nennt diesen Eingriff nicht.";
-00057 "Neue offene Frage: Claras Verschwinden";
-00058 "Clara ging kurz vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen. Danach galt sie als vermisst und später als tot.";
-00059 "Was geschah mit Clara im Sägewerk?";
-00060 "Neuer Widerspruch: Claras Tod";
-00061 "Der Gedenkstein nennt Clara als Todesopfer. Auf ihrem Haarband kündigt sie jedoch ausdrücklich eine spätere Rückkehr zur Mühle an.";
-00062 "Hat Clara die Überschwemmung überlebt?";
-00063 "Neuer Widerspruch: Hannes' Schweigen";
-00064 "Die Stellung des Notwehrs zeigt, dass Hannes das Dorf schützte. Trotzdem nennt ihn die offizielle Geschichte als Verursacher der Flut.";
-00065 "Warum widersprach Hannes der Anschuldigung nicht?";
+00066 "Der Weltraum ist riesig. Und verdammt einsam. Eigentlich sollte es ein ganz gewöhnlicher Transportflug werden. Ein paar medizinische Güter von Titan zu einer Forschungsstation weit draußen im Sonnensystem. Langweilig, aber gut bezahlt. Doch dann gab es technische Probleme, und seit Wochen treibst du nun durchs All. Der Treibstoff ist fast aufgebraucht, die Vorräte werden knapp und Hilfe ist nicht in Sicht. Und genau hier beginnt die Geschichte …";male1
+00067 "Du befindest dich am Endpunkt.";male1
+00068 "Du befindest dich wieder am Endpunkt.";male1
+00069 "Hier steht ein Tisch";male1
+00072 "Seit ich vor einigen Monaten von Titan, dem Mond des Saturn, aufgebrochen bin, verfluche ich meine Bereitschaft, mit diesem Mini-Raumschiff eine Solo-Mission zu fliegen. Ein paar Medikamente zu einer Forschungsstation weit draußen im Sonnensystem bringen, ungefähr 65 astronomische Einheiten von der Sonne entfernt. Eine Strecke, auf der man kaum jemandem begegnet, und die Reise sollte ohnehin mehrere Monate dauern. An sich schon eine äußerst langweilige Angelegenheit, aber dann kam noch dieser technische Defekt und jetzt sieht es düster aus. Ich sitze hier in meinem Cockpit und starre auf die Anzeigen. Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.";male1
+00073 "Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.";male1
+00074 "Ich schaue aus meinem Cockpitfenster und sehe die Sterne im dunklen Raum. Eigentlich ein beeindruckender Anblick. Millionen kleiner Lichtpunkte auf einem vollkommen schwarzen Hintergrund. Kein Flimmern, keine Atmosphäre, die das Licht verzerrt. Alles gestochen scharf. Nur leider wird auch der schönste Sternenhimmel irgendwann langweilig, wenn man ihn den ganzen Tag vor der Nase hat. Ab und zu versuche ich, bekannte Sternbilder zu erkennen. Funktioniert nur bedingt. Von hier draußen sieht eben manches anders aus.";male1
+00075 "Kommunikation auch tot. Die würde viele Probleme lösen. Wäre zwar teuer, mich abschleppen zu lassen, aber immerhin würde ich überleben. Da muss man Prioritäten setzen. Ich frage mich gelegentlich, wie hoch wohl die Rechnung für einen solchen Einsatz wäre. Vermutlich mehr, als ich mit diesem Transport verdiene. Aber das ist im Moment wirklich mein kleinstes Problem.";male1
+00076 "Im Laderaum stehen die Transportbehälter mit den Medikamenten. Ordentlich verzurrt und völlig uninteressant. Die Temperaturregelung funktioniert wenigstens noch. Ein paar kleine grüne Kontrollleuchten zeigen mir, dass mit der Fracht alles in Ordnung ist. Schön für die Medikamente.";male1
+00077 "Das sind Erste-Hilfe-Kits. Sie enthalten Verbandsmaterial, Schmerzmittel, entzündungshemmende Präparate, Aufputschmittel und einiges mehr. Alles in allem recht nützlich bei den unterschiedlichsten medizinischen Problemen.";male1
+00078 "Du schaust in deine Taschen.";male1

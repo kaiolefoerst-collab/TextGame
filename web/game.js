@@ -49,6 +49,7 @@ const engine = {
   resolutionApplied: false,
   gameFinished: false,
   pendingMessages: [],
+  pendingSamples: [],   // Sample-Nummern erzaehlender Meldungen (showTextFrom), nach dem Fenstertext vorzulesen
 };
 
 // ---------------------------------------------------------------------
@@ -100,6 +101,7 @@ function initEngine(story) {
   engine.resolutionApplied = false;
   engine.gameFinished = false;
   engine.pendingMessages = [];
+  engine.pendingSamples = [];
 
   // Inventar = Inhalt des Elements "player". Geschichten ohne eigenes player-Element
   // (z.B. neu im Editor angelegte) bekommen eines, damit Aufnehmen/Inventar immer funktioniert.
@@ -276,6 +278,12 @@ function applyEffect(effect, ctxElementId) {
     case 'showTextFrom': {
       const text = resolveTextPath(val);
       if (text) engine.pendingMessages.push(text);
+      // Erzaehlende Meldung: wird vorgelesen, falls ein Sample existiert. Frei geschriebene
+      // showText-Meldungen und Aufnehmen/Ablegen werden bewusst NICHT vorgelesen.
+      const [msgElId, , msgField] = String(val).split('.');
+      const msgEl = engine.elementsById[msgElId];
+      const msgSample = msgEl && msgEl._samples ? msgEl._samples[msgField] : null;
+      if (msgSample != null) engine.pendingSamples.push(msgSample);
       break;
     }
     case 'disableSelfTrigger':
@@ -305,6 +313,7 @@ function use(elementId) {
 
   navigationTarget = elementId; // Default: das benutzte Element wird selbst fokussiert
   engine.pendingMessages = [];
+  engine.pendingSamples = [];
 
   const rt = engine.runtime[elementId];
   for (const trig of el.onUse || []) {
@@ -418,6 +427,7 @@ function closeWindowsFrom(itemId) {
 function finishInventoryAction(message) {
   // Aufnehmen/Ablegen kann eine Loesungsbedingung erfuellen (z.B. inInventory: schluessel).
   engine.pendingMessages = [];
+  engine.pendingSamples = [];
   checkResolution();
   if (engine.gameFinished) {
     showEndScreen();
@@ -469,6 +479,27 @@ function pickPresentationText(id) {
     fields.push('contentText');
   }
   return { text, fields };
+}
+
+// Welches Bild gilt gerade? Das erste Zustandsbild (stateImages), dessen Zustandswerte alle
+// zur Laufzeit zutreffen, sonst das Standardbild (image). `_image` (Bildnummer) haengt der
+// Server nur an, wenn die Datei schon erzeugt wurde. Fehlt die Datei eines passenden
+// Zustandsbilds noch, wird auf ein vorhandenes Standardbild zurueckgegriffen.
+// Liefert null (kein Bild vorgesehen) oder { number } (number null = noch nicht erzeugt).
+function pickImage(id) {
+  const el = engine.elementsById[id];
+  const rt = engine.runtime[id];
+  const hasDefault = typeof el.image === 'string' && el.image.trim() !== '';
+  const match = (el.stateImages || []).find((entry) => {
+    const state = entry && entry.state;
+    if (!state || typeof state !== 'object' || Object.keys(state).length === 0) return false;
+    if (typeof entry.prompt !== 'string' || !entry.prompt.trim()) return false;
+    return Object.entries(state).every(([key, value]) => rt[key] === value);
+  });
+  if (match && match._image != null) return { number: match._image };
+  if (hasDefault && el._image != null) return { number: el._image };
+  if (match || hasDefault) return { number: null };
+  return null;
 }
 
 let activeAudio = null;
@@ -536,8 +567,12 @@ function render() {
     container.appendChild(rendered.element);
     if (isTop) lastTopSampleNumbers = rendered.sampleNumbers;
   });
+  // Reihenfolge: erst der Text des (neuen) Fensters, dann erzaehlende Meldungen.
+  // Meldungen werden nur einmal - bei der Aktion, die sie ausgeloest hat - vorgelesen.
+  const messageSamples = engine.pendingSamples || [];
+  engine.pendingSamples = [];
   if (narrationEnabled) {
-    playSamples(lastTopSampleNumbers);
+    playSamples([...lastTopSampleNumbers, ...messageSamples]);
   }
 }
 
@@ -561,10 +596,19 @@ function renderWindow(id, isTop, showCloseButton) {
   header.appendChild(nameSpan);
   div.appendChild(header);
 
-  if (el.image) {
+  const picture = pickImage(id);
+  if (picture) {
     const imgBox = document.createElement('div');
     imgBox.className = 'window-image';
-    imgBox.textContent = '[Bild wird später generiert]';
+    if (picture.number != null) {
+      const img = document.createElement('img');
+      img.src = `/output_pics/pic_${String(picture.number).padStart(5, '0')}.jpg`;
+      img.alt = el.name;
+      imgBox.appendChild(img);
+    } else {
+      imgBox.classList.add('is-pending');
+      imgBox.textContent = '[Bild noch nicht erzeugt]';
+    }
     div.appendChild(imgBox);
   }
 
@@ -795,6 +839,9 @@ function showToast(text) {
 
 function showEndScreen() {
   stopNarration();
+  // Abschieds-/Aufloesungstext (erzaehlende Meldung) auch auf dem Endbildschirm vorlesen.
+  if (narrationEnabled && engine.pendingSamples.length) playSamples(engine.pendingSamples);
+  engine.pendingSamples = [];
   const messages = engine.pendingMessages.join('\n\n');
   document.getElementById('end-heading').textContent = 'Die Geschichte ist zu Ende';
   document.getElementById('end-body').textContent = messages;

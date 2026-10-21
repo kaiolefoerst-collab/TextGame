@@ -309,6 +309,7 @@ async function openEditorStoryList() {
 }
 
 async function loadEditorStory(storyId) {
+  await loadVoices();
   const res = await fetch('/api/story/' + encodeURIComponent(storyId));
   const story = await res.json();
   ed.storyId = storyId;
@@ -316,6 +317,7 @@ async function loadEditorStory(storyId) {
   ed.elementsById = {};
   for (const el of story.elements) {
     delete el._samples;
+    hideImageNumbers(el);
     ed.elementsById[el.id] = el;
   }
   ed.dirty = false;
@@ -798,6 +800,7 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
   if (isDoor(el)) basics.appendChild(renderTargetRow(el));
   if (isLocation(el)) basics.appendChild(renderStartRow(el));
   if (canBePortable(el)) basics.appendChild(renderPortableRow(el));
+  if (!isDoor(el)) basics.appendChild(renderVoiceRow(el));
   // Wege und Orte der obersten Ebene bekommen im Spiel nie einen Zurueck-Knopf - Feld nur zeigen, wo es wirkt
   // (oder wenn schon ein Wert drinsteht, damit nichts unsichtbar bleibt).
   const hasBackButton = !isDoor(el) && !(isLocation(el) && !el.locatedIn);
@@ -826,6 +829,7 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
   }
 
   renderTextsSection(el, body, usedFields);
+  body.appendChild(renderImagesSection(el));
   body.appendChild(renderReactionsSection(el));
   div.appendChild(body);
   appendContainsMenu(div, el);
@@ -1328,7 +1332,10 @@ function discardAndLeave() {
 
 function openMetaDialog() {
   const header = ed.story.header;
+  fillSpeakerSelect(document.getElementById('meta-narrator'), header.narratorVoice,
+    `(keine Angabe – ${speakerLabel(ed.voices.default)})`);
   for (const input of document.querySelectorAll('#meta-dialog [data-meta]')) {
+    if (input.id === 'meta-narrator') continue;
     const value = header[input.dataset.meta];
     input.value = value == null ? '' : value;
   }
@@ -1345,12 +1352,80 @@ function onMetaInput(input) {
   if (key === 'version') {
     const n = parseInt(input.value, 10);
     ed.story.header.version = Number.isNaN(n) ? 1 : n;
+  } else if (key === 'narratorVoice' && !input.value) {
+    delete ed.story.header.narratorVoice;
   } else {
     ed.story.header[key] = input.value;
   }
   // Titel steht auch oben in der Leiste - beide Eingaben synchron halten.
   if (key === 'title') document.getElementById('editor-title').value = input.value;
   markDirty();
+}
+
+// ---------------------------------------------------------------------
+// Sprecher (Stimmen fuer die Sprachsamples)
+// ---------------------------------------------------------------------
+
+// Liste kommt vom Server (vocs_fields.SPEAKERS) - dieselbe Quelle wie generate_samples.py.
+async function loadVoices() {
+  if (ed.voices) return;
+  try {
+    const res = await fetch('/api/voices');
+    ed.voices = await res.json();
+  } catch (_) {
+    ed.voices = { default: 'standard', speakers: [] };
+  }
+}
+
+function speakerLabel(id) {
+  const s = ((ed.voices && ed.voices.speakers) || []).find((v) => v.id === String(id || '').toLowerCase());
+  return s ? s.label : (id || 'Standard');
+}
+
+// Fuellt eine Sprecher-Auswahl. Werte werden ohne Gross-/Kleinschreibung verglichen
+// (Story-Dateien enthalten z.B. "Standard"); Unbekanntes bleibt als Warn-Eintrag erhalten.
+function fillSpeakerSelect(select, value, emptyLabel) {
+  select.innerHTML = '';
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = emptyLabel;
+  select.appendChild(empty);
+  for (const s of ed.voices.speakers) {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.label;
+    select.appendChild(opt);
+  }
+  const lower = String(value || '').toLowerCase();
+  if (value && !ed.voices.speakers.some((s) => s.id === lower)) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = `⚠ unbekannt: ${value}`;
+    select.appendChild(opt);
+    select.value = value;
+  } else {
+    select.value = value ? lower : '';
+  }
+}
+
+const VOICE_TIP = 'Sprecher: Mit welcher Stimme die Texte dieses Elements vorgelesen werden – z.B. eine eigene Stimme für eine Person, '
+  + 'damit ihre Worte sich vom Erzähler abheben.\n'
+  + 'Leer = die Erzählstimme der Geschichte (einstellbar unter „📝 Geschichte“).\n'
+  + 'Wirkt erst, nachdem die Sprachdateien neu erzeugt wurden: python generate_samples.py';
+
+function renderVoiceRow(el) {
+  const row = makeRow('Sprecher', VOICE_TIP);
+  const select = document.createElement('select');
+  const narrator = ed.story.header.narratorVoice || ed.voices.default;
+  fillSpeakerSelect(select, el.voice, `(Erzählstimme: ${speakerLabel(narrator)})`);
+  setTip(select, VOICE_TIP);
+  select.addEventListener('change', () => {
+    if (select.value) el.voice = select.value;
+    else delete el.voice;
+    markDirty();
+  });
+  row.appendChild(select);
+  return row;
 }
 
 function leaveEditorNow() {
