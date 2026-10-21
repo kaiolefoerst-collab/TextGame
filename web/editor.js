@@ -6,150 +6,83 @@
  * Nutzt escapeHtml() und showScreen() aus game.js (im selben Dokument geladen).
  */
 
-const NARRATED_FIELDS = [
-  'firstView', 'repeatView',
-  'firstUse', 'repeatUse', 'blockedUse',
-  'openLeadView', 'openLeadUse',
-  'completeView', 'completeUse',
-  'contentText', 'blockedText', 'exitText',
-  'heading', 'body', 'openQuestion', 'releaseText',
-];
-
-// Nicht vorgelesene Zusatztexte (erscheinen im Spiel nur als kurze Meldung), daher nicht
-// in NARRATED_FIELDS / vocs_fields.py.
-const EDITOR_TEXT_FIELDS = [...NARRATED_FIELDS, 'takeText', 'dropText'];
-
 // PLAYER_ID kommt aus game.js (gemeinsamer globaler Scope beider Scripts).
 
-const LOCATION_TYPES = ['room', 'area', 'building'];
+// Orte haben einen einzigen Typ "location" und liegen immer auf oberster Ebene - man erreicht
+// sie nur ueber Wege. room/area/building sind die frueheren Typen (aeltere Dateien).
+const LOCATION_TYPES = ['location', 'room', 'area', 'building'];
+
+// Element-Typen, bei denen ein Wortlaut (wörtlicher Inhalt) Sinn ergibt.
+const DOCUMENT_TYPES = ['document', 'document_entry', 'document_collection', 'inscription'];
 
 // ---------------------------------------------------------------------
 // Erklaerungen fuer Roll-Over-Tooltips. Die Texte beschreiben, was das Spiel
 // (game.js: pickPresentationText, applyEffect, renderLog) tatsaechlich mit dem
 // jeweiligen Feld macht - bei Aenderungen an der Spiellogik hier mitpflegen.
+// Textmodell: siehe vocs_fields.py (feste Betrachtungen, Zustandstexte, Wortlaut,
+// Meldungen, Logbuch).
 // ---------------------------------------------------------------------
 
 const FIELD_INFO = {
   firstView: {
-    label: 'Erster Besuch',
+    label: 'Erste Betrachtung',
     tip: 'Text, den der Spieler beim ERSTEN Öffnen bzw. Betreten dieses Elements liest.\n'
       + 'Das ist der wichtigste Text – fast jedes Element sollte ihn haben.',
     placeholder: 'z.B. Du betrittst eine staubige Kammer. Durch ein kleines Fenster fällt fahles Licht.',
   },
   repeatView: {
-    label: 'Wiederkehr',
-    tip: 'Text ab dem ZWEITEN Öffnen/Betreten.\n'
-      + 'Meist kürzer als der erste Text. Fehlt er, wird einfach der Text vom ersten Besuch wiederholt.',
+    label: 'Erneute Betrachtung',
+    tip: 'Text ab dem ZWEITEN Öffnen – meist eine Kurzfassung der ersten Betrachtung.\n'
+      + 'Leer lassen = die erste Betrachtung wird wiederholt.',
     placeholder: 'z.B. Die staubige Kammer. Nichts hat sich verändert.',
-  },
-  firstUse: {
-    label: 'Erstes Benutzen',
-    tip: 'Alternative zu „Erster Besuch“ für Dinge, die man eher benutzt als ansieht (Hebel, Schalter, Tür).\n'
-      + 'Wird nur angezeigt, wenn KEIN „Erster Besuch“-Text existiert.\n'
-      + 'Hinweis: Hier gehört Erzähltext hinein – kein Ziel einer Tür. Wege legst du im Ortsgraph mit 🔗 an.',
-    placeholder: 'z.B. Du ziehst kräftig am Hebel. Irgendwo knarrt Holz.',
-  },
-  repeatUse: {
-    label: 'Erneutes Benutzen',
-    tip: 'Alternative zu „Wiederkehr“ für Dinge, die man benutzt.\n'
-      + 'Wird ab dem zweiten Mal gezeigt, wenn KEIN „Wiederkehr“-Text existiert.',
-    placeholder: 'z.B. Der Hebel bewegt sich nicht mehr.',
-  },
-  blockedUse: {
-    label: 'Nichts Neues mehr',
-    tip: 'Text ab dem zweiten Benutzen, wenn hier nichts mehr zu holen ist.\n'
-      + 'Hat Vorrang vor „Wiederkehr“ und „Erneutes Benutzen“.',
-    placeholder: 'z.B. Die Schublade ist leer.',
-  },
-  openLeadView: {
-    label: 'Neue Spur',
-    tip: 'Wird gezeigt, solange in diesem Element etwas NEU aufgetaucht ist, das der Spieler noch nicht angesehen hat '
-      + '(z.B. ein Fach hat sich geöffnet).\n'
-      + 'Lenkt die Aufmerksamkeit auf das Neue. Hat Vorrang vor Erster Besuch / Wiederkehr.',
-    placeholder: 'z.B. Im Schreibtisch ist jetzt ein Geheimfach zu sehen.',
-  },
-  openLeadUse: {
-    label: 'Neue Spur (Benutzen)',
-    tip: 'Wie „Neue Spur“, aber für Dinge, die man benutzt. Wird nur genutzt, wenn „Neue Spur“ leer ist.',
-  },
-  completeView: {
-    label: 'Abgeschlossen',
-    tip: 'Wird gezeigt, sobald dieses Element als „vollständig untersucht“ gilt '
-      + '(ein Auslöser setzt investigation = complete).\n'
-      + 'Höchste Priorität – ersetzt dann alle anderen Texte.',
-    placeholder: 'z.B. Hier hast du alles herausgefunden, was es zu wissen gibt.',
-  },
-  completeUse: {
-    label: 'Abgeschlossen (Benutzen)',
-    tip: 'Wie „Abgeschlossen“, aber für Dinge, die man benutzt. Wird nur genutzt, wenn „Abgeschlossen“ leer ist.',
   },
   contentText: {
     label: 'Wortlaut',
-    tip: 'Der wörtliche Inhalt eines Dokuments, Briefs oder einer Inschrift.\n'
-      + 'Wird bei JEDEM Öffnen unter den eigentlichen Text gehängt – egal ob erster Besuch oder Wiederkehr.\n'
-      + 'So bleibt die Rahmenerzählung („Du entfaltest den Brief…“) vom Briefinhalt getrennt.',
+    tip: 'Nur für Schriftstücke: der wörtliche INHALT eines Briefs, Eintrags, Buchs oder einer Inschrift – '
+      + 'also genau das, was dort geschrieben steht.\n'
+      + 'Die Betrachtung erzählt, was der Spieler tut („Du entfaltest den Brief …“), der Wortlaut ist der Brief selbst.\n'
+      + 'Er wird bei JEDEM Öffnen unter den Text gehängt (auch unter Zustandstexte) und nur einmal gepflegt.\n'
+      + 'Eigener Sprecher möglich – z.B. liest die Schreiberin ihren Brief mit ihrer Stimme.',
     placeholder: 'z.B. „Liebe Clara, ich kann nicht länger schweigen …“',
-  },
-  blockedText: {
-    label: 'Weg versperrt',
-    tip: 'Sondertext, der NICHT automatisch erscheint.\n'
-      + 'Er wird nur angezeigt, wenn ein Auslöser ihn per „showTextFrom“ aufruft – typischerweise wenn ein Weg noch versperrt ist.',
-    placeholder: 'z.B. Der Weg verschwindet im Nebel. Du kehrst um.',
-  },
-  exitText: {
-    label: 'Abschiedstext',
-    tip: 'Sondertext, der NICHT automatisch erscheint.\n'
-      + 'Wird über einen Auslöser („showTextFrom“) gezeigt, z.B. wenn der Spieler die Geschichte über diesen Weg verlässt.',
-    placeholder: 'z.B. Du folgst dem Weg aus dem Dorf. Die Geschichte ist abgeschlossen.',
-  },
-  heading: {
-    label: 'Überschrift',
-    tip: 'Kurze Überschrift für dieses Element (wird mitvorgelesen).\n'
-      + 'Im Spiel derzeit nur sichtbar, wenn ein Auslöser sie per „showTextFrom“ aufruft.',
   },
   body: {
     label: 'Logbuch-Eintrag',
     tip: 'Text im Logbuch – gedacht für NICHT-physische Elemente wie Erkenntnisse, Gerüchte oder Widersprüche.\n'
-      + 'Erscheint, sobald der Spieler dieses Wissen entdeckt hat.',
+      + 'Erscheint, sobald der Spieler dieses Wissen entdeckt hat. (Das Logbuch wird später neu gestaltet.)',
     placeholder: 'z.B. Clara war in der Unglücksnacht nicht im Dorf.',
   },
   openQuestion: {
     label: 'Offene Frage',
-    tip: 'Nur für Widersprüche: Die Frage, die im Logbuch unter dem Logbuch-Eintrag steht und den Spieler zum Weiterforschen anregt.',
+    tip: 'Nur für Widersprüche: Die Frage, die im Logbuch unter dem Logbuch-Eintrag steht.',
     placeholder: 'z.B. Wer hat dann das Wehr geöffnet?',
   },
-  releaseText: {
-    label: 'Auflösungstext',
-    tip: 'Text für die Auflösung der Geschichte.\n'
-      + 'Wird über einen Auslöser („showTextFrom“) gezeigt, meist wenn die Lösungsbedingung erfüllt ist.',
+  style: {
+    label: 'Logbuch-Kategorie',
+    tip: 'In welchem Logbuch-Abschnitt der Eintrag landet: Neue Erkenntnisse oder Widersprüche & offene Fragen.',
   },
   takeText: {
     label: 'Meldung beim Aufnehmen',
-    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand ins Inventar legt.\n'
-      + 'Leer lassen = „Du nimmst „Name“ an dich.“\nNur sinnvoll, wenn „Kann aufgenommen werden“ angehakt ist.',
+    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand ins Inventar legt (wird nicht vorgelesen).\n'
+      + 'Leer lassen = „Du nimmst „Name“ an dich.“',
     placeholder: 'z.B. Du steckst den rostigen Schlüssel ein.',
   },
   dropText: {
     label: 'Meldung beim Ablegen',
-    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand aus dem Inventar wieder ablegt.\n'
+    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand wieder ablegt (wird nicht vorgelesen).\n'
       + 'Leer lassen = „Du legst „Name“ hier ab.“',
     placeholder: 'z.B. Du legst den Schlüssel vorsichtig auf den Tisch.',
   },
-  style: {
-    label: 'Logbuch-Kategorie',
-    tip: 'Legt fest, in welchem Logbuch-Abschnitt der Logbuch-Eintrag landet:\n'
-      + '„discovery“ = Neue Erkenntnisse, „contradiction“ = Widersprüche & offene Fragen.',
-  },
 };
 
-const TEXT_PRIORITY_TIP = 'Welcher Text erscheint? Das Spiel nimmt den ersten passenden:\n'
-  + '1. Abgeschlossen  2. Neue Spur  3. Erster Besuch (beim 1. Mal)  4. Nichts Neues mehr  5. Wiederkehr\n'
-  + 'Ein „Wortlaut“ wird immer zusätzlich angehängt.';
+const TEXT_PRIORITY_TIP = 'Welcher Text erscheint?\n'
+  + '1. Passt ein Zustandstext (von oben nach unten geprüft), gilt dessen erste bzw. erneute Betrachtung.\n'
+  + '2. Sonst die feste erste bzw. erneute Betrachtung.\n'
+  + '„Erste“ heißt: das erste Mal, dass der Spieler das Element mit diesem Text sieht.\n'
+  + 'Ein Wortlaut (bei Schriftstücken) wird immer angehängt.';
 
 const TYPE_INFO = {
-  room: 'Raum – ein begehbarer Ort (Zimmer, Kammer, Keller). Erscheint als Ellipse im Ortsgraph.',
-  area: 'Bereich – ein Ort im Freien (Dorfplatz, Waldweg, Ufer). Erscheint als Ellipse im Ortsgraph.',
-  building: 'Gebäude – ein Ort, der weitere Räume enthält. Erscheint als Ellipse im Ortsgraph.',
+  location: 'Ort – ein Ort, den der Spieler betritt: Raum, Platz, Gebäude, Waldweg …\n'
+    + 'Erscheint als Ellipse im Ortsgraph. Orte liegen nie ineinander – man erreicht sie nur über Wege (🔗 im Ortsgraph).',
   door: 'Weg/Tür – führt beim Benutzen an einen anderen Ort. Erscheint im Ortsgraph als Pfeil.',
   object: 'Objekt – ein Gegenstand, den man ansehen oder benutzen kann.',
   feature: 'Detail – etwas Festes am Ort, das man sich anschauen kann (Gemälde, Kamin, Schreibtisch, Brunnen, alter Baum).\n'
@@ -168,7 +101,7 @@ const BASE_TIPS = {
   locatedIn: 'Wo sich dieses Element befindet. Es erscheint im Spiel als Knopf im Fenster dieses Ortes/Objekts.\n'
     + 'Bei Gegenständen, die man aufnehmen kann, ist das die Position zu Spielbeginn.\n'
     + '„🎒 Inventar des Spielers“ = trägt der Spieler von Anfang an bei sich.\n'
-    + '„(oberste Ebene)“ = ein eigenständiger Ort, der nirgends enthalten ist.',
+    + 'Orte selbst liegen immer auf oberster Ebene und sind nur über Wege verbunden.',
   target: 'Zielort dieses Weges. Benutzt der Spieler den Weg, steht er danach an diesem Ort.',
   exitLabel: 'Beschriftung des Zurück-Knopfs, wenn dieses Element als Fenster offen ist (z.B. „Tisch verlassen“).\n'
     + 'Leer lassen = „Zurück“.',
@@ -248,7 +181,10 @@ const ed = {
   dirty: false,
   stack: [],
   connectSource: null,
-  positions: {},
+  positions: {},   // nur Zwischenergebnis von computeLayout (automatische Erstanordnung)
+  layout: {},      // feste Positionen der Ellipsen: elementId -> {x, y} (editor_layout.json)
+  graph: null,     // DOM-Ebenen des Ortsgraphs (canvas, svg, overlay)
+  selection: new Set(), // ausgewaehlte Orte (gemeinsam verschiebbar)
 };
 
 function isLocation(el) {
@@ -320,6 +256,11 @@ async function loadEditorStory(storyId) {
     hideImageNumbers(el);
     ed.elementsById[el.id] = el;
   }
+  // Positionen kommen aus Stories/<Name>/editor_layout.json (separat von der YAML-Datei).
+  ed.layout = story._editorLayout || {};
+  delete story._editorLayout;
+  ensurePositions(true);
+  ed.selection = new Set();
   ed.dirty = false;
   ed.stack = [];
   ed.connectSource = null;
@@ -453,92 +394,231 @@ function getConnections() {
   return conns;
 }
 
+// Rubrik "Wege" im Fenster eines Ortes: Beschriftungen aller Wege von hier weg und hierher
+// direkt bearbeitbar. Die Beschriftung ist der Name des Weg-Elements - genau dieser Text steht
+// im Spiel auf der Taste unter "Moeglichkeiten".
+const WAYS_TIP = 'Wege: So heißen die Tasten unter „Möglichkeiten“, mit denen der Spieler zwischen den Orten wechselt.\n'
+  + 'Die Vorgabe „Weg nach …“ kannst du frei ändern, z.B. in „Durch die Luke ins Cockpit“.\n'
+  + 'Neue Wege legst du im Ortsgraph mit 🔗 an. Für Meldungen oder Bedingungen den Weg mit ✎ öffnen.';
+
+function renderWaysSection(el) {
+  const frag = document.createDocumentFragment();
+  frag.appendChild(renderSection('Wege', WAYS_TIP));
+  const conns = getConnections();
+  const groups = [
+    ['Von hier nach …', conns.filter((c) => c.from === el.id), (c) => ed.elementsById[c.to]],
+    ['Von … hierher', conns.filter((c) => c.to === el.id && c.from !== el.id), (c) => ed.elementsById[c.from]],
+  ];
+  for (const [title, list, other] of groups) {
+    const head = document.createElement('div');
+    head.className = 'rule-block-title';
+    head.textContent = title;
+    frag.appendChild(head);
+    if (list.length === 0) {
+      const none = document.createElement('div');
+      none.className = 'rule-always';
+      none.textContent = 'keine – im Ortsgraph mit 🔗 anlegen';
+      frag.appendChild(none);
+      continue;
+    }
+    for (const conn of list) {
+      const door = ed.elementsById[conn.doorId];
+      const target = other(conn);
+      const row = document.createElement('div');
+      row.className = 'rule-row way-row';
+      const place = document.createElement('span');
+      place.className = 'way-place';
+      place.textContent = (target ? target.name : '?');
+      setTip(place, conn.from === el.id ? `Dieser Weg führt nach „${place.textContent}“.` : `Dieser Weg steht in „${place.textContent}“ und führt hierher.`);
+      row.appendChild(place);
+      const input = document.createElement('input');
+      input.className = 'rule-input way-label';
+      input.value = door.name || '';
+      input.placeholder = `Weg nach ${ed.elementsById[conn.to].name}`;
+      setTip(input, 'Beschriftung der Taste im Spiel (unter „Möglichkeiten“).\nLeer lassen = „Weg nach …“.');
+      input.addEventListener('input', () => {
+        door.name = input.value.trim() ? input.value : input.placeholder;
+        markDirty();
+        renderGraph();
+      });
+      row.appendChild(input);
+      const open = document.createElement('button');
+      open.className = 'field-del-btn';
+      open.textContent = '✎';
+      setTip(open, 'Weg öffnen – für Meldungen (z.B. „Weg versperrt“) und Bedingungen (z.B. nur mit Schlüssel).');
+      open.addEventListener('click', () => openElementWindow(door.id));
+      row.appendChild(open);
+      frag.appendChild(row);
+    }
+  }
+  return frag;
+}
+
 // ---------------------------------------------------------------------
 // Grafische Ebene: Ellipsen + Pfeile
 // ---------------------------------------------------------------------
 
-function renderGraph() {
-  const size = computeLayout();
-  const canvas = document.getElementById('editor-canvas');
-  canvas.innerHTML = '';
-  canvas.style.width = size.width + 'px';
-  canvas.style.height = size.height + 'px';
+// ---------------------------------------------------------------------
+// Positionen der Ellipsen: frei per Maus verschiebbar, gespeichert in
+// Stories/<Name>/editor_layout.json (ed.layout: elementId -> {x, y}).
+// ---------------------------------------------------------------------
 
+const NODE_W = 140;
+const NODE_H = 80;
+const DRAG_THRESHOLD = 4; // so viele Pixel Bewegung, bevor aus einem Klick ein Verschieben wird
+
+function locationsList() {
+  return Object.values(ed.elementsById).filter(isLocation);
+}
+
+// Mitte des gerade sichtbaren Bereichs - dort erscheinen neue Orte (leicht versetzt,
+// falls mehrere auf einmal ohne Position sind).
+function viewCenterPosition(i = 0) {
+  const wrap = document.querySelector('.editor-canvas-wrap');
+  const w = wrap ? wrap.clientWidth : 800;
+  const h = wrap ? wrap.clientHeight : 600;
+  return {
+    x: Math.max(10, Math.round((wrap ? wrap.scrollLeft : 0) + w / 2 - NODE_W / 2 + i * 24)),
+    y: Math.max(10, Math.round((wrap ? wrap.scrollTop : 0) + h / 2 - NODE_H / 2 + i * 24)),
+  };
+}
+
+// Fehlende Positionen auffuellen. Beim Laden (useAutoLayout) einmalig mit der automatischen
+// Anordnung - danach sind alle Positionen fest und springen nicht mehr von selbst.
+function ensurePositions(useAutoLayout) {
+  const missing = locationsList().filter((l) => !ed.layout[l.id]);
+  if (missing.length === 0) return;
+  if (useAutoLayout) {
+    computeLayout();
+    for (const l of missing) ed.layout[l.id] = { ...ed.positions[l.id] };
+  } else {
+    missing.forEach((l, i) => { ed.layout[l.id] = viewCenterPosition(i); });
+  }
+}
+
+function canvasSize() {
+  const wrap = document.querySelector('.editor-canvas-wrap');
+  // Etwas kleiner als der sichtbare Bereich, damit ohne Bedarf keine Scrollbalken erscheinen.
+  let w = wrap ? wrap.clientWidth - 4 : 800;
+  let h = wrap ? wrap.clientHeight - 4 : 600;
+  for (const l of locationsList()) {
+    const p = ed.layout[l.id];
+    if (!p) continue;
+    w = Math.max(w, p.x + NODE_W + MARGIN);
+    h = Math.max(h, p.y + NODE_H + MARGIN);
+  }
+  return { width: w, height: h };
+}
+
+function updateCanvasSize() {
+  const g = ed.graph;
+  if (!g) return;
+  const size = canvasSize();
+  g.canvas.style.width = size.width + 'px';
+  g.canvas.style.height = size.height + 'px';
+  g.svg.setAttribute('width', size.width);
+  g.svg.setAttribute('height', size.height);
+}
+
+// Punkt auf dem Rand der Ellipse (Mittelpunkt c, Halbachsen rx/ry) in Richtung (ux, uy).
+function ellipseEdge(cx, cy, ux, uy) {
+  const rx = NODE_W / 2 - 2;
+  const ry = NODE_H / 2 - 2;
+  const t = 1 / Math.sqrt((ux * ux) / (rx * rx) + (uy * uy) / (ry * ry));
+  return { x: cx + ux * t, y: cy + uy * t };
+}
+
+// Zeichnet alle Wege-Pfeile neu. Wird beim Verschieben
+// laufend aufgerufen, damit die Linien live mitwandern.
+function drawLinks() {
+  const g = ed.graph;
+  if (!g) return;
   const svgNs = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(svgNs, 'svg');
-  svg.setAttribute('class', 'editor-arrows');
-  svg.setAttribute('width', size.width);
-  svg.setAttribute('height', size.height);
-  const defs = document.createElementNS(svgNs, 'defs');
-  defs.innerHTML = '<marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">'
-    + '<polygon points="0 0, 10 4, 0 8" fill="#c9a24b"></polygon></marker>';
-  svg.appendChild(defs);
+  while (g.svg.lastChild && g.svg.lastChild !== g.defs) g.svg.removeChild(g.svg.lastChild);
+  g.overlay.innerHTML = '';
+  const center = (id) => {
+    const p = ed.layout[id];
+    return p ? { x: p.x + NODE_W / 2, y: p.y + NODE_H / 2 } : null;
+  };
 
-  const overlay = document.createElement('div');
-  overlay.className = 'editor-conn-overlay';
-
-  for (const conn of getConnections()) {
-    const a = ed.positions[conn.from];
-    const b = ed.positions[conn.to];
-    if (!a || !b) continue;
-    const ax = a.x + 70;
-    const ay = a.y + 40;
-    const bx = b.x + 70;
-    const by = b.y + 40;
-    const dx = bx - ax;
-    const dy = by - ay;
+  const conns = getConnections();
+  const pairs = new Set(conns.map((c) => c.from + '>' + c.to));
+  for (const conn of conns) {
+    const a = center(conn.from);
+    const b = center(conn.to);
+    if (!a || !b || conn.from === conn.to) continue;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
     const dist = Math.hypot(dx, dy) || 1;
     const ux = dx / dist;
     const uy = dy / dist;
-    const rx = 68;
-    const ry = 38;
-    const x1 = ax + ux * rx;
-    const y1 = ay + uy * ry;
-    const x2 = bx - ux * rx;
-    const y2 = by - uy * ry;
+    // Hin- und Rueckweg leicht gegeneinander versetzen, sonst liegen sie genau uebereinander.
+    const off = pairs.has(conn.to + '>' + conn.from) ? 7 : 0;
+    const ox = -uy * off;
+    const oy = ux * off;
+    const p1 = ellipseEdge(a.x, a.y, ux, uy);
+    const p2 = ellipseEdge(b.x, b.y, -ux, -uy);
+    const x1 = p1.x + ox;
+    const y1 = p1.y + oy;
+    const x2 = p2.x + ox;
+    const y2 = p2.y + oy;
 
-    const line = document.createElementNS(svgNs, 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('class', 'conn-line');
-    line.setAttribute('marker-end', 'url(#arrowhead)');
-    svg.appendChild(line);
-
-    const hit = document.createElementNS(svgNs, 'line');
-    hit.setAttribute('x1', x1);
-    hit.setAttribute('y1', y1);
-    hit.setAttribute('x2', x2);
-    hit.setAttribute('y2', y2);
-    hit.setAttribute('class', 'conn-hit');
-    hit.addEventListener('click', () => openElementWindow(conn.doorId));
-    svg.appendChild(hit);
-
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    const door = ed.elementsById[conn.doorId];
-    const fromName = ed.elementsById[conn.from].name;
-    const toName = ed.elementsById[conn.to].name;
-    setTip(hit, `Weg „${door.name}“: von ${fromName} nach ${toName}.\nKlicken, um Name und Texte des Weges zu bearbeiten.`);
+    for (const cls of ['conn-line', 'conn-hit']) {
+      const line = document.createElementNS(svgNs, 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('class', cls);
+      if (cls === 'conn-line') line.setAttribute('marker-end', 'url(#arrowhead)');
+      g.svg.appendChild(line);
+      if (cls === 'conn-hit') {
+        const door = ed.elementsById[conn.doorId];
+        setTip(line, `Weg „${door.name}“: von ${ed.elementsById[conn.from].name} nach ${ed.elementsById[conn.to].name}.\n`
+          + 'Klicken, um Name und Texte des Weges zu bearbeiten.');
+        line.addEventListener('click', () => openElementWindow(conn.doorId));
+      }
+    }
 
     const delBtn = document.createElement('button');
     delBtn.className = 'conn-delete-btn';
     delBtn.textContent = '✕';
-    setTip(delBtn, `Weg von ${fromName} nach ${toName} löschen.\nEin eventueller Rückweg bleibt erhalten.`);
-    delBtn.style.left = midX + 'px';
-    delBtn.style.top = midY + 'px';
+    setTip(delBtn, `Weg von ${ed.elementsById[conn.from].name} nach ${ed.elementsById[conn.to].name} löschen.\n`
+      + 'Ein eventueller Rückweg bleibt erhalten.');
+    delBtn.style.left = (x1 + x2) / 2 + 'px';
+    delBtn.style.top = (y1 + y2) / 2 + 'px';
     delBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteConnection(conn.doorId);
     });
-    overlay.appendChild(delBtn);
+    g.overlay.appendChild(delBtn);
   }
+}
 
+function renderGraph() {
+  ensurePositions(false);
+  ed.selection = new Set([...ed.selection].filter((id) => ed.elementsById[id] && isLocation(ed.elementsById[id])));
+  const canvas = document.getElementById('editor-canvas');
+  canvas.innerHTML = '';
+
+  // Reihenfolge = Ebenen: Linien (SVG) ganz unten, darueber die Loesch-Knoepfe der Wege,
+  // ganz oben die Ellipsen - Linien liegen also immer HINTER den Ellipsen.
+  const svgNs = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNs, 'svg');
+  svg.setAttribute('class', 'editor-arrows');
+  const defs = document.createElementNS(svgNs, 'defs');
+  defs.innerHTML = '<marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">'
+    + '<polygon points="0 0, 10 4, 0 8" fill="#c9a24b"></polygon></marker>';
+  svg.appendChild(defs);
+  const overlay = document.createElement('div');
+  overlay.className = 'editor-conn-overlay';
   canvas.appendChild(svg);
   canvas.appendChild(overlay);
+  ed.graph = { canvas, svg, defs, overlay };
+  updateCanvasSize();
+  drawLinks();
 
-  const locations = Object.values(ed.elementsById).filter(isLocation);
+  const locations = locationsList();
   if (locations.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'editor-empty-note';
@@ -548,12 +628,12 @@ function renderGraph() {
 
   const startId = ed.story.header && ed.story.header.startElement;
   for (const el of locations) {
-    const pos = ed.positions[el.id];
-    if (!pos) continue;
+    const pos = ed.layout[el.id];
     const isStart = el.id === startId;
     const node = document.createElement('div');
     node.className = 'loc-node'
       + (ed.connectSource === el.id ? ' connect-source' : '')
+      + (ed.selection.has(el.id) ? ' selected' : '')
       + (isStart ? ' is-start' : '');
     node.style.left = pos.x + 'px';
     node.style.top = pos.y + 'px';
@@ -567,7 +647,7 @@ function renderGraph() {
     setTip(node, ed.connectSource
       ? `Hier klicken, um den Weg nach „${el.name}“ anzulegen.`
       : `${TYPE_INFO[el.type] || el.type}\n${contained} Element(e) darin.${isStart ? '\n★ Hier beginnt die Geschichte.' : ''}\n`
-        + 'Klicken, um Texte und Inhalt dieses Ortes zu bearbeiten.');
+        + 'Klicken, um Texte und Inhalt dieses Ortes zu bearbeiten.\nMit gedrückter Maustaste ziehen, um den Ort zu verschieben.');
     setTip(node.querySelector('.loc-del-btn'), `Ort „${el.name}“ löschen (samt seiner Wege).\nGeht nur, wenn er leer ist.`);
     setTip(node.querySelector('.loc-connect-btn'),
       `Weg anlegen: Danach den Zielort anklicken.\nDer Spieler kann dann von „${el.name}“ dorthin gehen.`);
@@ -580,9 +660,154 @@ function renderGraph() {
       e.stopPropagation();
       startConnect(el.id);
     });
-    node.addEventListener('click', () => onLocationClick(el.id));
+    enableDrag(node, el.id);
+    node.addEventListener('click', () => {
+      if (node.dataset.dragged) {
+        delete node.dataset.dragged; // Ende eines Verschiebens ist kein Klick
+        return;
+      }
+      onLocationClick(el.id);
+    });
     canvas.appendChild(node);
   }
+  updateSelectionBanner();
+}
+
+// ---------------------------------------------------------------------
+// Mehrfachauswahl: Strg/Umschalt-Klick oder Rahmen ziehen; ausgewaehlte Orte werden
+// gemeinsam verschoben. Klick auf freie Flaeche oder Esc hebt die Auswahl auf.
+// ---------------------------------------------------------------------
+
+function isMultiKey(e) {
+  return e.ctrlKey || e.shiftKey || e.metaKey;
+}
+
+function setSelection(ids) {
+  ed.selection = new Set([...ids].filter((id) => ed.elementsById[id] && isLocation(ed.elementsById[id])));
+  for (const node of document.querySelectorAll('#editor-canvas .loc-node')) {
+    node.classList.toggle('selected', ed.selection.has(node.dataset.id));
+  }
+  updateSelectionBanner();
+}
+
+function updateSelectionBanner() {
+  if (ed.connectSource) return; // Verbindungs-Modus hat Vorrang
+  if (ed.selection.size > 1) {
+    showEditorBanner(`${ed.selection.size} Orte ausgewählt – eine davon ziehen, um alle gemeinsam zu verschieben. `
+      + 'Strg/Umschalt-Klick ändert die Auswahl, Esc hebt sie auf.', false);
+  } else {
+    hideEditorBanner();
+  }
+  updateCanvasSize(); // der Hinweis aendert die Hoehe des sichtbaren Bereichs
+}
+
+function enableDrag(node, id) {
+  node.dataset.id = id;
+  node.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || e.target.closest('button')) return;
+    if (isMultiKey(e)) {
+      // Auswahl umschalten statt verschieben; der folgende Klick oeffnet kein Fenster.
+      const next = new Set(ed.selection);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      setSelection(next);
+      node.dataset.dragged = '1';
+      return;
+    }
+    // Ausgewaehlten Ort ziehen = ganze Auswahl verschieben; sonst nur diesen einen.
+    const group = ed.selection.has(id) ? [...ed.selection] : [id];
+    const starts = Object.fromEntries(group.map((gid) => [gid, { ...ed.layout[gid] }]));
+    const minX = Math.min(...group.map((gid) => starts[gid].x));
+    const minY = Math.min(...group.map((gid) => starts[gid].y));
+    const nodes = group.map((gid) => document.querySelector(`#editor-canvas .loc-node[data-id="${CSS.escape(gid)}"]`));
+    const mx = e.clientX;
+    const my = e.clientY;
+    let dragging = false;
+    const onMove = (ev) => {
+      let dx = ev.clientX - mx;
+      let dy = ev.clientY - my;
+      if (!dragging && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      if (!dragging) {
+        dragging = true;
+        nodes.forEach((n) => n && n.classList.add('dragging'));
+        hideTooltip();
+      }
+      // Die Gruppe bleibt als Ganzes zusammen: niemand rutscht ueber den linken/oberen Rand.
+      dx = Math.max(dx, -minX);
+      dy = Math.max(dy, -minY);
+      group.forEach((gid, i) => {
+        const pos = { x: Math.round(starts[gid].x + dx), y: Math.round(starts[gid].y + dy) };
+        ed.layout[gid] = pos;
+        if (nodes[i]) {
+          nodes[i].style.left = pos.x + 'px';
+          nodes[i].style.top = pos.y + 'px';
+        }
+      });
+      updateCanvasSize();
+      drawLinks();
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (dragging) {
+        nodes.forEach((n) => n && n.classList.remove('dragging'));
+        node.dataset.dragged = '1';
+        markDirty();
+      }
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+}
+
+// Auswahlrahmen: auf freier Flaeche des Graphen ziehen. Ein Klick ohne Ziehen hebt die
+// Auswahl auf. Mit Strg/Umschalt wird zur bestehenden Auswahl hinzugefuegt.
+function initSelectionRectangle() {
+  const wrap = document.querySelector('.editor-canvas-wrap');
+  wrap.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest('.loc-node, button, .conn-hit')) return;
+    e.preventDefault(); // sonst markiert der Browser beim Rahmenziehen nebenbei Text
+    const canvas = document.getElementById('editor-canvas');
+    const origin = canvas.getBoundingClientRect();
+    const sx = e.clientX - origin.left;
+    const sy = e.clientY - origin.top;
+    const additive = isMultiKey(e);
+    const base = additive ? new Set(ed.selection) : new Set();
+    let rect = null;
+    const onMove = (ev) => {
+      const o = canvas.getBoundingClientRect();
+      const cx = ev.clientX - o.left;
+      const cy = ev.clientY - o.top;
+      if (!rect && Math.hypot(cx - sx, cy - sy) < DRAG_THRESHOLD) return;
+      if (!rect) {
+        rect = document.createElement('div');
+        rect.className = 'select-rect';
+        canvas.appendChild(rect);
+        hideTooltip();
+      }
+      const x1 = Math.min(sx, cx);
+      const y1 = Math.min(sy, cy);
+      const x2 = Math.max(sx, cx);
+      const y2 = Math.max(sy, cy);
+      Object.assign(rect.style, { left: x1 + 'px', top: y1 + 'px', width: x2 - x1 + 'px', height: y2 - y1 + 'px' });
+      const inside = locationsList()
+        .filter((l) => {
+          const p = ed.layout[l.id];
+          return p && p.x < x2 && p.x + NODE_W > x1 && p.y < y2 && p.y + NODE_H > y1;
+        })
+        .map((l) => l.id);
+      setSelection(new Set([...base, ...inside]));
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (rect) rect.remove();
+      else if (!additive) setSelection(new Set()); // einfacher Klick auf freie Flaeche
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
 }
 
 function onLocationClick(id) {
@@ -666,6 +891,7 @@ function deleteLocation(id) {
     if (conn.from === id || conn.to === id) removeElement(conn.doorId);
   }
   removeElement(id);
+  delete ed.layout[id];
   ed.stack = ed.stack.filter((sid) => sid !== id);
   markDirty();
   renderGraph();
@@ -690,7 +916,7 @@ function addLocation() {
   const el = {
     id,
     name,
-    type: 'room',
+    type: 'location',
     physical: true,
     layers: ed.story.layers && ed.story.layers[0] ? [ed.story.layers[0].id] : [],
     locatedIn: null,
@@ -700,6 +926,7 @@ function addLocation() {
   };
   ed.elementsById[id] = el;
   ed.story.elements.push(el);
+  ed.layout[id] = viewCenterPosition(); // neuer Ort erscheint mitten im sichtbaren Bereich
   markDirty();
   renderGraph();
 }
@@ -808,89 +1035,33 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
   else if (el.exitLabel) basics.appendChild(renderExitLabelRow(el, true));
   body.appendChild(basics);
 
+  if (isLocation(el)) body.appendChild(renderWaysSection(el));
   body.appendChild(renderInitialStateSection(el));
 
   el.presentation = el.presentation || {};
-  const usedFields = Object.keys(el.presentation);
 
   // Ein Weg navigiert sofort zum Ziel (setCurrentElement) - sein eigenes Fenster und
-  // damit seine Texte/Inhalte sieht der Spieler nie. Nur Hinweis statt leerer Felder.
-  // Reaktionen (z.B. "nur mit Schluessel") bekommt ein Weg trotzdem.
-  if (isDoor(el) && usedFields.length === 0) {
+  // damit seine Betrachtungstexte sieht der Spieler nie. Meldungen (z.B. "Weg versperrt")
+  // und Reaktionen (z.B. "nur mit Schluessel") bekommt ein Weg trotzdem.
+  if (isDoor(el)) {
     const note = document.createElement('p');
     note.className = 'door-note';
-    note.textContent = 'Ein Weg braucht keine eigenen Texte: Der Name ist die Beschriftung des Knopfs, '
+    note.textContent = 'Ein Weg braucht keine Betrachtungstexte: Der Name ist die Beschriftung des Knopfs, '
       + 'und beim Klicken landet der Spieler direkt am Zielort und liest dort dessen Text. '
-      + 'Soll der Weg versperrt sein, lege unten eine Reaktion mit Bedingung an.';
+      + 'Soll der Weg versperrt sein, lege unten eine Meldung und eine Reaktion mit Bedingung an.';
     body.appendChild(note);
+    body.appendChild(renderMessagesSection(el));
     body.appendChild(renderReactionsSection(el));
     div.appendChild(body);
     return div;
   }
 
-  renderTextsSection(el, body, usedFields);
+  renderTextsSection(el, body);
   body.appendChild(renderImagesSection(el));
   body.appendChild(renderReactionsSection(el));
   div.appendChild(body);
   appendContainsMenu(div, el);
   return div;
-}
-
-function renderTextsSection(el, body, usedFields) {
-  body.appendChild(renderSection('Texte', TEXT_PRIORITY_TIP));
-  const ordered = [
-    ...EDITOR_TEXT_FIELDS.filter((f) => usedFields.includes(f)),
-    ...usedFields.filter((f) => !EDITOR_TEXT_FIELDS.includes(f)),
-  ];
-  if (ordered.length === 0) {
-    const note = document.createElement('p');
-    note.className = 'field-empty-note';
-    note.textContent = 'Noch keine Texte. Tipp: Beginne mit „Erster Besuch“.';
-    body.appendChild(note);
-  }
-  for (const field of ordered) {
-    body.appendChild(renderTextField(el, field));
-  }
-
-  const remainingFields = EDITOR_TEXT_FIELDS
-    .filter((f) => !usedFields.includes(f))
-    .filter((f) => el.portable || (f !== 'takeText' && f !== 'dropText'));
-  if (remainingFields.length > 0) {
-    const addFieldRow = document.createElement('div');
-    addFieldRow.className = 'add-field-row';
-    const select = document.createElement('select');
-    for (const f of remainingFields) {
-      const opt = document.createElement('option');
-      opt.value = f;
-      opt.textContent = fieldLabel(f);
-      select.appendChild(opt);
-    }
-    const desc = document.createElement('p');
-    desc.className = 'add-field-desc';
-    const updateDesc = () => {
-      const info = FIELD_INFO[select.value];
-      desc.textContent = info ? info.tip : '';
-      setTip(select, 'Welches Textfeld soll hinzugefügt werden?\n\n' + (info ? info.tip : ''));
-    };
-    select.addEventListener('change', updateDesc);
-    updateDesc();
-    const addBtn = document.createElement('button');
-    addBtn.textContent = '+ Textfeld hinzufügen';
-    addBtn.className = 'menu-btn';
-    setTip(addBtn, 'Fügt das links gewählte Textfeld zu diesem Element hinzu.');
-    addBtn.addEventListener('click', () => {
-      const field = select.value;
-      el.presentation[field] = '';
-      markDirty();
-      renderEditorStack();
-      const ta = document.querySelector(`#editor-window-stack .window:last-child textarea[data-field="${field}"]`);
-      if (ta) ta.focus();
-    });
-    addFieldRow.appendChild(select);
-    addFieldRow.appendChild(addBtn);
-    body.appendChild(addFieldRow);
-    body.appendChild(desc);
-  }
 }
 
 function appendContainsMenu(div, el) {
@@ -969,7 +1140,15 @@ function renderTypeRow(el) {
   select.value = el.type;
   setTip(select, TYPE_INFO[el.type] || BASE_TIPS.type);
   select.addEventListener('change', () => {
+    const becomesLocation = LOCATION_TYPES.includes(select.value) && !isLocation(el);
     el.type = select.value;
+    if (becomesLocation && el.locatedIn) {
+      // Orte liegen nie in etwas anderem - sonst entstuende ein doppelter Zugang (Fenster + Weg).
+      const parent = ed.elementsById[el.locatedIn];
+      el.locatedIn = null;
+      alert(`„${el.name}“ ist jetzt ein Ort und liegt nicht mehr in „${parent ? parent.name : '?'}“.\n`
+        + 'Orte erreicht man nur über Wege: Lege im Ortsgraph mit 🔗 einen Weg dorthin an.');
+    }
     markDirty();
     renderGraph();
     renderEditorStack();
@@ -990,6 +1169,15 @@ function isInsideOf(id, ancestorId) {
 }
 
 function renderLocatedInRow(el) {
+  if (isLocation(el)) {
+    const row = makeRow('Befindet sich in', BASE_TIPS.locatedIn);
+    const note = document.createElement('div');
+    note.className = 'fixed-value';
+    note.textContent = 'Orte liegen auf oberster Ebene – Zugang nur über Wege';
+    setTip(note, TYPE_INFO.location);
+    row.appendChild(note);
+    return row;
+  }
   const row = makeRow('Befindet sich in', BASE_TIPS.locatedIn);
   const select = document.createElement('select');
   const none = document.createElement('option');
@@ -1170,50 +1358,6 @@ function renderExitLabelRow(el, ineffective) {
   return row;
 }
 
-function renderTextField(el, field) {
-  const info = FIELD_INFO[field] || {};
-  const row = document.createElement('div');
-  row.className = 'field-row';
-  const head = document.createElement('div');
-  head.className = 'field-head';
-  const label = document.createElement('span');
-  label.className = 'field-label';
-  label.textContent = fieldLabel(field);
-  if (info.label) {
-    const key = document.createElement('span');
-    key.className = 'field-key';
-    key.textContent = field;
-    label.appendChild(key);
-  }
-  label.appendChild(infoIcon(info.tip || 'Freies Textfeld ohne besondere Bedeutung im Spiel.'));
-  head.appendChild(label);
-  const del = document.createElement('button');
-  del.className = 'field-del-btn';
-  del.textContent = '✕';
-  setTip(del, `Textfeld „${fieldLabel(field)}“ entfernen.`);
-  del.addEventListener('click', () => {
-    if (el.presentation[field] && !confirm(`Textfeld „${fieldLabel(field)}“ samt Inhalt entfernen?`)) return;
-    delete el.presentation[field];
-    markDirty();
-    renderEditorStack();
-  });
-  head.appendChild(del);
-  row.appendChild(head);
-
-  const textarea = document.createElement('textarea');
-  textarea.dataset.field = field;
-  textarea.rows = field === 'contentText' ? 5 : 3;
-  textarea.value = el.presentation[field] || '';
-  textarea.placeholder = info.placeholder || '';
-  setTip(textarea, info.tip);
-  textarea.addEventListener('input', () => {
-    el.presentation[field] = textarea.value;
-    markDirty();
-  });
-  row.appendChild(textarea);
-  return row;
-}
-
 function addChildElement(parentId) {
   const name = prompt('Name des neuen Objekts:');
   if (!name) return;
@@ -1267,6 +1411,8 @@ async function saveEditorStory() {
     layers: ed.story.layers,
     resolution: ed.story.resolution,
     elements: Object.values(ed.elementsById),
+    // Nur fuer den Editor; der Server schreibt das in editor_layout.json, nicht in die YAML.
+    editorLayout: Object.fromEntries(locationsList().filter((l) => ed.layout[l.id]).map((l) => [l.id, ed.layout[l.id]])),
   };
   const btn = document.getElementById('btn-editor-save');
   btn.disabled = true;
@@ -1492,6 +1638,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('btn-editor-help-close').addEventListener('click', toggleEditorHelp);
   initTooltips();
+  initSelectionRectangle();
 
   document.addEventListener('keydown', (e) => {
     if (document.getElementById('screen-editor-graph').hidden) return;
@@ -1503,6 +1650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (!document.getElementById('meta-dialog').hidden) hideMetaDialog();
       else if (ed.connectSource) cancelConnect();
       else if (ed.stack.length > 0) closeEditorTopWindow();
+      else if (ed.selection.size > 0) setSelection(new Set());
     }
   });
 

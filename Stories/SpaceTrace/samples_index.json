@@ -1,6 +1,9 @@
 {
+  "autopilot_taste:firstView": 81,
   "cockpit_glover_iv:firstView": 72,
   "cockpit_glover_iv:repeatView": 73,
+  "cockpit_glover_iv:stateText:zt_neue_spur:firstView": 79,
+  "cockpit_glover_iv:stateText:zt_neue_spur:repeatView": 82,
   "cockpitfenster:firstView": 74,
   "ein_tisch:firstView": 69,
   "end_point:firstView": 67,
@@ -8,6 +11,7 @@
   "kommunikationsanlage:firstView": 75,
   "laderaum:firstView": 76,
   "medikamente:firstView": 77,
+  "navigationssystem:firstView": 80,
   "player:firstView": 78,
   "start_point:firstView": 66,
   "tuer_ztum_startpunkt:firstUse": 71,

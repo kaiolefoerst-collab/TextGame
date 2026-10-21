@@ -19,8 +19,8 @@
 00016 "Im Schreibtisch scheint es derzeit nichts Weiteres zu entdecken zu geben.";
 00017 "Die ersten Seiten enthalten gewöhnliche Einträge über Mehl, Getreide und Lieferungen. Die letzten Seiten sind durch Schlamm und Feuchtigkeit miteinander verklebt.";
 00018 "Ohne einen konkreten Hinweis kannst du zwischen den beschädigten Zeilen nichts Auffälliges erkennen.";
-00019 "Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren Handschrift. Unter ihr stehen die Initialen 'C. V.'.";
 00020 "Claras Eintrag ist bereits vollständig gelesen. Im Buch gibt es derzeit nichts Weiteres zu entdecken.";
+00019 "Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren Handschrift. Unter ihr stehen die Initialen 'C. V.'.";
 00021 "Claras verblasste Notiz auf der letzten beschriebenen Seite wird vollständig lesbar.";Standard
 00022 "Der Eintrag beschreibt die Blockade des Kanals und Claras Absicht, Brandt zur Rede zu stellen. Weitere Informationen enthält er nicht.";Standard
 00023 "Brandts Männer haben den Entlastungskanal mit Balken und Steinen verschlossen. Das Wasser läuft deshalb nur noch durch seine Turbine. Vater sagt, dass dies bei starkem Regen gefährlich ist. Über dem Wald stehen dunkle Wolken. Ich gehe zum Sägewerk und verlange von Herrn Brandt, dass er den Kanal öffnen lässt. C. V.";Standard

@@ -7,8 +7,22 @@ header:
   partOf: null
   chapterIndex: null
   startElement: start_point
-  imageMasterPrompt: 'Realitätsnah, Düstere Atmosphäre, Weltraum Atmosphäre, Viele Lichteffekte und Lichter
-    um die Atmosphäre aufzubauen. '
+  imageMasterPrompt: "Realistischer, filmischer Science-Fiction-Stil mit einer düsteren, geheimnisvollen\
+    \ und atmosphärisch dichten Bildsprache.\n\nDie Spielwelt soll glaubwürdig und technisch funktional\
+    \ wirken. Raumschiffe, Innenräume, Maschinen und technische Einrichtungen sind  mit sichtbaren Gebrauchsspuren\
+    \ gestaltet. Realistischen Materialien wie Metall, Glas und Kunststoff. Keine übertrieben fantasievollen\
+    \ Designs.\n\nDie Beleuchtung ist ein zentrales Gestaltungselement. Dunkle Bereiche, tiefe Schatten,\
+    \ indirektes Licht, leuchtende Displays, Kontrolllampen und vereinzelte Lichtquellen erzeugen eine\
+    \ geheimnisvolle Atmosphäre. Gezielte Lichtreflexionen und dezente volumetrische Effekte verstärken\
+    \ die räumliche Tiefe.\n\nDie Farbpalette ist überwiegend kühl und zurückhaltend, mit dunklen Blau-,\
+    \ Grau- und Metalltönen. Warme Lichtquellen, kräftige Akzentfarben und Neonbeleuchtung dürfen gezielt\
+    \ eingesetzt werden, um technische Einrichtungen hervorzuheben und interessante visuelle Kontraste\
+    \ zu schaffen.\n\nDer Weltraum wirkt weit, dunkel, still und überwältigend. Sterne und Himmelskörper\
+    \ werden realistisch dargestellt.\n\nDie Bildkomposition erinnert an einen hochwertigen Science-Fiction-Film.\
+    \ Sie vermittelt Einsamkeit, Neugier, Spannung und das Gefühl, ein längst vergessenes Geheimnis zu\
+    \ entdecken.\n\nPersonen und menschenähnliche Gestalten dürfen grundsätzlich nicht dargestellt werden,\
+    \ es sei denn, sie werden im jeweiligen Detailprompt ausdrücklich verlangt. Räume und Szenen werden\
+    \ standardmäßig menschenleer dargestellt.\n\nKeine Comic-Ästhetik, keine stilisierten Illustrationen. "
   narratorVoice: male1
 layers:
 - id: present
@@ -17,7 +31,7 @@ layers:
 elements:
 - id: start_point
   name: Einleitung
-  type: room
+  type: location
   physical: true
   layers:
   - present
@@ -41,7 +55,7 @@ elements:
     als Titelbeschriebung "Space Trace" '
 - id: end_point
   name: Endpunkt
-  type: room
+  type: location
   physical: true
   layers:
   - present
@@ -65,31 +79,16 @@ elements:
   presentation:
     firstView: Hier steht ein Tisch
   exitLabel: Tisch verlassen
-- id: tuer_ztum_startpunkt
-  name: Tür ztum Startpunkt
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: end_point
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: go_tuer_ztum_startpunkt
-    enabled: true
-    effects:
-    - setCurrentElement: start_point
-  presentation: {}
 - id: cockpit_glover_iv
   name: Cockpit Glover IV
-  type: room
+  type: location
   physical: true
   layers:
   - present
   locatedIn: null
   initialState:
-    visible: true
+    visible: false
+    location: space
   initialPartOf: []
   presentation:
     firstView: |-
@@ -103,11 +102,40 @@ elements:
       die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit
       Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig
       hin. Als würde sich dadurch etwas ändern.
-  onUse: []
-  image: |-
-    Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Aus dem Fenster sieht man  Weltall mit ein paar Sternen
+  onUse:
+  - id: reaktion_1
+    enabled: true
+    conditions: []
+    effects:
+    - disableSelfTrigger: reaktion_1
+  image: Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine
+    Person. Der Fokus liegt auf dem Fenster und der Aussenansicht, vom Cockpit selber ist kaum was zu
+    sehen. Die Hände des Piloten sieht man nicht. Aus dem Fenster sieht man  Weltall. Das Bild soll ein
+    Gefühl der EInsamkeit und Leere vermitteln. Keine Planeten oder sonstige auffälligen Himmelskörper.
+  stateTexts:
+  - id: zt_neue_spur
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - byHope
+    firstView: |-
+      Inzwischen kann ich es auch durch das Cockpitfenster erkennen. Ein gewaltiges Raumschiff, das langsam vor mir im Dunkel des Weltraums auftaucht. Je näher ich komme, desto deutlicher werden seine Umrisse. Zwei riesige Ringe, mit einer  gemeinsame Achse drehen. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
 
-    Szene laut Geschichte: „Ich verfluche ich meine Bereitschaft, mit diesem Mini-Raumschiff eine Solo-Mission zu fliegen. Ein paar Medikamente zu einer Forschungsstation weit draußen im Sonnensystem bringen, ungefähr 65 astronomische Einheiten von der Sonne entfernt. Eine Strecke, auf der man kaum jemandem begegnet, und die Reise sollte ohnehin mehrere Monate dauern. An sich schon eine äußerst langweilige Angelegenheit, aber dann kam noch dieser technische Defekt und jetzt sieht es düster aus. Ich sitze hier in meinem Cockpit und starre auf die Anzeigen. Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.“ Das Bild darf dem nicht widersprechen.
+      Die Ringe bewegen sich nicht und das Schiff scheint einfach nur im Raum zu treiben. Ob dort überhaupt noch jemand lebt?
+
+
+      Was zum Teufel macht so ein Ding hier draußen und was ist mit Ihm passiert?
+
+
+      Ich lehne mich zurück und betrachte das gewaltige Gebilde vor mir. Einerseits bin ich unglaublich erleichtert, endlich auf etwas gestoßen zu sein. Andererseits habe ich ein verdammt ungutes Gefühl bei der Sache.
+    repeatView: Ich sitze wieder in meinem Cockpit und betrachte das riesige Raumschiff aus dem Cockpitfenster
+  stateImages:
+  - state:
+      location: byHope
+    prompt: |+
+      Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Der Fokus liegt auf dem Fenster und der Aussenansicht, vom Cockpit selber ist kaum was zu sehen. Aus dem Fenster sieht man  Weltall und einer  Ein gewaltiges Raumschiff bestehend aus zwei riesige Ringe, mit einer  gemeinsame Achse drehen. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
+
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door
@@ -137,12 +165,12 @@ elements:
     firstView: |
       Ich schaue aus meinem Cockpitfenster und sehe die Sterne im dunklen Raum. Eigentlich ein beeindruckender Anblick. Millionen kleiner Lichtpunkte auf einem vollkommen schwarzen Hintergrund. Kein Flimmern, keine Atmosphäre, die das Licht verzerrt. Alles gestochen scharf. Nur leider wird auch der schönste Sternenhimmel irgendwann langweilig, wenn man ihn den ganzen Tag vor der Nase hat. Ab und zu versuche ich, bekannte Sternbilder zu erkennen. Funktioniert nur bedingt. Von hier draußen sieht eben manches anders aus.
 - id: kommunikationsanlage
-  name: Kommunikationsanlage
-  type: feature
+  name: Kommunikation
+  type: location
   physical: true
   layers:
   - present
-  locatedIn: cockpit_glover_iv
+  locatedIn: null
   initialState:
     visible: true
   initialPartOf: []
@@ -152,7 +180,7 @@ elements:
   image: 'Ein Detailbild von einer Raumschiff-Kommunikationsanlage aus Sicht des Piloten. '
 - id: laderaum
   name: Laderaum
-  type: room
+  type: location
   physical: true
   layers:
   - present
@@ -181,7 +209,7 @@ elements:
     effects:
     - setCurrentElement: laderaum
 - id: weg_laderaum_cockpit_glover_iv
-  name: Weg nach Cockpit Glover IV
+  name: zurück zum Cockpit
   type: door
   physical: true
   layers:
@@ -195,6 +223,7 @@ elements:
     enabled: true
     effects:
     - setCurrentElement: cockpit_glover_iv
+    conditions: []
   presentation: {}
 - id: weg_laderaum_end_point
   name: Schleuse um das Raumschiff zu verlassen
@@ -254,7 +283,7 @@ elements:
     firstView: Du schaust in deine Taschen.
 - id: navigationssystem
   name: Navigationssystem
-  type: room
+  type: location
   physical: true
   layers:
   - present
@@ -262,7 +291,23 @@ elements:
   initialState:
     visible: true
   initialPartOf: []
-  presentation: {}
+  presentation:
+    firstView: |-
+      Das Navigationssystem meiner Glover IV zeigt mir, was sich in der Umgebung des Schiffes befindet. Viel ist das normalerweise nicht. Meistens starre ich auf einen leeren Bildschirm.
+
+      Erkannte Objekte erscheinen als kleine Punkte. Je nach Entfernung und Bewegungsrichtung verändern sie langsam ihre Position auf der Anzeige.
+
+      Ich kann jeden dieser Punkte auswählen und mir nähere Informationen anzeigen lassen. Außerdem kann ich das Objekt als Ziel markieren und den Autopiloten einen passenden Kurs berechnen lassen.
+
+      Und jetzt ist da tatsächlich ein kleiner weißer Punkt. Mitten im Nirgendwo. Ich habe keine Ahnung, was sich dahinter verbirgt. Vielleicht ist es nur ein nutzloses Stück Weltraumschrott.
+
+      Vielleicht aber auch meine Rettung. Nach all den Wochen, in denen ich nur auf mein Ende gewartet habe, ist dieser winzige Punkt plötzlich alles, was mir noch Hoffnung gibt.
+  onUse:
+  - id: reaktion_1
+    enabled: false
+    conditions: []
+    effects:
+    - disableSelfTrigger: reaktion_1
 - id: weg_cockpit_glover_iv_navigationssystem
   name: Navigationssystem
   type: door
@@ -279,7 +324,7 @@ elements:
     effects:
     - setCurrentElement: navigationssystem
 - id: weg_navigationssystem_cockpit_glover_iv
-  name: Weg nach Cockpit Glover IV
+  name: Navigationsstation verlassen
   type: door
   physical: true
   layers:
@@ -293,3 +338,64 @@ elements:
     enabled: true
     effects:
     - setCurrentElement: cockpit_glover_iv
+    conditions: []
+  presentation: {}
+- id: weg_kommunikationsanlage_cockpit_glover_iv
+  name: Weg nach Cockpit Glover IV
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: kommunikationsanlage
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_kommunikationsanlage_cockpit_glover_iv
+    enabled: true
+    effects:
+    - setCurrentElement: cockpit_glover_iv
+- id: weg_cockpit_glover_iv_kommunikationsanlage
+  name: Weg nach Kommunikationsanlage
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: cockpit_glover_iv
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_cockpit_glover_iv_kommunikationsanlage
+    enabled: true
+    effects:
+    - setCurrentElement: kommunikationsanlage
+- id: autopilot_taste
+  name: Auto-Pilot Taste drücken
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: navigationssystem
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Der Autopilot ist aktiviert. Die Bord-KI hat den Kurs berechnet und die Steuerdüsen geben einen kurzen Schub ab. Auf der Anzeige verändert sich die Flugrichtung ein wenig. Mehr passiert nicht.
+
+      Jetzt heißt es warten. Ich kann nichts weiter tun, als zu hoffen, dass die Berechnungen stimmen.
+
+      Ich starre wieder auf den kleinen weißen Punkt. Vor ein paar Minuten war ich noch überzeugt, dass meine Reise hier draußen enden würde. Jetzt habe ich plötzlich wieder ein Ziel.
+
+      Verdammt, vielleicht komme ich hier doch noch lebend raus!
+  onUse:
+  - id: reaktion_1
+    enabled: true
+    conditions: []
+    effects:
+    - hideElement: autopilot_taste
+    - setElementState:
+      - cockpit_glover_iv
+      - location
+      - byHope

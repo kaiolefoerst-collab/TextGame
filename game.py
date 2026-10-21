@@ -24,7 +24,7 @@ from urllib.parse import unquote, urlparse
 import yaml
 
 from pics_fields import image_entries, image_key
-from story_files import STORIES_DIR, StoryFolder, load_index, load_story, story_folders
+from story_files import STORIES_DIR, StoryFolder, load_index, load_story, save_index, story_folders
 from vocs_fields import DEFAULT_SPEAKER, SPEAKERS, narrated_texts, sample_key
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -89,7 +89,7 @@ def enrich_with_samples(story: dict, folder: StoryFolder) -> dict:
     index = load_index(folder.samples_index)
     # Nur Texte, die laut vocs_fields.narrated_texts gesprochen werden - ein altes mp3 zu
     # einem inzwischen ausgeschlossenen Text (z.B. Logbuch) wird so nie abgespielt.
-    for el, field, _text in narrated_texts(story):
+    for el, field, _text, _voice in narrated_texts(story):
         number = index.get(sample_key(el["id"], field))
         if number is not None and (folder.samples_dir / f"sample_{number:05d}.mp3").is_file():
             el.setdefault("_samples", {})[field] = number
@@ -181,7 +181,10 @@ class GameRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"error": f"Unbekannte Story-ID '{story_id}'"}, status=404)
                 return
             folder = self.story_folders[story_id]
-            self._send_json(enrich_with_images(enrich_with_samples(story, folder), folder))
+            payload = enrich_with_images(enrich_with_samples(story, folder), folder)
+            # Positionen der Orte fuer den Editor (eigene Datei, nicht Teil der YAML).
+            payload["_editorLayout"] = load_index(folder.editor_layout)
+            self._send_json(payload)
             return
 
         # Medien einer Geschichte: /stories/<Name>/samples/<datei> bzw. /stories/<Name>/pictures/<datei>
@@ -214,6 +217,8 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             except json.JSONDecodeError:
                 self._send_json({"error": "Ungueltiges JSON im Request-Body"}, status=400)
                 return
+            # Editor-Positionen getrennt von der Geschichte speichern (Stories/<Name>/editor_layout.json).
+            editor_layout = data.pop("editorLayout", None) if isinstance(data, dict) else None
             if not isinstance(data, dict) or "header" not in data or "elements" not in data:
                 self._send_json({"error": "Story-Objekt muss 'header' und 'elements' enthalten"}, status=400)
                 return
@@ -223,6 +228,8 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             with STORIES_LOCK:
                 try:
                     save_story_file(story_id, data, self.story_folders)
+                    if isinstance(editor_layout, dict):
+                        save_index(self.story_folders[story_id].editor_layout, editor_layout)
                 except Exception as exc:
                     self._send_json({"error": str(exc)}, status=500)
                     return
@@ -231,6 +238,13 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             return
 
         self.send_error(404, "Nicht gefunden")
+
+
+class ExclusiveHTTPServer(ThreadingHTTPServer):
+    """Unter Windows darf sich mit SO_REUSEADDR ein zweiter Server unbemerkt auf denselben
+    Port setzen - dann antwortet weiter der alte Prozess (mit veralteten Geschichten).
+    Ohne Wiederverwendung bricht ein zweiter Start sofort mit einer klaren Meldung ab."""
+    allow_reuse_address = False
 
 
 def make_handler(stories: dict[str, dict], folders: dict[str, StoryFolder]):
@@ -255,7 +269,11 @@ def main() -> None:
         print(f"{len(stories)} Story(s) geladen: {', '.join(stories)}")
 
     handler_cls = make_handler(stories, folders)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), handler_cls)
+    try:
+        server = ExclusiveHTTPServer(("127.0.0.1", args.port), handler_cls)
+    except OSError:
+        raise SystemExit(f"Port {args.port} ist schon belegt - läuft das Spiel bereits? "
+                         f"Altes Fenster schließen oder einen anderen Port wählen: python game.py --port 8001")
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Server laeuft auf {url} (Strg+C zum Beenden)")
 

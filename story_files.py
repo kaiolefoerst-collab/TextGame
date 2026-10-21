@@ -11,6 +11,7 @@ Alles, was zu einer Geschichte gehoert, liegt darin:
         pictures_index.json    feste Nummer je Bild   (Schluessel "element:image[@zustand]")
         samples_input.txt      Exportliste fuer generate_samples.py
         pictures_input.txt     Exportliste fuer generate_pictures.py
+        editor_layout.json     Positionen der Orte im Editor (nur Editor, vom Spiel ignoriert)
 
 Eine Geschichte existiert genau dann, wenn ihr Ordner mit der gleichnamigen YAML-Datei
 existiert. Der Ordnername ist ihre Kennung; eine abweichende header.id wird mit Warnung
@@ -65,6 +66,11 @@ class StoryFolder:
     @property
     def pictures_input(self) -> Path:
         return self.dir / "pictures_input.txt"
+
+    @property
+    def editor_layout(self) -> Path:
+        """Positionen der Ellipsen im Editor-Ortsgraph (elementId -> {x, y}); vom Spiel ignoriert."""
+        return self.dir / "editor_layout.json"
 
 
 def story_folders(stories_dir: Path = STORIES_DIR) -> list[StoryFolder]:

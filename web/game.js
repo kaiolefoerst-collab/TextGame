@@ -12,7 +12,7 @@ const PLAYER_ID = 'player';
 
 // Element-Typen, in die ein Gegenstand beim Ablegen aus dem Inventar gelegt werden kann
 // (neben Orten). Bei allen anderen (z.B. Brief, Person) landet er am aktuellen Ort.
-const DROP_TARGET_TYPES = ['room', 'area', 'building', 'place', 'container', 'feature', 'furniture', 'object_collection'];
+const DROP_TARGET_TYPES = ['location', 'room', 'area', 'building', 'place', 'container', 'feature', 'furniture', 'object_collection'];
 
 // Gruppierung der Auswahlmoeglichkeiten unten im Fenster, in Anzeigereihenfolge.
 // Zuordnung ueber den Element-Typ; alles Unbekannte landet unter "Sonstiges".
@@ -28,8 +28,8 @@ const MENU_CATEGORIES = [
   { key: 'document', label: 'Schriftstücke', icon: '✎', hint: 'Lesen',
     types: ['document', 'document_collection', 'document_entry', 'inscription'] },
   { key: 'place', label: 'Bereiche', icon: '⌂', hint: 'Betreten',
-    types: ['room', 'area', 'building', 'place'] },
-  { key: 'way', label: 'Wege', icon: '➜', hint: 'Gehen',
+    types: ['place', 'location', 'room', 'area', 'building'] },
+  { key: 'way', label: 'Möglichkeiten', icon: '➜', hint: 'Gehen',
     types: ['door'] },
   { key: 'other', label: 'Sonstiges', icon: '•', hint: '', types: [] },
 ];
@@ -50,6 +50,7 @@ const engine = {
   gameFinished: false,
   pendingMessages: [],
   pendingSamples: [],
+  shownMessages: [],    // Meldungen der letzten Aktion - stehen im Fenster, bis zur naechsten Aktion
   actionCount: 0,       // Spieleraktionen seit Start - fuer die Verlassen-Rueckfrage   // Sample-Nummern erzaehlender Meldungen (showTextFrom), nach dem Fenstertext vorzulesen
 };
 
@@ -103,6 +104,7 @@ function initEngine(story) {
   engine.gameFinished = false;
   engine.pendingMessages = [];
   engine.pendingSamples = [];
+  engine.shownMessages = [];
   engine.actionCount = 0;
 
   // Inventar = Inhalt des Elements "player". Geschichten ohne eigenes player-Element
@@ -282,9 +284,11 @@ function applyEffect(effect, ctxElementId) {
       if (text) engine.pendingMessages.push(text);
       // Erzaehlende Meldung: wird vorgelesen, falls ein Sample existiert. Frei geschriebene
       // showText-Meldungen und Aufnehmen/Ablegen werden bewusst NICHT vorgelesen.
-      const [msgElId, , msgField] = String(val).split('.');
+      const [msgElId, msgArea, ...rest] = String(val).split('.');
+      const msgName = rest.join('.');
+      const msgKey = msgArea === 'messages' ? `message:${msgName}` : msgName;
       const msgEl = engine.elementsById[msgElId];
-      const msgSample = msgEl && msgEl._samples ? msgEl._samples[msgField] : null;
+      const msgSample = msgEl && msgEl._samples ? msgEl._samples[msgKey] : null;
       if (msgSample != null) engine.pendingSamples.push(msgSample);
       break;
     }
@@ -335,10 +339,8 @@ function use(elementId) {
     return;
   }
 
+  engine.shownMessages = engine.pendingMessages.slice();
   render();
-  if (engine.pendingMessages.length > 0) {
-    showToast(engine.pendingMessages.join('\n\n'));
-  }
 }
 
 function checkResolution() {
@@ -367,6 +369,7 @@ function focusElement(elementId) {
 
 function closeTopWindow() {
   if (engine.stack.length > 1) {
+    engine.shownMessages = [];
     engine.stack.pop();
     render();
   }
@@ -374,6 +377,7 @@ function closeTopWindow() {
 
 function openInventory() {
   if (engine.stack.includes(PLAYER_ID)) return;
+  engine.shownMessages = [];
   engine.stack.push(PLAYER_ID);
   render();
 }
@@ -437,47 +441,50 @@ function finishInventoryAction(message) {
     showEndScreen();
     return;
   }
+  engine.shownMessages = [message, ...engine.pendingMessages];
   render();
-  showToast([message, ...engine.pendingMessages].join('\n\n'));
 }
 
 // ---------------------------------------------------------------------
 // Textauswahl
 // ---------------------------------------------------------------------
 
-// Liefert { text, fields } - fields nennt, aus welchen presentation-Schluesseln der
-// Text zusammengesetzt wurde (in Anzeigereihenfolge). Der Aufrufer kann darueber die
-// passenden Sample-Nummern (el._samples[field]) fuer die Vorlesen-Funktion nachschlagen.
+// Textauswahl (Textmodell siehe vocs_fields.py):
+// 1. Der oberste Zustandstext (stateTexts), dessen Bedingungen alle erfuellt sind - die
+//    Bedingungen sind dieselben wie bei Reaktionen und duerfen auch andere Elemente pruefen.
+// 2. Sonst die festen Texte presentation.firstView / repeatView.
+// Erste Betrachtung = das erste Mal, dass der Spieler das Element mit DIESEM Text sieht
+// (je Zustandstext getrennt gezaehlt), danach die erneute Betrachtung (falls leer: die erste).
+// Der Wortlaut (contentText) wird immer angehaengt.
+// Liefert { text, fields } - fields sind die Sample-Schluessel (el._samples[...]) fuer die
+// Vorlesen-Funktion, in Anzeigereihenfolge.
+function matchingStateText(el) {
+  return (el.stateTexts || []).find((st) => st && Array.isArray(st.conditions) && st.conditions.length > 0
+    && (st.firstView || st.repeatView) && conditionsPass(st.conditions)) || null;
+}
+
 function pickPresentationText(id) {
   const el = engine.elementsById[id];
   const rt = engine.runtime[id];
   const p = el.presentation || {};
-  const usedBefore = !!rt.usedBefore;
-  const hasFreshChild = childrenOf(id).some(
-    (c) => engine.runtime[c].revealedDuringPlay && !engine.runtime[c].usedBefore
-  );
+  rt.seenTexts = rt.seenTexts || {};
 
+  const st = matchingStateText(el);
+  const source = st || p;
+  const seenKey = st ? 'state:' + st.id : 'base';
+  const seen = !!rt.seenTexts[seenKey];
   let field = null;
-  if (rt.investigation === 'complete' && (p.completeView || p.completeUse)) {
-    field = p.completeView ? 'completeView' : 'completeUse';
-  } else if (hasFreshChild && (p.openLeadView || p.openLeadUse)) {
-    field = p.openLeadView ? 'openLeadView' : 'openLeadUse';
-  } else if (!usedBefore) {
-    field = p.firstView ? 'firstView' : p.firstUse ? 'firstUse' : p.repeatView ? 'repeatView' : p.repeatUse ? 'repeatUse' : null;
-  } else if (p.blockedUse) {
-    field = 'blockedUse';
-  } else {
-    field = p.repeatView ? 'repeatView' : p.repeatUse ? 'repeatUse' : p.firstView ? 'firstView' : p.firstUse ? 'firstUse' : null;
-  }
+  if (!seen && source.firstView) field = 'firstView';
+  else if (source.repeatView) field = 'repeatView';
+  else if (source.firstView) field = 'firstView';
+  rt.seenTexts[seenKey] = true;
   rt.usedBefore = true;
 
-  let text = field ? p[field] : '(kein Text hinterlegt)';
-  const fields = field ? [field] : [];
+  let text = field ? source[field] : '(kein Text hinterlegt)';
+  const fields = field ? [st ? `stateText:${st.id}:${field}` : field] : [];
 
-  // contentText ist der woertliche Wortlaut eines Dokuments/einer Inschrift (Autorenregeln
-  // Kapitel 9/10) und getrennt von der einleitenden Rahmenerzaehlung gespeichert - er gehoert
-  // aber bei jeder Benutzung mit in den angezeigten Text, sonst liest der Spieler den
-  // eigentlichen Inhalt nie.
+  // Wortlaut: woertlicher Inhalt eines Briefs/einer Inschrift - getrennt von der Rahmen-
+  // erzaehlung gespeichert (eigener Sprecher moeglich), aber immer mit angezeigt.
   if (p.contentText) {
     text = text + '\n\n' + p.contentText;
     fields.push('contentText');
@@ -591,15 +598,10 @@ function renderWindow(id, isTop, showCloseButton) {
   const div = document.createElement('div');
   div.className = 'window' + (isTop ? '' : ' dimmed');
 
+  // Die Zurueck-Taste steht nicht in der Kopfzeile, sondern unten bei den "Moeglichkeiten" -
+  // alle Steuerungstasten des Spiels sind damit an einer Stelle (siehe Menue unten).
   const header = document.createElement('div');
   header.className = 'window-header';
-  if (showCloseButton) {
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-btn';
-    closeBtn.textContent = '← ' + (el.exitLabel || 'Zurück');
-    closeBtn.addEventListener('click', closeTopWindow);
-    header.appendChild(closeBtn);
-  }
   const nameSpan = document.createElement('span');
   nameSpan.className = 'window-name';
   nameSpan.textContent = el.name;
@@ -631,6 +633,16 @@ function renderWindow(id, isTop, showCloseButton) {
   const sampleNumbers = picked.fields
     .map((field) => el._samples && el._samples[field])
     .filter((n) => n != null);
+
+  // Meldungen der letzten Aktion (z.B. "Der Weg verschwindet im Nebel ..."): im obersten
+  // Fenster zwischen Text und Auswahl - sie verdecken nichts und bleiben stehen, bis der
+  // Spieler die naechste Aktion macht.
+  if (isTop && engine.shownMessages.length > 0) {
+    const msgBox = document.createElement('div');
+    msgBox.className = 'window-message';
+    msgBox.textContent = engine.shownMessages.join('\n\n');
+    div.appendChild(msgBox);
+  }
 
   const kids = childrenOf(id).filter(isVisible);
   if (id === PLAYER_ID && kids.length === 0) {
@@ -664,7 +676,9 @@ function renderWindow(id, isTop, showCloseButton) {
   menu.className = 'window-menu';
   for (const cat of MENU_CATEGORIES) {
     const members = kids.filter((cid) => menuCategoryOf(engine.elementsById[cid]) === cat);
-    if (members.length === 0) continue;
+    // Die Gruppe "Moeglichkeiten" erscheint auch ohne Wege, wenn es eine Zurueck-Taste gibt.
+    const withBack = cat.key === 'way' && showCloseButton;
+    if (members.length === 0 && !withBack) continue;
     const group = document.createElement('div');
     group.className = `menu-group cat-${cat.key}`;
     const title = document.createElement('div');
@@ -691,6 +705,18 @@ function renderWindow(id, isTop, showCloseButton) {
       btn.title = cat.hint;
       btn.addEventListener('click', () => use(childId));
       list.appendChild(btn);
+    }
+    if (withBack) {
+      const back = document.createElement('button');
+      back.className = 'menu-btn back-btn';
+      const icon = document.createElement('span');
+      icon.className = 'menu-icon';
+      icon.textContent = '←';
+      back.appendChild(icon);
+      back.appendChild(document.createTextNode(el.exitLabel || 'Zurück'));
+      back.title = 'Dieses Fenster schließen';
+      back.addEventListener('click', closeTopWindow);
+      list.appendChild(back);
     }
     group.appendChild(list);
     menu.appendChild(group);
@@ -836,16 +862,6 @@ function showScreen(id) {
   });
 }
 
-let toastTimer = null;
-function showToast(text) {
-  const toast = document.getElementById('toast');
-  toast.textContent = text;
-  toast.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.hidden = true;
-  }, 6000);
-}
 
 // ---------------------------------------------------------------------
 // Geschichte verlassen (Sicherheitsabfrage, solange es keinen Spielstand gibt)

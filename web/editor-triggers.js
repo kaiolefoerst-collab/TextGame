@@ -78,19 +78,20 @@ const EFFECT_DEFS = {
     defaults: (el) => [el.id],
   },
   showText: {
-    label: 'Zeige Meldung',
-    tip: 'Zeigt eine kurze Meldung unten im Bildschirm, z.B. „Mit einem Klicken springt das Fach auf.“',
+    label: 'Zeige Kurztext (nicht gesprochen)',
+    tip: 'Zeigt einen kurzen, hier direkt geschriebenen Text im Fenster, z.B. „Klick!“.\n'
+      + 'Wird NICHT vorgelesen. Für erzählende Meldungen, die gesprochen werden sollen, „Zeige Meldung“ verwenden.',
     shape: 'single',
     args: [{ kind: 'text' }],
     defaults: () => [''],
   },
   showTextFrom: {
-    label: 'Zeige Textfeld',
-    tip: 'Zeigt den Inhalt eines Textfelds als Meldung – typischerweise „Weg versperrt“ oder „Abschiedstext“.\n'
-      + 'Vorteil gegenüber „Zeige Meldung“: Der Text wird mitvorgelesen und steht beim Element.',
+    label: 'Zeige Meldung',
+    tip: 'Zeigt eine Meldung eines Elements im Fenster zwischen Text und Auswahl – z.B. „Weg versperrt“.\n'
+      + 'Die Meldung legst du beim Element unter „Meldungen“ an. Sie wird vorgelesen und bleibt bis zur nächsten Aktion stehen.',
     shape: 'path',
-    args: [{ kind: 'element', before: 'von' }, { kind: 'textField', before: 'Feld' }],
-    defaults: (el) => [el.id, 'blockedText'],
+    args: [{ kind: 'element', before: 'von' }, { kind: 'message', before: 'Meldung' }],
+    defaults: (el) => [el.id, firstMessageRef(el)],
   },
   setCurrentElement: {
     label: 'Gehe zu',
@@ -228,8 +229,9 @@ function getRuleArgs(def, val) {
     case 'array': return Array.isArray(val) ? [...val] : [];
     case 'object': return [val && val.elementId, val && val.remove, val && val.add];
     case 'path': {
+      // "<elementId>.messages.<Name>" (alt: "<elementId>.presentation.<feld>")
       const parts = String(val || '').split('.');
-      return [parts[0] || '', parts[2] || ''];
+      return [parts[0] || '', parts.slice(1).join('.')];
     }
     default: return [];
   }
@@ -240,7 +242,7 @@ function buildRuleValue(def, args) {
     case 'single': return args[0];
     case 'array': return [...args];
     case 'object': return { elementId: args[0], remove: args[1], add: args[2] };
-    case 'path': return `${args[0]}.presentation.${args[1]}`;
+    case 'path': return `${args[0]}.${args[1]}`;
     default: return true;
   }
 }
@@ -270,7 +272,7 @@ function collectStateVocabulary() {
       if (k !== 'visible') names.add(k);
       addValue(v);
     }
-    for (const trig of el.onUse || []) {
+    for (const trig of [...(el.onUse || []), ...(el.stateTexts || [])]) {
       for (const c of trig.conditions || []) {
         if (c.stateEquals) { names.add(c.stateEquals[1]); addValue(c.stateEquals[2]); }
       }
@@ -436,27 +438,38 @@ function fragmentSelect(value) {
   return select;
 }
 
-function textFieldSelect(ownerId, value) {
+function firstMessageRef(el) {
+  const names = Object.keys((el && el.messages) || {});
+  return names.length ? `messages.${names[0]}` : '';
+}
+
+// Auswahl einer Meldung des Elements (Wert "messages.<Name>"). Verweise aus alten Stories
+// ("presentation.<feld>") bleiben als Eintrag erhalten.
+function messageSelect(ownerId, value) {
   const select = document.createElement('select');
   select.className = 'rule-select';
   const owner = ed.elementsById[ownerId];
-  const fields = Object.keys((owner && owner.presentation) || {});
-  if (value && !fields.includes(value)) fields.push(value);
-  if (fields.length === 0) {
+  const names = Object.keys((owner && owner.messages) || {});
+  if (names.length === 0 && !value) {
     const opt = document.createElement('option');
     opt.value = '';
-    opt.textContent = '(Element hat keine Textfelder)';
+    opt.textContent = '(Element hat keine Meldungen – dort unter „Meldungen“ anlegen)';
     select.appendChild(opt);
     return select;
   }
-  for (const f of fields) {
+  for (const name of names) {
     const opt = document.createElement('option');
-    opt.value = f;
-    const exists = owner && owner.presentation && f in owner.presentation;
-    opt.textContent = exists ? fieldLabel(f) : `⚠ fehlt: ${fieldLabel(f)}`;
+    opt.value = `messages.${name}`;
+    opt.textContent = name;
     select.appendChild(opt);
   }
-  select.value = value || fields[0];
+  if (value && !names.some((n) => `messages.${n}` === value)) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = `⚠ fehlt: ${value.split('.').slice(1).join('.')}`;
+    select.appendChild(opt);
+  }
+  select.value = value || select.options[0].value;
   return select;
 }
 
@@ -850,8 +863,8 @@ function renderArgWidget(el, kind, args, i, commit) {
       return onSelect(triggerSelect(el.id, args[i]));
     case 'fragment':
       return onSelect(fragmentSelect(args[i]));
-    case 'textField': {
-      const select = textFieldSelect(args[0], args[i]);
+    case 'message': {
+      const select = messageSelect(args[0], args[i]);
       if (!args[i] && select.value) {
         args[i] = select.value;
         commit(false);

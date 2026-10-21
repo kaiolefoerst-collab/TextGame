@@ -1257,3 +1257,153 @@ h1 {
   padding: 0.4rem 0.5rem;
   resize: vertical;
 }
+
+/* ---------- Editor: frei verschiebbare Orte ---------- */
+
+.loc-node {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.loc-node.dragging {
+  cursor: grabbing;
+  z-index: 5;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  background: var(--panel-alt);
+}
+
+/* Zugehoerigkeit Unterort -> uebergeordneter Ort: dezent, gestrichelt, ohne Pfeil. */
+.nest-line {
+  stroke: var(--text-dim);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+/* ---------- Editor: Mehrfachauswahl ---------- */
+
+.loc-node.selected {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.45);
+}
+
+.select-rect {
+  position: absolute;
+  z-index: 6;
+  border: 1px dashed var(--accent-strong);
+  background: rgba(201, 162, 75, 0.12);
+  pointer-events: none;
+}
+
+#screen-editor-graph .editor-canvas-wrap,
+#editor-banner {
+  user-select: none;
+}
+
+/* ---------- Spiel: Meldungen im Fenster (statt Einblendung) ---------- */
+
+.window-message {
+  margin: 0 1rem 0.8rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--accent-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent-strong) 10%, var(--panel));
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+#window-stack .window-message {
+  flex: 0 1 auto;
+  min-height: 2.5rem;
+  overflow-y: auto;
+}
+
+/* ---------- Editor: Textmodell (Zustandstexte, Wortlaut, Meldungen) ---------- */
+
+.state-text-card {
+  border-left-color: var(--accent);
+}
+
+.state-text-card .trigger-title {
+  color: var(--accent);
+}
+
+.state-text-card textarea,
+.message-card textarea,
+.legacy-row textarea {
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  resize: vertical;
+}
+
+.content-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.field-row-narrow {
+  max-width: 26rem;
+}
+
+.message-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  white-space: normal;
+}
+
+.message-name {
+  font-weight: bold;
+  width: 14rem;
+}
+
+.message-usage {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+
+.message-usage.unused {
+  color: var(--accent-strong);
+}
+
+.legacy-row textarea {
+  opacity: 0.7;
+}
+
+.fixed-value {
+  padding: 0.4rem 0.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+/* ---------- Editor: Wege eines Ortes ---------- */
+
+.way-row .way-place {
+  min-width: 11rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.way-row .way-label {
+  flex: 1 1 18rem;
+  width: auto;
+}

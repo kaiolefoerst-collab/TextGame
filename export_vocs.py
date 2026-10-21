@@ -32,12 +32,13 @@ def collapse_for_tts(text: str) -> str:
 
 
 def collect_entries(story: dict) -> list[tuple[str, str, str | None]]:
-    """(schluessel, text, sprecher) in stabiler Reihenfolge. Sprecher: der des Elements,
-    sonst die Erzaehlstimme der Geschichte, sonst leer (dann Standardstimme)."""
+    """(schluessel, text, sprecher) in stabiler Reihenfolge. Sprecher: der des Textes
+    (Element bzw. eigener Sprecher des Wortlauts), sonst die Erzaehlstimme der Geschichte,
+    sonst leer (dann Standardstimme)."""
     narrator = story["header"].get("narratorVoice") or None
     return [
-        (sample_key(el["id"], field), collapse_for_tts(text), el.get("voice") or narrator)
-        for el, field, text in narrated_texts(story)
+        (sample_key(el["id"], key), collapse_for_tts(text), voice or narrator)
+        for el, key, text, voice in narrated_texts(story)
     ]
 
 
