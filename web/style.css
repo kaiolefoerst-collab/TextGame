@@ -1005,3 +1005,153 @@ h1 {
 .meta-short {
   width: 8rem;
 }
+
+/* ---------- Editor: Startzustand & Reaktionen ---------- */
+
+.state-row,
+.rule-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.45rem;
+  white-space: normal;
+}
+
+.rule-word {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.rule-type,
+.rule-select,
+.rule-input,
+.rule-text {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.45rem;
+  max-width: 100%;
+}
+
+.rule-type {
+  font-weight: bold;
+  border-color: var(--accent);
+}
+
+.rule-select {
+  min-width: 10rem;
+}
+
+.rule-input {
+  width: 10rem;
+}
+
+.rule-input.short {
+  width: 6rem;
+}
+
+.rule-text {
+  flex: 1 1 18rem;
+  resize: vertical;
+}
+
+.rule-raw {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.rule-add-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+
+.rule-add-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.rule-add-btn.small {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.trigger-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  white-space: normal;
+}
+
+.trigger-card.is-disabled {
+  border-left-color: var(--text-dim);
+  opacity: 0.8;
+}
+
+.trigger-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}
+
+.trigger-title {
+  color: var(--accent-strong);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.trigger-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.trigger-tools {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.trigger-tools .field-del-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  background: none;
+}
+
+.rule-block-title {
+  margin-top: 0.2rem;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rule-always {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.menu-btn.is-hidden-start {
+  border-style: dashed;
+  color: var(--text-dim);
+}

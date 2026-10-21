@@ -92,6 +92,20 @@ elements:
       die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit
       Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig
       hin. Als würde sich dadurch etwas ändern.
+  onUse:
+  - id: reaktion_1
+    enabled: true
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - investigation
+      - complete
+    effects:
+    - hideElement: cockpit_glover_iv
+    - setElementState:
+      - cockpit_glover_iv
+      - investigation
+      - complete
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door
@@ -222,3 +236,55 @@ elements:
       Präparate, Aufputschmittel und einiges mehr. Alles in allem recht nützlich bei den unterschiedlichsten
       medizinischen Problemen.
   portable: true
+- id: player
+  name: Inventar
+  type: player
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState: {}
+  initialPartOf: []
+  presentation:
+    firstView: Du schaust in deine Taschen.
+- id: navigationssystem
+  name: Navigationssystem
+  type: room
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation: {}
+- id: weg_cockpit_glover_iv_navigationssystem
+  name: Navigationssystem
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: cockpit_glover_iv
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_cockpit_glover_iv_navigationssystem
+    enabled: true
+    effects:
+    - setCurrentElement: navigationssystem
+- id: weg_navigationssystem_cockpit_glover_iv
+  name: Weg nach Cockpit Glover IV
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: navigationssystem
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_navigationssystem_cockpit_glover_iv
+    enabled: true
+    effects:
+    - setCurrentElement: cockpit_glover_iv

@@ -728,11 +728,19 @@ function childrenOfEditor(id) {
 
 function renderEditorStack() {
   const container = document.getElementById('editor-window-stack');
+  // Scrollposition des obersten Fensters merken: Viele Aenderungen (Reaktion hinzufuegen,
+  // Typ wechseln ...) zeichnen das Fenster neu, und es soll dabei nicht nach oben springen.
+  const prevTop = container.querySelector('.window:last-child');
+  const prevId = prevTop ? prevTop.dataset.elementId : null;
+  const prevScroll = prevTop ? prevTop.scrollTop : 0;
   container.innerHTML = '';
   container.hidden = ed.stack.length === 0;
   ed.stack.forEach((id, index) => {
     const isTop = index === ed.stack.length - 1;
-    container.appendChild(renderEditorWindow(id, isTop, index === 0));
+    const win = renderEditorWindow(id, isTop, index === 0);
+    win.dataset.elementId = id;
+    container.appendChild(win);
+    if (isTop && id === prevId) win.scrollTop = prevScroll;
   });
 }
 
@@ -797,21 +805,34 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
   else if (el.exitLabel) basics.appendChild(renderExitLabelRow(el, true));
   body.appendChild(basics);
 
+  body.appendChild(renderInitialStateSection(el));
+
   el.presentation = el.presentation || {};
   const usedFields = Object.keys(el.presentation);
 
   // Ein Weg navigiert sofort zum Ziel (setCurrentElement) - sein eigenes Fenster und
   // damit seine Texte/Inhalte sieht der Spieler nie. Nur Hinweis statt leerer Felder.
+  // Reaktionen (z.B. "nur mit Schluessel") bekommt ein Weg trotzdem.
   if (isDoor(el) && usedFields.length === 0) {
     const note = document.createElement('p');
     note.className = 'door-note';
     note.textContent = 'Ein Weg braucht keine eigenen Texte: Der Name ist die Beschriftung des Knopfs, '
-      + 'und beim Klicken landet der Spieler direkt am Zielort und liest dort dessen Text.';
+      + 'und beim Klicken landet der Spieler direkt am Zielort und liest dort dessen Text. '
+      + 'Soll der Weg versperrt sein, lege unten eine Reaktion mit Bedingung an.';
     body.appendChild(note);
+    body.appendChild(renderReactionsSection(el));
     div.appendChild(body);
     return div;
   }
 
+  renderTextsSection(el, body, usedFields);
+  body.appendChild(renderReactionsSection(el));
+  div.appendChild(body);
+  appendContainsMenu(div, el);
+  return div;
+}
+
+function renderTextsSection(el, body, usedFields) {
   body.appendChild(renderSection('Texte', TEXT_PRIORITY_TIP));
   const ordered = [
     ...EDITOR_TEXT_FIELDS.filter((f) => usedFields.includes(f)),
@@ -866,9 +887,10 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
     body.appendChild(addFieldRow);
     body.appendChild(desc);
   }
+}
 
-  div.appendChild(body);
-
+function appendContainsMenu(div, el) {
+  const id = el.id;
   const menu = document.createElement('div');
   menu.className = 'window-menu';
   const menuTitle = document.createElement('div');
@@ -881,9 +903,14 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
     const child = ed.elementsById[childId];
     const btn = document.createElement('button');
     btn.className = 'menu-btn';
-    btn.textContent = child.name + (isLocation(child) ? ' 🗺' : isDoor(child) ? ' ➜' : child.portable ? ' ✋' : '');
+    const hidden = child.initialState && child.initialState.visible === false;
+    btn.className = 'menu-btn' + (hidden ? ' is-hidden-start' : '');
+    btn.textContent = (hidden ? '🙈 ' : '') + child.name
+      + (isLocation(child) ? ' 🗺' : isDoor(child) ? ' ➜' : child.portable ? ' ✋' : '');
     let tip = (TYPE_INFO[child.type] || `Typ: ${child.type}`)
-      + (child.portable ? '\n✋ Kann vom Spieler aufgenommen werden.' : '') + '\nKlicken, um es zu bearbeiten.';
+      + (child.portable ? '\n✋ Kann vom Spieler aufgenommen werden.' : '')
+      + (hidden ? '\n🙈 Zu Beginn verborgen – erscheint erst, wenn eine Reaktion es sichtbar macht.' : '')
+      + '\nKlicken, um es zu bearbeiten.';
     if (isDoor(child)) {
       const target = doorTarget(child);
       const targetName = target && ed.elementsById[target] ? ed.elementsById[target].name : '(noch kein Ziel)';
@@ -1027,7 +1054,8 @@ function renderTargetRow(el) {
     select.appendChild(opt);
   }
   for (const loc of Object.values(ed.elementsById).filter(isLocation)) {
-    if (loc.id === el.locatedIn) continue;
+    // Der eigene Ort ist als Ziel sinnlos - ausser er ist es schon (z.B. "Weg im Nebel fuehrt zurueck").
+    if (loc.id === el.locatedIn && loc.id !== current) continue;
     const opt = document.createElement('option');
     opt.value = loc.id;
     opt.textContent = loc.name;
