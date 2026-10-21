@@ -49,7 +49,8 @@ const engine = {
   resolutionApplied: false,
   gameFinished: false,
   pendingMessages: [],
-  pendingSamples: [],   // Sample-Nummern erzaehlender Meldungen (showTextFrom), nach dem Fenstertext vorzulesen
+  pendingSamples: [],
+  actionCount: 0,       // Spieleraktionen seit Start - fuer die Verlassen-Rueckfrage   // Sample-Nummern erzaehlender Meldungen (showTextFrom), nach dem Fenstertext vorzulesen
 };
 
 // ---------------------------------------------------------------------
@@ -102,6 +103,7 @@ function initEngine(story) {
   engine.gameFinished = false;
   engine.pendingMessages = [];
   engine.pendingSamples = [];
+  engine.actionCount = 0;
 
   // Inventar = Inhalt des Elements "player". Geschichten ohne eigenes player-Element
   // (z.B. neu im Editor angelegte) bekommen eines, damit Aufnehmen/Inventar immer funktioniert.
@@ -312,6 +314,7 @@ function use(elementId) {
   if (!el) return;
 
   navigationTarget = elementId; // Default: das benutzte Element wird selbst fokussiert
+  engine.actionCount++;
   engine.pendingMessages = [];
   engine.pendingSamples = [];
 
@@ -425,6 +428,7 @@ function closeWindowsFrom(itemId) {
 }
 
 function finishInventoryAction(message) {
+  engine.actionCount++;
   // Aufnehmen/Ablegen kann eine Loesungsbedingung erfuellen (z.B. inInventory: schluessel).
   engine.pendingMessages = [];
   engine.pendingSamples = [];
@@ -837,6 +841,36 @@ function showToast(text) {
   }, 6000);
 }
 
+// ---------------------------------------------------------------------
+// Geschichte verlassen (Sicherheitsabfrage, solange es keinen Spielstand gibt)
+// ---------------------------------------------------------------------
+
+// Fortschritt geht nur verloren, wenn man mitten in einer Geschichte ist (Spiel oder
+// Logbuch offen, nicht beendet) und schon mindestens eine Aktion gemacht hat.
+function hasUnsavedProgress() {
+  const inStory = !document.getElementById('screen-game').hidden || !document.getElementById('screen-log').hidden;
+  return inStory && !engine.gameFinished && engine.actionCount > 0;
+}
+
+function requestQuitStory() {
+  if (!hasUnsavedProgress()) {
+    quitStory();
+    return;
+  }
+  document.getElementById('quit-dialog').hidden = false;
+  document.getElementById('btn-quit-stay').focus();
+}
+
+function hideQuitDialog() {
+  document.getElementById('quit-dialog').hidden = true;
+}
+
+function quitStory() {
+  stopNarration();
+  showScreen('screen-select');
+  loadStoryList();
+}
+
 function showEndScreen() {
   stopNarration();
   // Abschieds-/Aufloesungstext (erzaehlende Meldung) auch auf dem Endbildschirm vorlesen.
@@ -861,10 +895,24 @@ function escapeHtml(str) {
 document.addEventListener('DOMContentLoaded', () => {
   loadStoryList();
 
-  document.getElementById('btn-back-to-select').addEventListener('click', () => {
-    stopNarration();
-    showScreen('screen-select');
-    loadStoryList();
+  document.getElementById('btn-back-to-select').addEventListener('click', requestQuitStory);
+  document.getElementById('btn-quit-stay').addEventListener('click', hideQuitDialog);
+  document.getElementById('btn-quit-leave').addEventListener('click', () => {
+    hideQuitDialog();
+    quitStory();
+  });
+  document.getElementById('quit-dialog').addEventListener('click', (e) => {
+    if (e.target.id === 'quit-dialog') hideQuitDialog();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('quit-dialog').hidden) hideQuitDialog();
+  });
+  // Schliessen/Neuladen des Browserfensters: Browser-eigene Rueckfrage.
+  window.addEventListener('beforeunload', (e) => {
+    if (hasUnsavedProgress()) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
   });
   document.getElementById('btn-narration').addEventListener('click', () => {
     setNarrationEnabled(!narrationEnabled);

@@ -22,7 +22,7 @@ python game.py [--port 8000] [--no-browser]
   - `/output_vocs/...` und `/output_pics/...` statisch, sonst Dateien aus `web/`
 - [web/game.js](web/game.js): Die gesamte Spiellogik läuft im Browser. Datengetrieben, ohne story-spezifischen Code.
 - [web/editor.js](web/editor.js): Editor mit Ortsgraph, Detailfenstern, Tooltips, Speichern und Verlassen-Dialog.
-- [web/editor-images.js](web/editor-images.js): Editor-Teil für Bild-Prompts (Standardbild und Zustandsbilder).
+- [web/editor-images.js](web/editor-images.js): Editor-Teil für Bild-Prompts (Standardbild und Zustandsbilder). Der Knopf „📝 Beschreibung übernehmen“ hängt den Text für den ersten Besuch als Block `Szene laut Geschichte: „…“ Das Bild darf dem nicht widersprechen.` an den Prompt. Ein vorhandener Block wird ersetzt. Das geschieht bewusst nur per Knopf und ohne automatischen Abgleich (so abgestimmt), der Level-Designer kürzt den Block von Hand auf das Sichtbare.
 - [web/editor-triggers.js](web/editor-triggers.js): Editor-Teil für Startzustand (`initialState`) und Reaktionen (`onUse`). Die Bausteine stehen in `CONDITION_DEFS` / `EFFECT_DEFS`.
 - [web/index.html](web/index.html), [web/style.css](web/style.css): alle Bildschirme und Dialoge
 - **Alle drei JS-Dateien teilen sich einen globalen Scope** (klassische `<script>`-Tags in der Reihenfolge game.js → editor.js → editor-triggers.js → editor-images.js). Keine doppelten `const`-Namen auf oberster Ebene, sonst fällt das ganze Skript aus. Beispiel: `PLAYER_ID` ist nur in game.js definiert und wird im Editor mitbenutzt.
@@ -40,6 +40,7 @@ python game.py [--port 8000] [--no-browser]
 - **Textauswahl** (`pickPresentationText`): `completeView/Use` (bei `investigation = complete`) > `openLeadView/Use` (ein frisch sichtbar gewordenes, noch nicht benutztes Kind) > `firstView/Use` > `blockedUse` > `repeatView/Use`. `contentText` wird immer angehängt. `blockedText`, `exitText`, `releaseText` und `heading` erscheinen nur per `showTextFrom`.
 - **Inventar:** Inhalt des Elements `player`. game.js und der Editor legen es automatisch an, wenn es fehlt. Für Elemente mit `portable: true` zeigt das Spiel „✋ Aufnehmen“ bzw. „⬇ Ablegen“. Abgelegt wird im obersten offenen Ort oder Behälter (`DROP_TARGET_TYPES`). Die Texte `takeText`/`dropText` werden nicht vorgelesen.
 - **Bilder** (`pickImage` in game.js): Es gilt das erste `stateImages`-Bild, dessen Zustandswerte alle zutreffen, sonst `image`. Ist das passende Zustandsbild noch nicht erzeugt, wird auf das Standardbild zurückgegriffen, sonst erscheint „[Bild noch nicht erzeugt]“. Bilder sind optional, nicht jedes Element und schon gar nicht jeder Zustand braucht eins. Videos sind bewusst nicht vorgesehen.
+- **Kein Spielstand**: Es wird noch nichts gespeichert. Darum fragt das Spiel beim Verlassen nach („← Geschichten“ → `quit-dialog`, Browser schließen/neu laden → `beforeunload`), sobald `engine.actionCount > 0` und die Geschichte nicht beendet ist. Wenn es einmal Spielstände gibt, kann die Abfrage entfallen.
 - **Spielmenü:** Die Auswahl ist nach Typ gruppiert (`MENU_CATEGORIES` in game.js: Personen, Details, Gegenstände, Schriftstücke, Bereiche, Wege, Sonstiges), jede Gruppe mit eigener Farbe.
 
 ## Editor-Konventionen

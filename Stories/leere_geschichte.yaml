@@ -104,8 +104,10 @@ elements:
       Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig
       hin. Als würde sich dadurch etwas ändern.
   onUse: []
-  image: Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine
-    Person. Aus dem Fenster sieht man  Weltall mit ein paar Sternen
+  image: |-
+    Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Aus dem Fenster sieht man  Weltall mit ein paar Sternen
+
+    Szene laut Geschichte: „Ich verfluche ich meine Bereitschaft, mit diesem Mini-Raumschiff eine Solo-Mission zu fliegen. Ein paar Medikamente zu einer Forschungsstation weit draußen im Sonnensystem bringen, ungefähr 65 astronomische Einheiten von der Sonne entfernt. Eine Strecke, auf der man kaum jemandem begegnet, und die Reise sollte ohnehin mehrere Monate dauern. An sich schon eine äußerst langweilige Angelegenheit, aber dann kam noch dieser technische Defekt und jetzt sieht es düster aus. Ich sitze hier in meinem Cockpit und starre auf die Anzeigen. Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.“ Das Bild darf dem nicht widersprechen.
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door

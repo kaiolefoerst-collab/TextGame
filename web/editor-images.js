@@ -49,16 +49,69 @@ function imagePreview(number) {
   return wrap;
 }
 
+// ---------------------------------------------------------------------
+// "Beschreibung uebernehmen": haengt die Beschreibung des Elements als Szenen-Block an den
+// Bild-Prompt, damit das Bild ihr nicht widerspricht. Bewusst nur per Knopf (kein Automatismus):
+// Der Level-Designer kuerzt den Block danach von Hand auf das Sichtbare.
+// ---------------------------------------------------------------------
+
+const SCENE_START = 'Szene laut Geschichte:';
+const SCENE_END = 'Das Bild darf dem nicht widersprechen.';
+// Ein schon vorhandener Block wird ersetzt statt ein zweites Mal angehaengt.
+const SCENE_BLOCK_RE = /\s*Szene laut Geschichte:[\s\S]*?Das Bild darf dem nicht widersprechen\.?/;
+
+// Die Beschreibung, die der Spieler beim ersten Oeffnen liest (Reihenfolge wie pickPresentationText).
+function sceneDescription(el) {
+  const p = el.presentation || {};
+  const text = p.firstView || p.firstUse || p.repeatView || p.repeatUse || '';
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function promptWithScene(prompt, description) {
+  const own = String(prompt || '').replace(SCENE_BLOCK_RE, '').trim();
+  const block = `${SCENE_START} „${description}“ ${SCENE_END}`;
+  return own ? `${own}\n\n${block}` : block;
+}
+
+function sceneButton(el, textarea) {
+  const btn = document.createElement('button');
+  btn.className = 'rule-add-btn small scene-btn';
+  btn.textContent = '📝 Beschreibung übernehmen';
+  const description = sceneDescription(el);
+  if (!description) {
+    btn.disabled = true;
+    setTip(btn, 'Dieses Element hat noch keinen Text für „Erster Besuch“ – es gibt nichts zu übernehmen.');
+    return btn;
+  }
+  setTip(btn, 'Hängt die Beschreibung des Elements („Erster Besuch“) an den Prompt an:\n'
+    + `${SCENE_START} „…“ ${SCENE_END}\n`
+    + 'Danach von Hand kürzen: Handlung („Du wischst …“) und Gedanken streichen, nur Sichtbares stehen lassen.\n'
+    + 'Erneut drücken ersetzt den Szenen-Block durch die aktuelle Beschreibung – deine eigenen Zeilen bleiben.');
+  btn.addEventListener('click', () => {
+    textarea.value = promptWithScene(textarea.value, description);
+    textarea.dispatchEvent(new Event('input'));
+    textarea.focus();
+  });
+  return btn;
+}
+
 function promptTextarea(value, placeholder, tip, onInput) {
   const ta = document.createElement('textarea');
   ta.rows = 3;
   ta.value = value || '';
   ta.placeholder = placeholder;
   setTip(ta, tip);
+  // Feld waechst mit dem Inhalt, damit ein angehaengter Szenen-Block sichtbar ist.
+  const fit = () => {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 2 + 'px';
+  };
   ta.addEventListener('input', () => {
     onInput(ta.value);
     markDirty();
+    fit();
   });
+  requestAnimationFrame(fit); // erst nach dem Einfuegen ins Fenster ist die Hoehe messbar
   return ta;
 }
 
@@ -90,14 +143,16 @@ function renderImagesSection(el) {
   defRow.appendChild(defLabel);
   const defBody = document.createElement('div');
   defBody.className = 'image-row';
-  defBody.appendChild(promptTextarea(el.image, 'leer = kein Bild. z.B. Ein vermoderter Schreibtisch unter einem eingestürzten Dach, Papiere liegen verstreut.',
+  const defArea = promptTextarea(el.image, 'leer = kein Bild. z.B. Ein vermoderter Schreibtisch unter einem eingestürzten Dach, Papiere liegen verstreut.',
     IMAGE_TIPS.defaultImage, (v) => {
       if (v.trim()) el.image = v;
       else delete el.image;
-    }));
+    });
+  defBody.appendChild(defArea);
   const defPreview = imagePreview(el._image);
   if (defPreview) defBody.appendChild(defPreview);
   defRow.appendChild(defBody);
+  defRow.appendChild(sceneButton(el, defArea));
   frag.appendChild(defRow);
 
   // Zustandsbilder
@@ -213,10 +268,12 @@ function renderStateImageCard(el, entry, index) {
   card.appendChild(ruleBlockTitle('Dann zeige', 'Bildbeschreibung (Prompt) für diesen Zustand.'));
   const body = document.createElement('div');
   body.className = 'image-row';
-  body.appendChild(promptTextarea(entry.prompt, 'z.B. Dieselbe Truhe, jetzt geöffnet, darin ein vergilbter Brief.',
-    IMAGE_TIPS.stateImage, (v) => { entry.prompt = v; }));
+  const area = promptTextarea(entry.prompt, 'z.B. Dieselbe Truhe, jetzt geöffnet, darin ein vergilbter Brief.',
+    IMAGE_TIPS.stateImage, (v) => { entry.prompt = v; });
+  body.appendChild(area);
   const preview = imagePreview(entry._image);
   if (preview) body.appendChild(preview);
   card.appendChild(body);
+  card.appendChild(sceneButton(el, area));
   return card;
 }

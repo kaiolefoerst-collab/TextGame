@@ -92,6 +92,17 @@
   </div>
 </section>
 
+<div id="quit-dialog" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="quit-dialog-title">
+    <h2 id="quit-dialog-title">Geschichte verlassen?</h2>
+    <p>Der Spielstand wird noch nicht gespeichert. Wenn du die Geschichte jetzt verlässt, geht dein Fortschritt verloren und du beginnst beim nächsten Mal von vorn.</p>
+    <div class="modal-actions">
+      <button id="btn-quit-stay" class="modal-btn primary">Weiterspielen</button>
+      <button id="btn-quit-leave" class="modal-btn danger">Verlassen – Fortschritt geht verloren</button>
+    </div>
+  </div>
+</div>
+
 <div id="leave-dialog" class="modal-backdrop" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leave-dialog-title">
     <h2 id="leave-dialog-title">Ungespeicherte Änderungen</h2>
