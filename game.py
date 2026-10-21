@@ -14,6 +14,7 @@ import argparse
 import copy
 import json
 import mimetypes
+import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -29,12 +30,26 @@ WEB_DIR = ROOT_DIR / "web"
 OUTPUT_VOCS_DIR = ROOT_DIR / "output_vocs"
 VOCS_INDEX_PATH = ROOT_DIR / ".vocs_index.json"
 
+# Schuetzt Lese-Aendern-Schreiben-Zyklen auf self.stories/Story-Dateien, da
+# ThreadingHTTPServer jede Anfrage in einem eigenen Thread bearbeitet.
+STORIES_LOCK = threading.Lock()
 
-def load_story_files() -> dict[str, dict]:
-    """Laedt alle Story-YAML-Dateien aus STORIES_DIR, indiziert nach header.id."""
+
+def _represent_multiline_str(dumper: yaml.Dumper, data: str) -> yaml.ScalarNode:
+    style = "|" if "\n" in data else None
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data, style=style)
+
+
+yaml.SafeDumper.add_representer(str, _represent_multiline_str)
+
+
+def load_story_files() -> tuple[dict[str, dict], dict[str, Path]]:
+    """Laedt alle Story-YAML-Dateien aus STORIES_DIR, indiziert nach header.id.
+    Liefert zusaetzlich eine story_id -> Dateipfad Zuordnung fuer den Editor-Speicherpfad."""
     stories: dict[str, dict] = {}
+    paths: dict[str, Path] = {}
     if not STORIES_DIR.exists():
-        return stories
+        return stories, paths
     for path in sorted(STORIES_DIR.glob("*.yaml")):
         with path.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
@@ -48,7 +63,31 @@ def load_story_files() -> dict[str, dict]:
         if story_id in stories:
             print(f"Warnung: doppelte Story-ID '{story_id}' in {path.name}, vorherige wird ueberschrieben.")
         stories[story_id] = data
-    return stories
+        paths[story_id] = path
+    return stories, paths
+
+
+def extract_leading_comment(path: Path) -> str:
+    """Liest den Kommentar-/Leerzeilen-Block am Dateianfang (vor der ersten
+    Nicht-Kommentarzeile). yaml.safe_dump kennt keine Kommentare, darum wird dieser
+    Block beim Zurueckschreiben aus dem Editor manuell erhalten."""
+    lines = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip() == "" or line.lstrip().startswith("#"):
+                lines.append(line)
+            else:
+                break
+    return "".join(lines)
+
+
+def save_story_file(story_id: str, data: dict, paths: dict[str, Path]) -> None:
+    path = paths.get(story_id)
+    if path is None:
+        raise ValueError(f"Unbekannte Story-ID '{story_id}'")
+    leading_comment = extract_leading_comment(path)
+    body = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, default_flow_style=False, width=100)
+    path.write_text(leading_comment + body, encoding="utf-8")
 
 
 def load_vocs_index() -> dict[str, int]:
@@ -87,6 +126,7 @@ def enrich_with_samples(story: dict) -> dict:
 
 class GameRequestHandler(BaseHTTPRequestHandler):
     stories: dict[str, dict] = {}
+    story_paths: dict[str, Path] = {}
 
     def log_message(self, format, *args):  # noqa: A002 - stdlib signature
         print(f"[{self.address_string()}] {format % args}")
@@ -152,12 +192,47 @@ class GameRequestHandler(BaseHTTPRequestHandler):
 
         self._send_from_dir(WEB_DIR, path)
 
+    def do_POST(self) -> None:  # noqa: N802 - stdlib method name
+        parsed = urlparse(self.path)
+        path = parsed.path
 
-def make_handler(stories: dict[str, dict]):
+        if path.startswith("/api/story/"):
+            story_id = path[len("/api/story/"):]
+            if story_id not in self.stories:
+                self._send_json({"error": f"Unbekannte Story-ID '{story_id}'"}, status=404)
+                return
+            length = int(self.headers.get("Content-Length", 0))
+            raw = self.rfile.read(length) if length else b""
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                self._send_json({"error": "Ungueltiges JSON im Request-Body"}, status=400)
+                return
+            if not isinstance(data, dict) or "header" not in data or "elements" not in data:
+                self._send_json({"error": "Story-Objekt muss 'header' und 'elements' enthalten"}, status=400)
+                return
+            if data["header"].get("id") != story_id:
+                self._send_json({"error": "header.id passt nicht zur URL"}, status=400)
+                return
+            with STORIES_LOCK:
+                try:
+                    save_story_file(story_id, data, self.story_paths)
+                except Exception as exc:
+                    self._send_json({"error": str(exc)}, status=500)
+                    return
+                self.stories[story_id] = data
+            self._send_json({"ok": True})
+            return
+
+        self.send_error(404, "Nicht gefunden")
+
+
+def make_handler(stories: dict[str, dict], story_paths: dict[str, Path]):
     class Handler(GameRequestHandler):
         pass
 
     Handler.stories = stories
+    Handler.story_paths = story_paths
     return Handler
 
 
@@ -167,13 +242,13 @@ def main() -> None:
     parser.add_argument("--no-browser", action="store_true", help="Browser nicht automatisch oeffnen")
     args = parser.parse_args()
 
-    stories = load_story_files()
+    stories, story_paths = load_story_files()
     if not stories:
         print(f"Keine Stories in {STORIES_DIR} gefunden. Server startet trotzdem.")
     else:
         print(f"{len(stories)} Story(s) geladen: {', '.join(stories)}")
 
-    handler_cls = make_handler(stories)
+    handler_cls = make_handler(stories, story_paths)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), handler_cls)
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Server laeuft auf {url} (Strg+C zum Beenden)")

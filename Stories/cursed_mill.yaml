@@ -233,7 +233,7 @@ elements:
 
   - id: mill_desk_present
     name: Vermoderter Schreibtisch
-    type: furniture
+    type: feature
     physical: true
     layers: [present]
     locatedIn: mill_ruin_present

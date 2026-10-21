@@ -101,6 +101,17 @@ h1 {
   font-style: italic;
 }
 
+.select-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.select-topbar h1 {
+  margin: 0.6em 0 0.2em;
+}
+
 /* ---------- Game topbar ---------- */
 
 .game-topbar {
@@ -356,4 +367,641 @@ h1 {
   .window-image {
     max-height: 30vh;
   }
+}
+
+/* ---------- Editor ---------- */
+
+.editor-story-list {
+  padding: 1.2rem;
+}
+
+#screen-editor-graph {
+  position: relative;
+}
+
+.editor-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--accent);
+  color: #14150f;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+
+.editor-canvas-wrap {
+  flex: 1 1 auto;
+  overflow: auto;
+  position: relative;
+  background: var(--bg);
+}
+
+.editor-canvas {
+  position: relative;
+}
+
+.editor-arrows {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.conn-line {
+  stroke: var(--accent-strong);
+  stroke-width: 2;
+}
+
+.conn-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.editor-conn-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.conn-delete-btn {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.conn-delete-btn:hover {
+  background: var(--contradiction);
+  color: white;
+}
+
+.loc-node {
+  position: absolute;
+  width: 140px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.loc-node:hover {
+  background: var(--panel-alt);
+}
+
+.loc-node.connect-source {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.35);
+}
+
+.loc-name {
+  font-size: 0.85rem;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.loc-del-btn,
+.loc-connect-btn {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.loc-node:hover .loc-del-btn,
+.loc-node:hover .loc-connect-btn {
+  opacity: 1;
+}
+
+.loc-del-btn {
+  top: -8px;
+  right: -8px;
+}
+
+.loc-del-btn:hover {
+  background: var(--contradiction);
+  color: white;
+}
+
+.loc-connect-btn {
+  bottom: -8px;
+  right: -8px;
+}
+
+.loc-connect-btn:hover {
+  background: var(--accent);
+  color: #14150f;
+}
+
+.editor-window-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+}
+
+.editor-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.field-row input,
+.field-row textarea,
+.field-row select {
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  resize: vertical;
+}
+
+.add-field-row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.window-name-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--border);
+  color: var(--accent-strong);
+  font-weight: bold;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.1rem 0.2rem;
+}
+
+.window-id-label {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  margin-right: 0.4rem;
+}
+
+/* ---------- Editor: Tooltips & Bedienhilfen ---------- */
+
+.ed-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 340px;
+  padding: 0.5rem 0.7rem;
+  background: #111214;
+  color: var(--text);
+  border: 1px solid var(--accent-strong);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+.ed-tooltip[hidden] {
+  display: none;
+}
+
+.info-icon {
+  display: inline-block;
+  margin-left: 0.35rem;
+  color: var(--accent-strong);
+  font-size: 0.85em;
+  cursor: help;
+}
+
+.editor-help {
+  position: relative;
+  padding: 0.6rem 2.4rem 0.6rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  flex: 0 0 auto;
+}
+
+.editor-help[hidden] {
+  display: none;
+}
+
+.editor-help ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.editor-help li {
+  margin: 0.15rem 0;
+}
+
+.editor-help b,
+.editor-help strong {
+  color: var(--text);
+}
+
+.editor-help-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.editor-empty-note {
+  position: absolute;
+  left: 60px;
+  top: 60px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.loc-node.is-start {
+  border-width: 3px;
+  border-color: var(--accent-strong);
+}
+
+.loc-start-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 0.4rem;
+  border-radius: 8px;
+  background: var(--accent-strong);
+  color: #14150f;
+  font-size: 0.65rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.field-section {
+  margin-top: 0.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.6rem 0.9rem;
+  align-items: end;
+}
+
+.field-label {
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.field-key {
+  margin-left: 0.4rem;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-family: Consolas, monospace;
+}
+
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-del-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.field-del-btn:hover {
+  background: var(--contradiction);
+  color: white;
+}
+
+.field-row-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.field-row textarea::placeholder,
+.field-row input::placeholder {
+  color: #6f6c66;
+  font-style: italic;
+}
+
+.field-empty-note {
+  margin: 0;
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.add-field-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.add-field-row select {
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+}
+
+.add-field-desc {
+  margin: -0.4rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  white-space: pre-line;
+}
+
+.window-menu-title {
+  width: 100%;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+/* Wie bei .screen: display:flex wuerde sonst das hidden-Attribut aushebeln. */
+.editor-banner[hidden] {
+  display: none;
+}
+
+.door-note {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-left: 3px solid var(--accent);
+  background: var(--panel-alt);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.editor-title-input {
+  width: min(100%, 420px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--accent-strong);
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.editor-title-input:hover {
+  border-color: var(--border);
+}
+
+.editor-title-input:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+  background: var(--panel-alt);
+}
+
+/* ---------- Spiel: Inventar-Aktionen ---------- */
+
+.window-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem 0.8rem;
+}
+
+.action-btn {
+  background: var(--accent);
+  color: #14150f;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  filter: brightness(1.1);
+}
+
+.inventory-empty {
+  margin: 0.6rem 0 0;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ---------- Spiel: kategorisierte Auswahl ---------- */
+
+.menu-group {
+  --cat: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.menu-group + .menu-group {
+  margin-top: 0.4rem;
+}
+
+.menu-group.cat-person   { --cat: #c99aa6; }
+.menu-group.cat-feature  { --cat: #7fb3ad; }
+.menu-group.cat-item     { --cat: #c4a678; }
+.menu-group.cat-document { --cat: #93aecb; }
+.menu-group.cat-place    { --cat: #8fae8b; }
+.menu-group.cat-way      { --cat: #c9a24b; }
+
+.menu-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--cat);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.menu-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--cat);
+  opacity: 0.25;
+}
+
+.menu-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Wege nebeneinander statt untereinander: hebt "hier geht es weg" vom Untersuchen ab. */
+.menu-group.cat-way .menu-group-list {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.menu-group .menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-left: 3px solid var(--cat);
+}
+
+.menu-group .menu-btn:hover {
+  border-color: var(--cat);
+  background: color-mix(in srgb, var(--cat) 10%, var(--panel));
+}
+
+.menu-icon {
+  width: 1.1em;
+  text-align: center;
+  color: var(--cat);
+  flex: 0 0 auto;
+}
+
+.menu-badge {
+  margin-left: auto;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--cat);
+  border-radius: 999px;
+  color: var(--cat);
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* ---------- Modal-Dialog (Editor verlassen) ---------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal {
+  width: min(460px, 100%);
+  padding: 1.2rem 1.4rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--accent-strong);
+}
+
+.modal p {
+  margin: 0 0 1rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-btn {
+  padding: 0.55rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  border-color: var(--accent);
+}
+
+.modal-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14150f;
+  font-weight: bold;
+}
+
+.modal-btn.danger:hover {
+  background: var(--contradiction);
+  border-color: var(--contradiction);
+  color: white;
+}
+
+.modal-wide {
+  width: min(560px, 100%);
+}
+
+.modal .editor-fields {
+  margin-bottom: 1rem;
+}
+
+.meta-short {
+  width: 8rem;
 }

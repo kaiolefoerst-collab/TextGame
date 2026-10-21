@@ -8,6 +8,36 @@
  * der geladenen Story-Datei.
  */
 
+const PLAYER_ID = 'player';
+
+// Element-Typen, in die ein Gegenstand beim Ablegen aus dem Inventar gelegt werden kann
+// (neben Orten). Bei allen anderen (z.B. Brief, Person) landet er am aktuellen Ort.
+const DROP_TARGET_TYPES = ['room', 'area', 'building', 'place', 'container', 'feature', 'furniture', 'object_collection'];
+
+// Gruppierung der Auswahlmoeglichkeiten unten im Fenster, in Anzeigereihenfolge.
+// Zuordnung ueber den Element-Typ; alles Unbekannte landet unter "Sonstiges".
+const MENU_CATEGORIES = [
+  { key: 'person', label: 'Personen', icon: '👤', hint: 'Ansprechen',
+    types: ['person', 'group'] },
+  // Details: Festes am Ort zum Anschauen (Gemaelde, Kamin, Brunnen). "furniture" ist der
+  // fruehere Name dieses Typs und bleibt fuer aeltere Story-Dateien als Alias gueltig.
+  { key: 'feature', label: 'Details', icon: '◇', hint: 'Betrachten',
+    types: ['feature', 'furniture'] },
+  { key: 'item', label: 'Gegenstände', icon: '◆', hint: 'Untersuchen',
+    types: ['object', 'object_collection', 'container', 'mechanism'] },
+  { key: 'document', label: 'Schriftstücke', icon: '✎', hint: 'Lesen',
+    types: ['document', 'document_collection', 'document_entry', 'inscription'] },
+  { key: 'place', label: 'Bereiche', icon: '⌂', hint: 'Betreten',
+    types: ['room', 'area', 'building', 'place'] },
+  { key: 'way', label: 'Wege', icon: '➜', hint: 'Gehen',
+    types: ['door'] },
+  { key: 'other', label: 'Sonstiges', icon: '•', hint: '', types: [] },
+];
+
+function menuCategoryOf(el) {
+  return MENU_CATEGORIES.find((c) => c.types.includes(el.type)) || MENU_CATEGORIES[MENU_CATEGORIES.length - 1];
+}
+
 const engine = {
   story: null,
   elementsById: {},
@@ -70,6 +100,21 @@ function initEngine(story) {
   engine.resolutionApplied = false;
   engine.gameFinished = false;
   engine.pendingMessages = [];
+
+  // Inventar = Inhalt des Elements "player". Geschichten ohne eigenes player-Element
+  // (z.B. neu im Editor angelegte) bekommen eines, damit Aufnehmen/Inventar immer funktioniert.
+  if (!story.elements.some((el) => el.id === PLAYER_ID)) {
+    story.elements.push({
+      id: PLAYER_ID,
+      name: 'Inventar',
+      type: 'player',
+      physical: true,
+      locatedIn: null,
+      initialState: {},
+      initialPartOf: [],
+      presentation: { firstView: 'Du schaust in deine Taschen.' },
+    });
+  }
 
   for (const el of story.elements) {
     engine.elementsById[el.id] = el;
@@ -170,6 +215,10 @@ function evalCondition(cond) {
       const [id, target] = args;
       return !(engine.runtime[id]?.partOf || []).includes(target);
     }
+    case 'inInventory':
+      return isCarried(args);
+    case 'notInInventory':
+      return !isCarried(args);
     default:
       console.warn('Unbekannter Bedingungstyp:', key);
       return false;
@@ -312,8 +361,70 @@ function closeTopWindow() {
 }
 
 function openInventory() {
-  engine.stack.push('player');
+  if (engine.stack.includes(PLAYER_ID)) return;
+  engine.stack.push(PLAYER_ID);
   render();
+}
+
+// ---------------------------------------------------------------------
+// Inventar: Aufnehmen / Ablegen von Gegenstaenden mit portable: true
+// ---------------------------------------------------------------------
+
+// Traegt der Spieler das Element - direkt oder in etwas Getragenem (z.B. Brief in der Tasche)?
+function isCarried(id) {
+  const seen = new Set();
+  let cur = engine.runtime[id] ? engine.runtime[id].locatedIn : null;
+  while (cur && !seen.has(cur)) {
+    if (cur === PLAYER_ID) return true;
+    seen.add(cur);
+    cur = engine.runtime[cur] ? engine.runtime[cur].locatedIn : null;
+  }
+  return false;
+}
+
+// Wohin wird abgelegt? Das oberste offene Fenster unterhalb des Inventars, in das man
+// sinnvoll etwas legen kann (Ort, Truhe, Tisch ...); sonst der aktuelle Ort (stack[0]).
+function dropTargetFor(itemId) {
+  for (let i = engine.stack.length - 1; i >= 0; i--) {
+    const id = engine.stack[i];
+    if (id === itemId || id === PLAYER_ID || isCarried(id)) continue;
+    if (DROP_TARGET_TYPES.includes(engine.elementsById[id].type)) return id;
+  }
+  return engine.stack[0];
+}
+
+function takeItem(itemId) {
+  const el = engine.elementsById[itemId];
+  engine.runtime[itemId].locatedIn = PLAYER_ID;
+  closeWindowsFrom(itemId);
+  finishInventoryAction((el.presentation && el.presentation.takeText) || `Du nimmst „${el.name}“ an dich.`);
+}
+
+function dropItem(itemId) {
+  const el = engine.elementsById[itemId];
+  const targetId = dropTargetFor(itemId);
+  engine.runtime[itemId].locatedIn = targetId;
+  closeWindowsFrom(itemId);
+  const targetName = engine.elementsById[targetId].name;
+  finishInventoryAction((el.presentation && el.presentation.dropText) || `Du legst „${el.name}“ hier ab (${targetName}).`);
+}
+
+// Das Fenster des Gegenstands (und alles darueber) schliessen - er liegt jetzt woanders.
+function closeWindowsFrom(itemId) {
+  const index = engine.stack.indexOf(itemId);
+  if (index > 0) engine.stack = engine.stack.slice(0, index);
+}
+
+function finishInventoryAction(message) {
+  // Aufnehmen/Ablegen kann eine Loesungsbedingung erfuellen (z.B. inInventory: schluessel).
+  engine.pendingMessages = [];
+  checkResolution();
+  if (engine.gameFinished) {
+    showEndScreen();
+    return;
+  }
+  render();
+  showToast([message, ...engine.pendingMessages].join('\n\n'));
 }
 
 // ---------------------------------------------------------------------
@@ -467,16 +578,68 @@ function renderWindow(id, isTop, showCloseButton) {
     .map((field) => el._samples && el._samples[field])
     .filter((n) => n != null);
 
+  const kids = childrenOf(id).filter(isVisible);
+  if (id === PLAYER_ID && kids.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'inventory-empty';
+    empty.textContent = 'Du trägst noch nichts bei dir.';
+    textBox.appendChild(empty);
+  }
+
+  if (isTop && el.portable) {
+    const actions = document.createElement('div');
+    actions.className = 'window-actions';
+    const btn = document.createElement('button');
+    if (isCarried(id)) {
+      const targetName = engine.elementsById[dropTargetFor(id)].name;
+      btn.className = 'action-btn';
+      btn.textContent = `⬇ Ablegen (${targetName})`;
+      btn.title = `„${el.name}“ aus dem Inventar nehmen und hier ablegen.`;
+      btn.addEventListener('click', () => dropItem(id));
+    } else {
+      btn.className = 'action-btn';
+      btn.textContent = '✋ Aufnehmen';
+      btn.title = `„${el.name}“ ins Inventar legen.`;
+      btn.addEventListener('click', () => takeItem(id));
+    }
+    actions.appendChild(btn);
+    div.appendChild(actions);
+  }
+
   const menu = document.createElement('div');
   menu.className = 'window-menu';
-  const kids = childrenOf(id).filter(isVisible);
-  for (const childId of kids) {
-    const child = engine.elementsById[childId];
-    const btn = document.createElement('button');
-    btn.className = 'menu-btn';
-    btn.textContent = child.name;
-    btn.addEventListener('click', () => use(childId));
-    menu.appendChild(btn);
+  for (const cat of MENU_CATEGORIES) {
+    const members = kids.filter((cid) => menuCategoryOf(engine.elementsById[cid]) === cat);
+    if (members.length === 0) continue;
+    const group = document.createElement('div');
+    group.className = `menu-group cat-${cat.key}`;
+    const title = document.createElement('div');
+    title.className = 'menu-group-title';
+    title.textContent = cat.label;
+    group.appendChild(title);
+    const list = document.createElement('div');
+    list.className = 'menu-group-list';
+    for (const childId of members) {
+      const child = engine.elementsById[childId];
+      const btn = document.createElement('button');
+      btn.className = 'menu-btn';
+      const icon = document.createElement('span');
+      icon.className = 'menu-icon';
+      icon.textContent = cat.icon;
+      btn.appendChild(icon);
+      btn.appendChild(document.createTextNode(child.name));
+      if (child.portable && !isCarried(childId)) {
+        const badge = document.createElement('span');
+        badge.className = 'menu-badge';
+        badge.textContent = 'aufnehmbar';
+        btn.appendChild(badge);
+      }
+      btn.title = cat.hint;
+      btn.addEventListener('click', () => use(childId));
+      list.appendChild(btn);
+    }
+    group.appendChild(list);
+    menu.appendChild(group);
   }
   div.appendChild(menu);
 

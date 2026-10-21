@@ -9,9 +9,57 @@
 <body>
 
 <section id="screen-select" class="screen">
-  <h1>Geschichten</h1>
+  <div class="select-topbar">
+    <h1>Geschichten</h1>
+    <button id="btn-open-editor" class="topbar-btn" data-tip="Geschichten bearbeiten: Orte, Wege, Objekte und Texte.">🛠 Editor</button>
+  </div>
   <p class="hint">Waehle eine Geschichte aus.</p>
   <div id="story-list" class="story-list"></div>
+</section>
+
+<section id="screen-editor-select" class="screen" hidden>
+  <header class="game-topbar">
+    <button id="btn-editor-select-back" class="topbar-btn" title="Zurueck">&larr; Zurueck</button>
+    <div class="topbar-title">Editor &ndash; Geschichte waehlen</div>
+    <div class="topbar-actions"></div>
+  </header>
+  <div id="editor-story-list" class="story-list editor-story-list"></div>
+</section>
+
+<section id="screen-editor-graph" class="screen" hidden>
+  <header class="game-topbar">
+    <button id="btn-editor-leave" class="topbar-btn" data-tip="Zurück zur Geschichtenauswahl. Bei ungespeicherten Änderungen wirst du vorher gefragt.">&larr; Editor verlassen</button>
+    <div class="topbar-title">
+      <input id="editor-title" class="editor-title-input" placeholder="Name der Geschichte" data-tip="Name der Geschichte – so erscheint sie in der Geschichtenauswahl.&#10;Hier klicken zum Ändern.">
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-editor-meta" class="topbar-btn" data-tip="Angaben zur Geschichte bearbeiten: Titel, Autor, Kurzbeschreibung, Version.&#10;So erscheint die Geschichte auf der Startseite.">📝 Geschichte</button>
+      <button id="btn-editor-help" class="topbar-btn" data-tip="Kurzanleitung ein- oder ausblenden.">? Hilfe</button>
+      <button id="btn-editor-inventory" class="topbar-btn" data-tip="Startinventar: Gegenstände, die der Spieler schon zu Beginn bei sich trägt.&#10;Hier kannst du sie ansehen und neue anlegen.">🎒 Startinventar</button>
+      <button id="btn-editor-add-location" class="topbar-btn" data-tip="Neuen Ort anlegen (Raum, Platz, Gebäude …).&#10;Er erscheint als Ellipse im Graph und kann dann mit Wegen verbunden werden.">+ Neuer Ort</button>
+      <button id="btn-editor-save" class="topbar-btn" disabled data-tip="Alle Änderungen in die Story-Datei (YAML) schreiben.&#10;Tastenkürzel: Strg+S">Speichern</button>
+    </div>
+  </header>
+  <div id="editor-help" class="editor-help" hidden>
+    <button id="btn-editor-help-close" class="editor-help-close" data-tip="Kurzanleitung ausblenden (über „? Hilfe“ wieder einblenden).">✕</button>
+    <strong>So funktioniert der Editor:</strong>
+    <ul>
+      <li><b>Ellipsen</b> sind Orte, <b>Pfeile</b> sind Wege zwischen ihnen. ★ markiert den Startort.</li>
+      <li><b>Ort anklicken</b> öffnet ihn: Dort bearbeitest du Texte und legst Objekte darin an. Objekte lassen sich ebenfalls öffnen, so baust du Ebene für Ebene nach unten.</li>
+      <li><b>Weg anlegen:</b> Mit der Maus über einen Ort fahren, auf 🔗 klicken und dann den Zielort anklicken.</li>
+      <li><b>Gegenstände aufnehmbar machen:</b> Im Fenster eines Objekts „✋ Kann aufgenommen werden“ anhaken. Im Spiel kann der Spieler es dann ins Inventar legen und wieder ablegen.</li>
+      <li><b>Pfeil anklicken</b> bearbeitet den Weg, <b>✕</b> löscht ihn.</li>
+      <li>Fahre mit der Maus über ein Feld oder ein <span class="info-icon">ⓘ</span>, dann erscheint eine Erklärung. <b>Strg+S</b> speichert, <b>Esc</b> schließt das oberste Fenster.</li>
+    </ul>
+  </div>
+  <div id="editor-banner" class="editor-banner" hidden>
+    <span id="editor-banner-text"></span>
+    <button id="btn-editor-cancel-connect" class="topbar-btn" hidden>Abbrechen</button>
+  </div>
+  <div class="editor-canvas-wrap">
+    <div id="editor-canvas" class="editor-canvas"></div>
+  </div>
+  <div id="editor-window-stack" class="window-stack editor-window-overlay" hidden></div>
 </section>
 
 <section id="screen-game" class="screen" hidden>
@@ -44,8 +92,49 @@
   </div>
 </section>
 
+<div id="leave-dialog" class="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leave-dialog-title">
+    <h2 id="leave-dialog-title">Ungespeicherte Änderungen</h2>
+    <p>Du hast Änderungen an dieser Geschichte, die noch nicht gespeichert sind. Was möchtest du tun?</p>
+    <div class="modal-actions">
+      <button id="btn-leave-save" class="modal-btn primary" data-tip="Alle Änderungen in die Story-Datei schreiben und danach den Editor verlassen.">💾 Speichern und verlassen</button>
+      <button id="btn-leave-discard" class="modal-btn danger" data-tip="Den Editor verlassen und alle Änderungen seit dem letzten Speichern verwerfen. Kann nicht rückgängig gemacht werden.">Verwerfen und verlassen</button>
+      <button id="btn-leave-cancel" class="modal-btn" data-tip="Im Editor bleiben und weiterarbeiten (Esc).">Im Editor bleiben</button>
+    </div>
+  </div>
+</div>
+
+<div id="meta-dialog" class="modal-backdrop" hidden>
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="meta-dialog-title">
+    <h2 id="meta-dialog-title">Angaben zur Geschichte</h2>
+    <p>Diese Angaben erscheinen auf der Startseite in der Geschichtenauswahl. Änderungen werden mit „Speichern“ in die Datei geschrieben.</p>
+    <div class="editor-fields">
+      <label class="field-row">
+        <span class="field-label">Titel <span class="info-icon" data-tip="Name der Geschichte – groß auf der Karte in der Geschichtenauswahl und oben im Spiel.">ⓘ</span></span>
+        <input id="meta-title" data-meta="title" placeholder="z.B. Die verfluchte Mühle">
+      </label>
+      <label class="field-row">
+        <span class="field-label">Autor <span class="info-icon" data-tip="Wer die Geschichte geschrieben hat. Erscheint klein unter der Kurzbeschreibung.">ⓘ</span></span>
+        <input data-meta="author" placeholder="z.B. Kai Foerst">
+      </label>
+      <label class="field-row">
+        <span class="field-label">Kurzbeschreibung <span class="info-icon" data-tip="Ein bis zwei Sätze, die neugierig machen – wie ein Klappentext.&#10;Steht auf der Karte in der Geschichtenauswahl unter dem Titel.">ⓘ</span></span>
+        <textarea data-meta="teaser" rows="3" placeholder="z.B. Ein verlassenes Dorf, eine zerstörte Mühle – und niemand will über die Nacht des Unglücks sprechen."></textarea>
+      </label>
+      <label class="field-row">
+        <span class="field-label">Version <span class="info-icon" data-tip="Versionsnummer der Geschichte. Erhöhe sie, wenn du eine überarbeitete Fassung veröffentlichst – hilft, verschiedene Stände auseinanderzuhalten.">ⓘ</span></span>
+        <input data-meta="version" type="number" min="1" step="1" class="meta-short">
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button id="btn-meta-close" class="modal-btn primary" data-tip="Dialog schließen. Die Änderungen bleiben erhalten, bis du speicherst (Esc).">Fertig</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 
 <script src="game.js"></script>
+<script src="editor.js"></script>
 </body>
 </html>

@@ -13,7 +13,13 @@
       "Bash(python -m py_compile generate_samples.py)",
       "Bash(python -m pip install -r requirements.txt --quiet)",
       "PowerShell(ffmpeg -version 2>&1)",
-      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); ffmpeg -version | Select-Object -First 1)"
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); ffmpeg -version | Select-Object -First 1)",
+      "Bash(python game.py --port 8123 --no-browser)",
+      "Bash(curl -s http://127.0.0.1:8123/api/stories)",
+      "Bash(curl -s http://127.0.0.1:8123/api/story/cursed_mill)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('elements:', len\\(d['elements']\\)\\); print\\('header:', d['header']['id']\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\([e['presentation']['firstView'] for e in d['elements'] if e['id']=='village_square_present']\\)\")",
+      "Bash(node test_editor.js)"
     ]
   }
 }
