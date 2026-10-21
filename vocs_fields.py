@@ -1,6 +1,6 @@
 """Gemeinsame Konstanten fuer die Kopplung von Story-Texten an generate_samples.py.
 
-Wird von export_vocs.py (schreibt input_vocs.txt) und game.py (spielt vorhandene
+Wird von export_vocs.py (schreibt samples_input.txt) und game.py (spielt vorhandene
 Samples im Browser ab) gleichermassen importiert, damit beide Seiten exakt dieselben
 Textfelder und denselben Schluesselaufbau verwenden. Nur Felder aus `presentation`,
 die echte Erzaehltexte sind, werden vorgelesen - UI-/Meta-Text wie `exitLabel` (ein
@@ -21,7 +21,7 @@ NARRATED_FIELDS = [
 # Sprecher, die Autoren im Editor waehlen koennen: (Kuerzel, Anzeigename, Gemini-Stimme).
 # Einzige Quelle fuer generate_samples.py (SPEAKER_VOICES) und den Editor (ueber
 # GET /api/voices in game.py). Kuerzel stehen in der Story-Datei (`voice:` am Element,
-# `header.narratorVoice`) und in input_vocs.txt - bestehende Kuerzel nie umbenennen.
+# `header.narratorVoice`) und in samples_input.txt - bestehende Kuerzel nie umbenennen.
 SPEAKERS = [
     ("standard", "Standard (wie Männlich 1)", "Puck"),
     ("male1", "Männlich 1 – lebhaft, freundlich", "Puck"),
@@ -34,8 +34,9 @@ SPEAKERS = [
 DEFAULT_SPEAKER = "standard"
 
 
-def sample_key(story_id: str, element_id: str, field: str) -> str:
-    return f"{story_id}:{element_id}:{field}"
+def sample_key(element_id: str, field: str) -> str:
+    """Schluessel in Stories/<Name>/samples_index.json (je Geschichte eine eigene Liste)."""
+    return f"{element_id}:{field}"
 
 
 # ---------------------------------------------------------------------------

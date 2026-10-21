@@ -1,6 +1,4 @@
 .env
-output_vocs/
-output_pics/
 __pycache__/
 *.pyc
 .venv/

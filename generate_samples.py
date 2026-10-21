@@ -1,16 +1,17 @@
 """Erzeugt mp3-Sprachsamples via Gemini TTS.
 
-Standard (ohne --input): fragt, welche Geschichte aus Stories/*.yaml vertont werden soll,
-exportiert vorher automatisch alle vorlesbaren Texte (wie export_vocs.py: input_vocs.txt +
-.vocs_index.json) und erzeugt dann nur die Samples dieser Geschichte. Unveraenderte Samples
-werden uebersprungen (Manifest), vor den API-Aufrufen wird nachgefragt.
+Standard (ohne --input): fragt, welche Geschichte (Ordner unter Stories/) vertont werden soll,
+exportiert vorher automatisch ihre zu sprechenden Texte (wie export_vocs.py) und legt die
+Sprachdateien in Stories/<Name>/samples/ ab. Unveraenderte Samples werden uebersprungen
+(Manifest), mp3s ohne zugehoerigen Text werden aufgeraeumt, vor den API-Aufrufen wird
+nachgefragt.
 
     python generate_samples.py                      # Auswahl im Terminal
     python generate_samples.py --story cursed_mill  # ohne Rueckfrage nach der Geschichte
     python generate_samples.py --story alle --yes   # alles, ohne jede Rueckfrage
     python generate_samples.py --dry-run            # nur anzeigen, was erzeugt wuerde
 
-Klassisch: --input datei.txt liest Zeilen im Format  Nummer "Text";Sprecher.
+Klassisch: --input datei.txt --output-dir ordner  liest Zeilen im Format  Nummer "Text";Sprecher.
 
 Sprecher (Kuerzel wie male1/female2) und ihre Gemini-Stimmen stehen in vocs_fields.SPEAKERS.
 """
@@ -32,6 +33,7 @@ from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
 
+from story_files import load_story, story_folders
 from vocs_fields import DEFAULT_SPEAKER, SPEAKERS
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -45,7 +47,7 @@ DEFAULT_MODEL = "gemini-2.5-flash-preview-tts"
 
 MANIFEST_FILENAME = ".manifest.json"
 
-# Zuordnung der Sprecher-Kuerzel (Story-Datei / input_vocs.txt) zu Gemini-Stimmen.
+# Zuordnung der Sprecher-Kuerzel (Story-Datei / samples_input.txt) zu Gemini-Stimmen.
 SPEAKER_VOICES = {key: voice for key, _label, voice in SPEAKERS}
 DEFAULT_VOICE = SPEAKER_VOICES[DEFAULT_SPEAKER]
 
@@ -159,44 +161,35 @@ def is_up_to_date(manifest, output_dir, number, voice, text, model):
     return manifest.get(key) == content_hash(text, voice, model) and os.path.exists(out_path)
 
 
-def export_story_entries(stories_dir, default_voice):
-    """Exportiert alle vorlesbaren Texte (input_vocs.txt, .vocs_index.json) und liefert pro
-    Geschichte (id, titel, [(nummer, stimme, text)]). Die Nummern muessen fuer alle
-    Geschichten gemeinsam vergeben werden, darum wird immer komplett exportiert."""
+def story_jobs(default_voice):
+    """Exportiert alle Geschichten und liefert je Geschichte einen Auftrag
+    (titel, [(nummer, stimme, text)], samples-ordner)."""
     import export_vocs  # erst hier: wird nur im Geschichten-Modus gebraucht
 
-    stories = export_vocs.load_stories(stories_dir)
-    entries = export_vocs.collect_entries(stories)
-    index_path = ROOT_DIR / ".vocs_index.json"
-    index = export_vocs.load_index(index_path)
-    assigned = export_vocs.assign_numbers(entries, index)
-    if entries:
-        export_vocs.save_index(index_path, index)
-        export_vocs.write_input_vocs(ROOT_DIR / "input_vocs.txt", entries, assigned)
-
-    per_story = []
-    for story in stories:
-        story_id = story["header"]["id"]
-        own = [
-            (assigned[key], voice_for_speaker(speaker, default_voice, f"{key}: "), text)
-            for key, text, speaker in entries
-            if key.startswith(story_id + ":")
+    jobs = []
+    for folder in story_folders():
+        story = load_story(folder)
+        if story is None:
+            continue
+        entries = [
+            (number, voice_for_speaker(speaker, default_voice, f"{folder.name} {number:05d}: "), text)
+            for number, text, speaker in export_vocs.export_story(folder)
         ]
-        per_story.append((story_id, story["header"].get("title") or story_id, own))
-    return per_story, set(assigned.values())
+        jobs.append((story["header"].get("title") or folder.name, entries, folder.samples_dir))
+    return jobs
 
 
 SAMPLE_FILE_RE = re.compile(r"^sample_(\d+)\.mp3$")
 
 
 def find_orphans(output_dir, needed_numbers):
-    """mp3s, zu denen es in keiner Geschichte mehr einen zu sprechenden Text gibt."""
-    orphans = []
-    for name in sorted(os.listdir(output_dir)):
-        match = SAMPLE_FILE_RE.match(name)
-        if match and int(match.group(1)) not in needed_numbers:
-            orphans.append(name)
-    return orphans
+    """mp3s, zu denen es in dieser Geschichte keinen zu sprechenden Text mehr gibt."""
+    if not os.path.isdir(output_dir):
+        return []
+    return [
+        name for name in sorted(os.listdir(output_dir))
+        if (m := SAMPLE_FILE_RE.match(name)) and int(m.group(1)) not in needed_numbers
+    ]
 
 
 def remove_orphans(output_dir, orphans):
@@ -205,7 +198,7 @@ def remove_orphans(output_dir, orphans):
         os.remove(os.path.join(output_dir, name))
         manifest.pop(SAMPLE_FILE_RE.match(name).group(1), None)
     save_manifest(output_dir, manifest)
-    print(f"Aufgeraeumt: {len(orphans)} nicht mehr benoetigte Sprachdatei(en) geloescht.")
+    print(f"Aufgeraeumt: {len(orphans)} nicht mehr benoetigte Sprachdatei(en) in {output_dir} geloescht.")
 
 
 def ask(prompt):
@@ -215,50 +208,49 @@ def ask(prompt):
         return ""
 
 
-def choose_story(per_story, preset, pending_count):
-    """Liefert (eintraege, beschriftung) oder (None, None) bei Abbruch."""
-    narrated = [(sid, title, own) for sid, title, own in per_story if own]
+def choose_jobs(jobs, preset, pending_count):
+    """Liefert die gewaehlten Auftraege oder None bei Abbruch."""
+    narrated = [job for job in jobs if job[1]]
     if not narrated:
         sys.exit("Keine Geschichte enthaelt vorlesbare Texte.")
-    all_entries = [e for _, _, own in narrated for e in own]
 
     if preset:
         if preset.lower() in ("alle", "all"):
-            return all_entries, "Alle Geschichten"
-        for sid, title, own in narrated:
-            if sid == preset:
-                return own, title
-        known = ", ".join(sid for sid, _, _ in narrated)
+            return narrated
+        chosen = [job for job in narrated if Path(job[2]).parent.name == preset]
+        if chosen:
+            return chosen
+        known = ", ".join(Path(job[2]).parent.name for job in narrated)
         sys.exit(f"Unbekannte Geschichte '{preset}'. Moeglich: {known}, alle")
 
     print("Welche Geschichte soll vertont werden?")
-    for i, (sid, title, own) in enumerate(narrated, start=1):
-        print(f"  {i}) {title} [{sid}] - {len(own)} Text(e), davon {pending_count(own)} neu oder geaendert")
+    for i, job in enumerate(narrated, start=1):
+        print(f"  {i}) {job[0]} [{Path(job[2]).parent.name}] - {len(job[1])} Text(e), davon {pending_count(job)} neu oder geaendert")
     if len(narrated) > 1:
-        print(f"  a) Alle Geschichten - {len(all_entries)} Text(e), davon {pending_count(all_entries)} neu oder geaendert")
+        total = sum(len(job[1]) for job in narrated)
+        print(f"  a) Alle Geschichten - {total} Text(e), davon {sum(pending_count(j) for j in narrated)} neu oder geaendert")
     choice = ask("Auswahl (Nummer, a = alle, Enter = Abbruch): ").lower()
     if not choice:
-        return None, None
+        return None
     if choice in ("a", "alle") and len(narrated) > 1:
-        return all_entries, "Alle Geschichten"
+        return narrated
     if choice.isdigit() and 1 <= int(choice) <= len(narrated):
-        _, title, own = narrated[int(choice) - 1]
-        return own, title
+        return [narrated[int(choice) - 1]]
     sys.exit(f"Ungueltige Auswahl: {choice!r}")
 
 
 def generate(entries, output_dir, model, force, client):
+    os.makedirs(output_dir, exist_ok=True)
     manifest = {} if force else load_manifest(output_dir)
     made = failed = skipped = 0
     for number, voice, text in entries:
         key = f"{number:05d}"
         out_path = os.path.join(output_dir, f"sample_{key}.mp3")
         if not force and is_up_to_date(manifest, output_dir, number, voice, text, model):
-            print(f"[sample_{key}] unveraendert, ueberspringe")
             skipped += 1
             continue
 
-        print(f"[sample_{key}] Stimme={voice!r} Text={text[:60]!r} -> {out_path}")
+        print(f"[sample_{key}] Stimme={voice!r} Text={text[:60]!r}")
         try:
             pcm_data = synthesize(client, model, voice, text)
             wav_to_mp3(pcm_to_wav_bytes(pcm_data), out_path)
@@ -268,17 +260,15 @@ def generate(entries, output_dir, model, force, client):
         except Exception as exc:
             print(f"  Fehler bei Sample {key}: {exc}", file=sys.stderr)
             failed += 1
-    print(f"Fertig: {made} erzeugt, {skipped} unveraendert, {failed} fehlgeschlagen.")
-    if made:
-        print("Im Spiel die Seite neu laden (Strg+F5) und 'Vorlesen' einschalten.")
+    print(f"Fertig ({output_dir}): {made} erzeugt, {skipped} unveraendert, {failed} fehlgeschlagen.")
+    return made
 
 
 def main():
     parser = argparse.ArgumentParser(description="Erzeugt mp3-Sprachsamples via Gemini TTS (Standard: Auswahl einer Geschichte).")
-    parser.add_argument("--story", help="ID der Geschichte (oder 'alle') statt der Auswahl im Terminal")
-    parser.add_argument("--input", help="Klassischer Modus: Eingabe-Textdatei im Format Nummer \"Text\";Sprecher")
-    parser.add_argument("--stories-dir", default=str(ROOT_DIR / "Stories"), help="Ordner mit den Story-Dateien")
-    parser.add_argument("--output-dir", default=str(ROOT_DIR / "output_vocs"), help="Zielordner fuer die mp3-Dateien (default: output_vocs)")
+    parser.add_argument("--story", help="Name der Geschichte (Ordnername unter Stories/) oder 'alle' statt der Auswahl im Terminal")
+    parser.add_argument("--input", help="Klassischer Modus: Eingabe-Textdatei im Format Nummer \"Text\";Sprecher (braucht --output-dir)")
+    parser.add_argument("--output-dir", help="Nur mit --input: Zielordner fuer die mp3-Dateien")
     parser.add_argument("--voice", default=DEFAULT_VOICE, help=f"Gemini-Stimme fuer Texte ohne Sprecher (default: {DEFAULT_VOICE})")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Gemini TTS Modell (default: {DEFAULT_MODEL})")
     parser.add_argument("--force", action="store_true", help="Ignoriert das Manifest und generiert alle Samples neu")
@@ -291,49 +281,54 @@ def main():
     if not api_key and not args.dry_run:
         sys.exit("Fehler: GEMINI_API_KEY ist nicht gesetzt. Lege eine .env an (Vorlage: .env.example).")
 
-    os.makedirs(args.output_dir, exist_ok=True)
-    manifest = {} if args.force else load_manifest(args.output_dir)
+    def pending(job):
+        _label, entries, output_dir = job
+        manifest = {} if args.force else load_manifest(output_dir)
+        return [e for e in entries if args.force or not is_up_to_date(manifest, output_dir, *e, args.model)]
 
-    def pending(entries):
-        return [e for e in entries if args.force or not is_up_to_date(manifest, args.output_dir, *e, args.model)]
-
-    orphans = []
     if args.input:
+        if not args.output_dir:
+            sys.exit("Mit --input bitte auch --output-dir angeben.")
         entries = parse_lines(args.input, args.voice)
         if not entries:
             sys.exit(f"Keine verwendbaren Zeilen in {args.input} gefunden.")
-        label = args.input
+        jobs = [(args.input, entries, args.output_dir)]
     else:
-        per_story, needed_numbers = export_story_entries(Path(args.stories_dir), args.voice)
-        entries, label = choose_story(per_story, args.story, lambda e: len(pending(e)))
-        if entries is None:
+        jobs = choose_jobs(story_jobs(args.voice), args.story, lambda job: len(pending(job)))
+        if jobs is None:
             print("Abgebrochen.")
             return
-        # Aufraeumen nur im Geschichten-Modus: Dort ist bekannt, welche Nummern ueber ALLE
-        # Geschichten hinweg noch gebraucht werden.
-        orphans = find_orphans(args.output_dir, needed_numbers)
-        if orphans and args.dry_run:
-            print(f"Probelauf: {len(orphans)} nicht mehr benoetigte Sprachdatei(en) wuerden geloescht.")
-        elif orphans:
-            remove_orphans(args.output_dir, orphans)
+        # Aufraeumen: mp3s ohne zugehoerigen Text in der jeweiligen Geschichte.
+        for _label, entries, output_dir in jobs:
+            orphans = find_orphans(output_dir, {number for number, _v, _t in entries})
+            if orphans and args.dry_run:
+                print(f"Probelauf: {len(orphans)} nicht mehr benoetigte Sprachdatei(en) in {output_dir} wuerden geloescht.")
+            elif orphans:
+                remove_orphans(output_dir, orphans)
 
-    todo = pending(entries)
-    print(f"{label}: {len(entries)} Text(e), davon {len(todo)} zu vertonen.")
-    if not todo:
+    todo = [(job, pending(job)) for job in jobs]
+    total = sum(len(t) for _, t in todo)
+    for (label, entries, _dir), t in todo:
+        print(f"{label}: {len(entries)} Text(e), davon {len(t)} zu vertonen.")
+    if not total:
         print("Alle Samples sind aktuell - nichts zu tun.")
         return
     if args.dry_run:
-        for number, voice, text in todo:
-            print(f"  sample_{number:05d} [{voice}]: {text[:70]}")
+        for _job, t in todo:
+            for number, voice, text in t:
+                print(f"  sample_{number:05d} [{voice}]: {text[:70]}")
         print("Probelauf - es wurde nichts erzeugt.")
         return
     if not args.yes:
-        answer = ask(f"{len(todo)} Sample(s) jetzt erzeugen? Das kostet API-Aufrufe. [j/N] ").lower()
+        answer = ask(f"{total} Sample(s) jetzt erzeugen? Das kostet API-Aufrufe. [j/N] ").lower()
         if answer not in ("j", "ja", "y", "yes"):
             print("Abgebrochen.")
             return
 
-    generate(entries, args.output_dir, args.model, args.force, genai.Client(api_key=api_key))
+    client = genai.Client(api_key=api_key)
+    made = sum(generate(entries, output_dir, args.model, args.force, client) for _label, entries, output_dir in jobs)
+    if made:
+        print("Im Spiel die Seite neu laden (Strg+F5) und 'Vorlesen' einschalten.")
 
 
 if __name__ == "__main__":

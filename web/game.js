@@ -506,6 +506,12 @@ function pickImage(id) {
   return null;
 }
 
+// Medien liegen im Ordner der Geschichte: Stories/<Name>/samples bzw. /pictures (game.py liefert
+// sie unter /stories/<Name>/...). Der Ordnername ist zugleich header.id.
+function storyMediaUrl(kind, file) {
+  return `/stories/${encodeURIComponent(engine.story.header.id)}/${kind}/${file}`;
+}
+
 let activeAudio = null;
 let narrationEnabled = false;
 let lastTopSampleNumbers = [];
@@ -532,7 +538,7 @@ function playSamples(numbers) {
       return;
     }
     const number = String(numbers[i++]).padStart(5, '0');
-    audio.src = `/output_vocs/sample_${number}.mp3`;
+    audio.src = storyMediaUrl('samples', `sample_${number}.mp3`);
     audio.play().catch(() => {
       if (activeAudio === audio) activeAudio = null;
     });
@@ -606,7 +612,7 @@ function renderWindow(id, isTop, showCloseButton) {
     imgBox.className = 'window-image';
     if (picture.number != null) {
       const img = document.createElement('img');
-      img.src = `/output_pics/pic_${String(picture.number).padStart(5, '0')}.jpg`;
+      img.src = storyMediaUrl('pictures', `pic_${String(picture.number).padStart(5, '0')}.jpg`);
       img.alt = el.name;
       imgBox.appendChild(img);
     } else {

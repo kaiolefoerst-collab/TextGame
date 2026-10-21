@@ -2,7 +2,7 @@
 
 /* Editor-Erweiterung: Bild-Prompts eines Elements (Standardbild `image` und Zustandsbilder
  * `stateImages`). Die Bilder selbst entstehen ausserhalb des Editors genau wie die Sprach-
- * samples: export_pics.py -> input_pics.txt -> generate_pictures.py -> output_pics/.
+ * samples: generate_pictures.py -> Stories/<Name>/pictures/.
  * Nutzt globale Helfer aus editor.js / editor-triggers.js (ed, setTip, infoIcon,
  * renderSection, markDirty, renderEditorStack, ruleDeleteButton, ruleAddButton,
  * formatStateValue, parseStateValue, collectStateVocabulary, ensureDatalist, openMetaDialog).
@@ -42,7 +42,7 @@ function imagePreview(number) {
   const wrap = document.createElement('div');
   wrap.className = 'image-preview';
   const img = document.createElement('img');
-  img.src = `/output_pics/pic_${String(number).padStart(5, '0')}.jpg`;
+  img.src = `/stories/${encodeURIComponent(ed.storyId)}/pictures/pic_${String(number).padStart(5, '0')}.jpg`;
   img.alt = 'Vorschau';
   wrap.appendChild(img);
   setTip(wrap, IMAGE_TIPS.preview);

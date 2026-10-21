@@ -1,7 +1,8 @@
 """Startpunkt fuer den Prototyp der elementbasierten Erzaehl-Engine (Version 0.0).
 
-Startet einen lokalen HTTP-Server, der das Web-Frontend aus web/ ausliefert und
-Story-Dateien aus Stories/*.yaml als JSON bereitstellt. Die eigentliche Spiellogik
+Startet einen lokalen HTTP-Server, der das Web-Frontend aus web/ ausliefert und die
+Geschichten aus Stories/<Name>/<Name>.yaml als JSON bereitstellt (Ordnerstruktur siehe
+story_files.py), samt ihren Sprachdateien und Bildern. Die eigentliche Spiellogik
 (Trigger, Bedingungen, Effekte, Fenster-Navigation) laeuft im Browser (web/game.js).
 
 Aufruf:
@@ -18,20 +19,16 @@ import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import yaml
 
 from pics_fields import image_entries, image_key
+from story_files import STORIES_DIR, StoryFolder, load_index, load_story, story_folders
 from vocs_fields import DEFAULT_SPEAKER, SPEAKERS, narrated_texts, sample_key
 
 ROOT_DIR = Path(__file__).resolve().parent
-STORIES_DIR = ROOT_DIR / "Stories"
 WEB_DIR = ROOT_DIR / "web"
-OUTPUT_VOCS_DIR = ROOT_DIR / "output_vocs"
-VOCS_INDEX_PATH = ROOT_DIR / ".vocs_index.json"
-OUTPUT_PICS_DIR = ROOT_DIR / "output_pics"
-PICS_INDEX_PATH = ROOT_DIR / ".pics_index.json"
 
 # Schuetzt Lese-Aendern-Schreiben-Zyklen auf self.stories/Story-Dateien, da
 # ThreadingHTTPServer jede Anfrage in einem eigenen Thread bearbeitet.
@@ -46,28 +43,17 @@ def _represent_multiline_str(dumper: yaml.Dumper, data: str) -> yaml.ScalarNode:
 yaml.SafeDumper.add_representer(str, _represent_multiline_str)
 
 
-def load_story_files() -> tuple[dict[str, dict], dict[str, Path]]:
-    """Laedt alle Story-YAML-Dateien aus STORIES_DIR, indiziert nach header.id.
-    Liefert zusaetzlich eine story_id -> Dateipfad Zuordnung fuer den Editor-Speicherpfad."""
+def load_story_files() -> tuple[dict[str, dict], dict[str, StoryFolder]]:
+    """Laedt alle Geschichten (je ein Ordner unter Stories/), indiziert nach Ordnername
+    (= header.id). Liefert zusaetzlich Name -> StoryFolder fuer Speichern und Medien."""
     stories: dict[str, dict] = {}
-    paths: dict[str, Path] = {}
-    if not STORIES_DIR.exists():
-        return stories, paths
-    for path in sorted(STORIES_DIR.glob("*.yaml")):
-        with path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        if not data or "header" not in data:
-            print(f"Warnung: {path.name} hat keinen 'header' und wird uebersprungen.")
-            continue
-        story_id = data["header"].get("id")
-        if not story_id:
-            print(f"Warnung: {path.name} hat keine header.id und wird uebersprungen.")
-            continue
-        if story_id in stories:
-            print(f"Warnung: doppelte Story-ID '{story_id}' in {path.name}, vorherige wird ueberschrieben.")
-        stories[story_id] = data
-        paths[story_id] = path
-    return stories, paths
+    folders: dict[str, StoryFolder] = {}
+    for folder in story_folders():
+        data = load_story(folder)
+        if data is not None:
+            stories[folder.name] = data
+            folders[folder.name] = folder
+    return stories, folders
 
 
 def extract_leading_comment(path: Path) -> str:
@@ -84,67 +70,49 @@ def extract_leading_comment(path: Path) -> str:
     return "".join(lines)
 
 
-def save_story_file(story_id: str, data: dict, paths: dict[str, Path]) -> None:
-    path = paths.get(story_id)
-    if path is None:
+def save_story_file(story_id: str, data: dict, folders: dict[str, StoryFolder]) -> None:
+    folder = folders.get(story_id)
+    if folder is None:
         raise ValueError(f"Unbekannte Story-ID '{story_id}'")
+    path = folder.yaml_path
     leading_comment = extract_leading_comment(path)
     body = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, default_flow_style=False, width=100)
     path.write_text(leading_comment + body, encoding="utf-8")
 
 
-def load_vocs_index() -> dict[str, int]:
-    """Liest .vocs_index.json (von export_vocs.py geschrieben) bei jeder Anfrage frisch ein,
-    damit neu erzeugte Samples ohne Server-Neustart sichtbar werden."""
-    if not VOCS_INDEX_PATH.exists():
-        return {}
-    with VOCS_INDEX_PATH.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def enrich_with_samples(story: dict) -> dict:
+def enrich_with_samples(story: dict, folder: StoryFolder) -> dict:
     """Ergaenzt jedes Element um `_samples` (Feldname -> Sample-Nummer), aber nur fuer
-    Textfelder, zu denen tatsaechlich schon eine output_vocs/sample_NNNNN.mp3 existiert.
-    Der Browser muss so nicht wissen, wie Nummern vergeben werden - er bekommt fertige,
-    abspielbare Zuordnungen."""
+    Textfelder, zu denen tatsaechlich schon eine samples/sample_NNNNN.mp3 existiert.
+    Der Index wird bei jeder Anfrage frisch gelesen, damit neu erzeugte Samples ohne
+    Server-Neustart erscheinen."""
     story = copy.deepcopy(story)
-    index = load_vocs_index()
-    story_id = story["header"]["id"]
+    index = load_index(folder.samples_index)
     # Nur Texte, die laut vocs_fields.narrated_texts gesprochen werden - ein altes mp3 zu
     # einem inzwischen ausgeschlossenen Text (z.B. Logbuch) wird so nie abgespielt.
     for el, field, _text in narrated_texts(story):
-        number = index.get(sample_key(story_id, el["id"], field))
-        if number is not None and (OUTPUT_VOCS_DIR / f"sample_{number:05d}.mp3").is_file():
+        number = index.get(sample_key(el["id"], field))
+        if number is not None and (folder.samples_dir / f"sample_{number:05d}.mp3").is_file():
             el.setdefault("_samples", {})[field] = number
     return story
 
 
-def load_pics_index() -> dict[str, int]:
-    """Wie load_vocs_index: bei jeder Anfrage frisch, damit neue Bilder ohne Neustart erscheinen."""
-    if not PICS_INDEX_PATH.exists():
-        return {}
-    with PICS_INDEX_PATH.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def enrich_with_images(story: dict) -> dict:
+def enrich_with_images(story: dict, folder: StoryFolder) -> dict:
     """Haengt `_image` (Bildnummer) an das Element (Standardbild) bzw. an den passenden
-    stateImages-Eintrag - nur, wenn output_pics/pic_NNNNN.jpg tatsaechlich existiert.
+    stateImages-Eintrag - nur, wenn pictures/pic_NNNNN.jpg tatsaechlich existiert.
     Welches Bild gerade gilt (Zustand), entscheidet der Browser zur Laufzeit.
     Erwartet eine bereits kopierte Story (wird in-place ergaenzt)."""
-    index = load_pics_index()
-    story_id = story["header"]["id"]
+    index = load_index(folder.pictures_index)
     for el in story.get("elements", []):
         for state, _prompt, target in image_entries(el):
-            number = index.get(image_key(story_id, el["id"], state))
-            if number is not None and (OUTPUT_PICS_DIR / f"pic_{number:05d}.jpg").is_file():
+            number = index.get(image_key(el["id"], state))
+            if number is not None and (folder.pictures_dir / f"pic_{number:05d}.jpg").is_file():
                 target["_image"] = number
     return story
 
 
 class GameRequestHandler(BaseHTTPRequestHandler):
     stories: dict[str, dict] = {}
-    story_paths: dict[str, Path] = {}
+    story_folders: dict[str, StoryFolder] = {}
 
     def log_message(self, format, *args):  # noqa: A002 - stdlib signature
         print(f"[{self.address_string()}] {format % args}")
@@ -212,15 +180,20 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             if story is None:
                 self._send_json({"error": f"Unbekannte Story-ID '{story_id}'"}, status=404)
                 return
-            self._send_json(enrich_with_images(enrich_with_samples(story)))
+            folder = self.story_folders[story_id]
+            self._send_json(enrich_with_images(enrich_with_samples(story, folder), folder))
             return
 
-        if path.startswith("/output_vocs/"):
-            self._send_from_dir(OUTPUT_VOCS_DIR, path[len("/output_vocs/"):])
-            return
-
-        if path.startswith("/output_pics/"):
-            self._send_from_dir(OUTPUT_PICS_DIR, path[len("/output_pics/"):])
+        # Medien einer Geschichte: /stories/<Name>/samples/<datei> bzw. /stories/<Name>/pictures/<datei>
+        # (nur diese beiden Unterordner - die YAML-Datei und Listen werden nicht ausgeliefert).
+        if path.startswith("/stories/"):
+            parts = unquote(path[len("/stories/"):]).split("/", 2)
+            folder = self.story_folders.get(parts[0]) if parts else None
+            if folder is None or len(parts) != 3 or parts[1] not in ("samples", "pictures"):
+                self.send_error(404, "Nicht gefunden")
+                return
+            media_dir = folder.samples_dir if parts[1] == "samples" else folder.pictures_dir
+            self._send_from_dir(media_dir.resolve(), parts[2])
             return
 
         self._send_from_dir(WEB_DIR, path)
@@ -249,7 +222,7 @@ class GameRequestHandler(BaseHTTPRequestHandler):
                 return
             with STORIES_LOCK:
                 try:
-                    save_story_file(story_id, data, self.story_paths)
+                    save_story_file(story_id, data, self.story_folders)
                 except Exception as exc:
                     self._send_json({"error": str(exc)}, status=500)
                     return
@@ -260,12 +233,12 @@ class GameRequestHandler(BaseHTTPRequestHandler):
         self.send_error(404, "Nicht gefunden")
 
 
-def make_handler(stories: dict[str, dict], story_paths: dict[str, Path]):
+def make_handler(stories: dict[str, dict], folders: dict[str, StoryFolder]):
     class Handler(GameRequestHandler):
         pass
 
     Handler.stories = stories
-    Handler.story_paths = story_paths
+    Handler.story_folders = folders
     return Handler
 
 
@@ -275,13 +248,13 @@ def main() -> None:
     parser.add_argument("--no-browser", action="store_true", help="Browser nicht automatisch oeffnen")
     args = parser.parse_args()
 
-    stories, story_paths = load_story_files()
+    stories, folders = load_story_files()
     if not stories:
         print(f"Keine Stories in {STORIES_DIR} gefunden. Server startet trotzdem.")
     else:
         print(f"{len(stories)} Story(s) geladen: {', '.join(stories)}")
 
-    handler_cls = make_handler(stories, story_paths)
+    handler_cls = make_handler(stories, folders)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), handler_cls)
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Server laeuft auf {url} (Strg+C zum Beenden)")

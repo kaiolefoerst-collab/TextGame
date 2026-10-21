@@ -1,16 +1,16 @@
 """Erzeugt Bilder via Gemini Bildgenerierung.
 
-Standard (ohne --input): fragt, welche Geschichte aus Stories/*.yaml illustriert werden soll,
-exportiert vorher automatisch alle Bild-Prompts (wie export_pics.py: input_pics.txt +
-.pics_index.json) und erzeugt dann nur die Bilder dieser Geschichte. Unveraenderte Bilder
-werden uebersprungen (Manifest), vor den API-Aufrufen wird nachgefragt.
+Standard (ohne --input): fragt, welche Geschichte (Ordner unter Stories/) illustriert werden
+soll, exportiert vorher automatisch ihre Bild-Prompts (wie export_pics.py) und legt die Bilder
+in Stories/<Name>/pictures/ ab. Unveraenderte Bilder werden uebersprungen (Manifest), vor den
+API-Aufrufen wird nachgefragt.
 
     python generate_pictures.py                      # Auswahl im Terminal
     python generate_pictures.py --story cursed_mill  # ohne Rueckfrage nach der Geschichte
     python generate_pictures.py --story alle --yes   # alles, ohne jede Rueckfrage
     python generate_pictures.py --dry-run            # nur anzeigen, was erzeugt wuerde
 
-Klassisch: --input datei.txt liest Zeilen im Format  Nummer "Prompt";"Zusatzinfo".
+Klassisch: --input datei.txt --output-dir ordner  liest Zeilen im Format  Nummer "Prompt";"Zusatzinfo".
 """
 
 import argparse
@@ -25,6 +25,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+from story_files import load_story, story_folders
 
 ROOT_DIR = Path(__file__).resolve().parent
 DEFAULT_MODEL = "gemini-2.5-flash-image"
@@ -116,27 +118,18 @@ def is_up_to_date(manifest, output_dir, number, prompt, extra, model):
     return manifest.get(key) == content_hash(prompt, extra, model) and os.path.exists(out_path)
 
 
-def export_story_entries(stories_dir):
-    """Exportiert alle Bild-Prompts (input_pics.txt, .pics_index.json) und liefert pro
-    Geschichte (id, titel, [(nummer, prompt, masterprompt)]). Die Nummern muessen fuer alle
-    Geschichten gemeinsam vergeben werden, darum wird immer komplett exportiert."""
+def story_jobs():
+    """Exportiert alle Geschichten und liefert je Geschichte einen Auftrag
+    (titel, [(nummer, prompt, masterprompt)], pictures-ordner)."""
     import export_pics  # erst hier: wird nur im Geschichten-Modus gebraucht
 
-    stories = export_pics.load_stories(stories_dir)
-    entries = export_pics.collect_entries(stories)
-    index_path = ROOT_DIR / ".pics_index.json"
-    index = export_pics.load_index(index_path)
-    assigned = export_pics.assign_numbers(entries, index)
-    if entries:
-        export_pics.save_index(index_path, index)
-        export_pics.write_input_pics(ROOT_DIR / "input_pics.txt", entries, assigned)
-
-    per_story = []
-    for story in stories:
-        story_id = story["header"]["id"]
-        own = [(assigned[k], p, m) for k, p, m in entries if k.startswith(story_id + ":")]
-        per_story.append((story_id, story["header"].get("title") or story_id, own))
-    return per_story
+    jobs = []
+    for folder in story_folders():
+        story = load_story(folder)
+        if story is None:
+            continue
+        jobs.append((story["header"].get("title") or folder.name, export_pics.export_story(folder), folder.pictures_dir))
+    return jobs
 
 
 def ask(prompt):
@@ -146,51 +139,50 @@ def ask(prompt):
         return ""
 
 
-def choose_story(per_story, preset, pending_count):
-    """Liefert (eintraege, beschriftung) oder (None, None) bei Abbruch."""
-    illustrated = [(sid, title, own) for sid, title, own in per_story if own]
+def choose_jobs(jobs, preset, pending_count):
+    """Liefert die gewaehlten Auftraege oder None bei Abbruch."""
+    illustrated = [job for job in jobs if job[1]]
     if not illustrated:
         sys.exit("Keine Geschichte enthaelt Bild-Prompts. Im Editor bei einem Element unter "
                  "'Bilder' ein Standardbild beschreiben und speichern.")
-    all_entries = [e for _, _, own in illustrated for e in own]
 
     if preset:
         if preset.lower() in ("alle", "all"):
-            return all_entries, "Alle Geschichten"
-        for sid, title, own in illustrated:
-            if sid == preset:
-                return own, title
-        known = ", ".join(sid for sid, _, _ in illustrated)
+            return illustrated
+        chosen = [job for job in illustrated if Path(job[2]).parent.name == preset]
+        if chosen:
+            return chosen
+        known = ", ".join(Path(job[2]).parent.name for job in illustrated)
         sys.exit(f"Unbekannte oder bildlose Geschichte '{preset}'. Moeglich: {known}, alle")
 
     print("Welche Geschichte soll illustriert werden?")
-    for i, (sid, title, own) in enumerate(illustrated, start=1):
-        print(f"  {i}) {title} [{sid}] - {len(own)} Bild(er), davon {pending_count(own)} neu oder geaendert")
+    for i, job in enumerate(illustrated, start=1):
+        print(f"  {i}) {job[0]} [{Path(job[2]).parent.name}] - {len(job[1])} Bild(er), davon {pending_count(job)} neu oder geaendert")
     if len(illustrated) > 1:
-        print(f"  a) Alle Geschichten - {len(all_entries)} Bild(er), davon {pending_count(all_entries)} neu oder geaendert")
+        total = sum(len(job[1]) for job in illustrated)
+        print(f"  a) Alle Geschichten - {total} Bild(er), davon {sum(pending_count(j) for j in illustrated)} neu oder geaendert")
     choice = ask("Auswahl (Nummer, a = alle, Enter = Abbruch): ").lower()
     if not choice:
-        return None, None
+        return None
     if choice in ("a", "alle") and len(illustrated) > 1:
-        return all_entries, "Alle Geschichten"
+        return illustrated
     if choice.isdigit() and 1 <= int(choice) <= len(illustrated):
-        _, title, own = illustrated[int(choice) - 1]
-        return own, title
+        return [illustrated[int(choice) - 1]]
     sys.exit(f"Ungueltige Auswahl: {choice!r}")
 
 
 def generate(entries, output_dir, model, force, client):
+    os.makedirs(output_dir, exist_ok=True)
     manifest = {} if force else load_manifest(output_dir)
     made = failed = skipped = 0
     for number, prompt, extra in entries:
         key = f"{number:05d}"
         out_path = os.path.join(output_dir, f"pic_{key}.jpg")
         if not force and is_up_to_date(manifest, output_dir, number, prompt, extra, model):
-            print(f"[pic_{key}] unveraendert, ueberspringe")
             skipped += 1
             continue
 
-        print(f"[pic_{key}] Prompt={prompt[:60]!r} -> {out_path}")
+        print(f"[pic_{key}] Prompt={prompt[:60]!r}")
         try:
             image_bytes = synthesize(client, model, prompt, extra)
             image_to_jpeg(image_bytes, out_path)
@@ -200,17 +192,15 @@ def generate(entries, output_dir, model, force, client):
         except Exception as exc:
             print(f"  Fehler bei Bild {key}: {exc}", file=sys.stderr)
             failed += 1
-    print(f"Fertig: {made} erzeugt, {skipped} unveraendert, {failed} fehlgeschlagen.")
-    if made:
-        print("Im Spiel die Seite neu laden (Strg+F5), dann erscheinen die Bilder.")
+    print(f"Fertig ({output_dir}): {made} erzeugt, {skipped} unveraendert, {failed} fehlgeschlagen.")
+    return made
 
 
 def main():
     parser = argparse.ArgumentParser(description="Erzeugt Bilder via Gemini Bildgenerierung (Standard: Auswahl einer Geschichte).")
-    parser.add_argument("--story", help="ID der Geschichte (oder 'alle') statt der Auswahl im Terminal")
-    parser.add_argument("--input", help="Klassischer Modus: Eingabe-Textdatei im Format Nummer \"Prompt\";\"Zusatzinfo\"")
-    parser.add_argument("--stories-dir", default=str(ROOT_DIR / "Stories"), help="Ordner mit den Story-Dateien")
-    parser.add_argument("--output-dir", default=str(ROOT_DIR / "output_pics"), help="Zielordner fuer die Bilder (default: output_pics)")
+    parser.add_argument("--story", help="Name der Geschichte (Ordnername unter Stories/) oder 'alle' statt der Auswahl im Terminal")
+    parser.add_argument("--input", help="Klassischer Modus: Eingabe-Textdatei im Format Nummer \"Prompt\";\"Zusatzinfo\" (braucht --output-dir)")
+    parser.add_argument("--output-dir", help="Nur mit --input: Zielordner fuer die Bilder")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Gemini Bildmodell (default: {DEFAULT_MODEL})")
     parser.add_argument("--force", action="store_true", help="Ignoriert das Manifest und generiert alle Bilder neu")
     parser.add_argument("--yes", "-y", action="store_true", help="Keine Rueckfrage vor dem Erzeugen")
@@ -222,41 +212,47 @@ def main():
     if not api_key and not args.dry_run:
         sys.exit("Fehler: GEMINI_API_KEY ist nicht gesetzt. Lege eine .env an (Vorlage: .env.example).")
 
-    os.makedirs(args.output_dir, exist_ok=True)
-    manifest = {} if args.force else load_manifest(args.output_dir)
-
-    def pending(entries):
-        return [e for e in entries if args.force or not is_up_to_date(manifest, args.output_dir, *e, args.model)]
+    def pending(job):
+        _label, entries, output_dir = job
+        manifest = {} if args.force else load_manifest(output_dir)
+        return [e for e in entries if args.force or not is_up_to_date(manifest, output_dir, *e, args.model)]
 
     if args.input:
+        if not args.output_dir:
+            sys.exit("Mit --input bitte auch --output-dir angeben.")
         entries = parse_lines(args.input)
         if not entries:
             sys.exit(f"Keine verwendbaren Zeilen in {args.input} gefunden.")
-        label = args.input
+        jobs = [(args.input, entries, args.output_dir)]
     else:
-        per_story = export_story_entries(Path(args.stories_dir))
-        entries, label = choose_story(per_story, args.story, lambda e: len(pending(e)))
-        if entries is None:
+        jobs = choose_jobs(story_jobs(), args.story, lambda job: len(pending(job)))
+        if jobs is None:
             print("Abgebrochen.")
             return
 
-    todo = pending(entries)
-    print(f"{label}: {len(entries)} Bild(er), davon {len(todo)} zu erzeugen.")
-    if not todo:
+    todo = [(job, pending(job)) for job in jobs]
+    total = sum(len(t) for _, t in todo)
+    for (label, entries, _dir), t in todo:
+        print(f"{label}: {len(entries)} Bild(er), davon {len(t)} zu erzeugen.")
+    if not total:
         print("Alle Bilder sind aktuell - nichts zu tun.")
         return
     if args.dry_run:
-        for number, prompt, _extra in todo:
-            print(f"  pic_{number:05d}: {prompt[:70]}")
+        for _job, t in todo:
+            for number, prompt, _extra in t:
+                print(f"  pic_{number:05d}: {prompt[:70]}")
         print("Probelauf - es wurde nichts erzeugt.")
         return
     if not args.yes:
-        answer = ask(f"{len(todo)} Bild(er) jetzt erzeugen? Das kostet API-Aufrufe. [j/N] ").lower()
+        answer = ask(f"{total} Bild(er) jetzt erzeugen? Das kostet API-Aufrufe. [j/N] ").lower()
         if answer not in ("j", "ja", "y", "yes"):
             print("Abgebrochen.")
             return
 
-    generate(entries, args.output_dir, args.model, args.force, genai.Client(api_key=api_key))
+    client = genai.Client(api_key=api_key)
+    made = sum(generate(entries, output_dir, args.model, args.force, client) for _label, entries, output_dir in jobs)
+    if made:
+        print("Im Spiel die Seite neu laden (Strg+F5), dann erscheinen die Bilder.")
 
 
 if __name__ == "__main__":

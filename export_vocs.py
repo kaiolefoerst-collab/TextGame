@@ -1,149 +1,76 @@
-"""Exportiert vorlesbare Texte aus allen Stories/*.yaml nach input_vocs.txt.
+"""Exportiert die zu sprechenden Texte einer Geschichte nach Stories/<Name>/samples_input.txt.
 
-Jeder zu sprechende Text (Auswahl: vocs_fields.narrated_texts) bekommt eine stabile,
-dauerhafte Nummer, gespeichert in .vocs_index.json. Bei erneutem Export behalten
-bereits bekannte Texte ihre Nummer (damit bereits erzeugte output_vocs/sample_*.mp3
-weiter passen); neue Texte bekommen die naechste freie Nummer. Verschwindet ein Text
-aus einer Story, verschwindet seine Zeile aus input_vocs.txt, seine Nummer wird aber
-nicht wiederverwendet.
+Welche Texte gesprochen werden, entscheidet vocs_fields.narrated_texts (keine Wege, kein
+Logbuch, nur erzaehlende Meldungen). Jeder Text bekommt eine stabile, dauerhafte Nummer in
+Stories/<Name>/samples_index.json: Bekannte Texte behalten ihre Nummer (damit erzeugte
+samples/sample_NNNNN.mp3 weiter passen), neue bekommen die naechste freie. Verschwindet ein
+Text, wird seine Nummer nie wiederverwendet.
 
-Die eigentliche Sample-Erzeugung geschieht weiterhin unveraendert per
-    python generate_samples.py
+generate_samples.py ruft den Export selbst auf; dieses Skript braucht man nur, um die
+Exportliste ohne Vertonung anzusehen.
 
 Aufruf:
-    python export_vocs.py [--stories-dir Stories] [--output input_vocs.txt] [--index .vocs_index.json]
+    python export_vocs.py [--story <Name>]     (ohne --story: alle Geschichten)
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import sys
-from pathlib import Path
 
-import yaml
-
+from story_files import StoryFolder, assign_numbers, load_index, load_story, save_index, story_folders
 from vocs_fields import narrated_texts, sample_key
-
-ROOT_DIR = Path(__file__).resolve().parent
-
-
-def load_stories(stories_dir: Path) -> list[dict]:
-    """Laedt alle Stories. Bei doppelter header.id gewinnt - wie in game.py
-    (load_story_files) - die alphabetisch spaetere Datei, damit Export und Spiel
-    dieselbe Fassung verwenden."""
-    stories: dict[str, dict] = {}
-    files: dict[str, str] = {}
-    for path in sorted(stories_dir.glob("*.yaml")):
-        with path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        if not data or "header" not in data or "id" not in data["header"]:
-            print(f"Warnung: {path.name} hat keinen header.id und wird uebersprungen.", file=sys.stderr)
-            continue
-        story_id = data["header"]["id"]
-        if story_id in stories:
-            print(f"Warnung: {files[story_id]} und {path.name} haben dieselbe Story-ID '{story_id}' - "
-                  f"verwendet wird {path.name} (wie im Spiel).", file=sys.stderr)
-        stories[story_id] = data
-        files[story_id] = path.name
-    return list(stories.values())
 
 
 def collapse_for_tts(text: str) -> str:
-    """Macht einen (ggf. mehrzeiligen) Erzaehltext TTS-tauglich als EINE Zeile.
-
-    generate_samples.py liest input_vocs.txt zeilenweise (ein Eintrag = eine Zeile),
-    daher werden Zeilenumbrueche zu Leerzeichen; eingebettete doppelte Anfuehrungszeichen
-    werden zu einfachen, damit das Zeilenformat 'Nummer "Text";Sprecher' eindeutig bleibt.
-    """
+    """Macht einen (ggf. mehrzeiligen) Erzaehltext TTS-tauglich als EINE Zeile: Zeilenumbrueche
+    werden zu Leerzeichen, doppelte Anfuehrungszeichen zu einfachen, damit das Zeilenformat
+    'Nummer "Text";Sprecher' eindeutig bleibt."""
     collapsed = re.sub(r"\s+", " ", text).strip()
     return collapsed.replace('"', "'")
 
 
-def collect_entries(stories: list[dict]) -> list[tuple[str, str, str | None]]:
-    """Liefert (key, text, sprecher) in stabiler Reihenfolge: Story-, Element-, Feldreihenfolge."""
-    entries: list[tuple[str, str, str | None]] = []
-    for story in stories:
-        story_id = story["header"]["id"]
-        # Sprecher: der des Elements, sonst die Erzaehlstimme der Geschichte, sonst leer
-        # (dann nimmt generate_samples.py seine Standardstimme).
-        narrator = story["header"].get("narratorVoice") or None
-        # Welche Texte gesprochen werden, entscheidet vocs_fields.narrated_texts (z.B. keine
-        # Wege, kein Logbuch, nur erzaehlende Meldungen).
-        for el, field, value in narrated_texts(story):
-            speaker = el.get("voice") or narrator
-            key = sample_key(story_id, el["id"], field)
-            entries.append((key, collapse_for_tts(value), speaker))
-    return entries
+def collect_entries(story: dict) -> list[tuple[str, str, str | None]]:
+    """(schluessel, text, sprecher) in stabiler Reihenfolge. Sprecher: der des Elements,
+    sonst die Erzaehlstimme der Geschichte, sonst leer (dann Standardstimme)."""
+    narrator = story["header"].get("narratorVoice") or None
+    return [
+        (sample_key(el["id"], field), collapse_for_tts(text), el.get("voice") or narrator)
+        for el, field, text in narrated_texts(story)
+    ]
 
 
-def load_index(index_path: Path) -> dict[str, int]:
-    if not index_path.exists():
-        return {}
-    with index_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def save_index(index_path: Path, index: dict[str, int]) -> None:
-    with index_path.open("w", encoding="utf-8") as f:
-        json.dump(index, f, indent=2, sort_keys=True, ensure_ascii=False)
-        f.write("\n")
-
-
-def assign_numbers(entries: list[tuple[str, str, str | None]], index: dict[str, int]) -> dict[str, int]:
-    used = set(index.values())
-    next_number = (max(used) + 1) if used else 1
-    assigned: dict[str, int] = {}
-    for key, _text, _speaker in entries:
-        if key in index:
-            assigned[key] = index[key]
-        else:
-            index[key] = next_number
-            assigned[key] = next_number
-            next_number += 1
-    return assigned
-
-
-def write_input_vocs(output_path: Path, entries: list[tuple[str, str, str | None]], assigned: dict[str, int]) -> None:
+def export_story(folder: StoryFolder) -> list[tuple[int, str, str | None]]:
+    """Exportiert eine Geschichte und liefert [(nummer, text, sprecher)]."""
+    story = load_story(folder)
+    if story is None:
+        return []
+    entries = collect_entries(story)
+    index = load_index(folder.samples_index)
+    assigned = assign_numbers([k for k, _, _ in entries], index, folder.samples_dir, "sample_*.mp3")
+    save_index(folder.samples_index, index)
     lines = [
-        "# Automatisch erzeugt von export_vocs.py aus Stories/*.yaml - nicht von Hand bearbeiten,",
-        "# Aenderungen werden beim naechsten Export ueberschrieben.",
+        "# Automatisch erzeugt von export_vocs.py aus " + folder.yaml_path.name + " - nicht von Hand bearbeiten.",
         "# Format pro Zeile: Nummer \"Text\";Sprecher (Sprecher optional)",
         "",
     ]
-    for key, text, speaker in entries:
-        number = assigned[key]
-        speaker_part = speaker if speaker else ""
-        lines.append(f'{number:05d} "{text}";{speaker_part}')
-    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    lines += [f'{assigned[k]:05d} "{text}";{speaker or ""}' for k, text, speaker in entries]
+    folder.samples_input.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return [(assigned[k], text, speaker) for k, text, speaker in entries]
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stories-dir", default=str(ROOT_DIR / "Stories"))
-    parser.add_argument("--output", default=str(ROOT_DIR / "input_vocs.txt"))
-    parser.add_argument("--index", default=str(ROOT_DIR / ".vocs_index.json"))
+    parser.add_argument("--story", help="Name der Geschichte (Ordnername); ohne Angabe alle")
     args = parser.parse_args()
 
-    stories_dir = Path(args.stories_dir)
-    stories = load_stories(stories_dir)
-    if not stories:
-        sys.exit(f"Keine Story-Dateien in {stories_dir} gefunden.")
-
-    entries = collect_entries(stories)
-    if not entries:
-        sys.exit("Keine vorlesbaren Texte gefunden.")
-
-    index_path = Path(args.index)
-    index = load_index(index_path)
-    assigned = assign_numbers(entries, index)
-    save_index(index_path, index)
-    write_input_vocs(Path(args.output), entries, assigned)
-
-    print(f"{len(entries)} Text(e) exportiert nach {args.output}.")
-    print(f"{len(index)} Nummer(n) insgesamt in {index_path.name} vergeben.")
-    print("Samples erzeugen mit: python generate_samples.py")
+    folders = [f for f in story_folders() if not args.story or f.name == args.story]
+    if not folders:
+        sys.exit("Keine passende Geschichte unter Stories/ gefunden.")
+    for folder in folders:
+        entries = export_story(folder)
+        print(f"{folder.name}: {len(entries)} Text(e) -> {folder.samples_input.name}")
 
 
 if __name__ == "__main__":

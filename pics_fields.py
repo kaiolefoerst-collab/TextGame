@@ -1,6 +1,6 @@
 """Gemeinsame Logik fuer die Kopplung von Story-Bildern an generate_pictures.py.
 
-Wird von export_pics.py (schreibt input_pics.txt) und game.py (zeigt vorhandene Bilder
+Wird von export_pics.py (schreibt pictures_input.txt) und game.py (zeigt vorhandene Bilder
 im Browser an) gleichermassen importiert, damit beide Seiten exakt dieselben Prompts
 und denselben Schluesselaufbau verwenden.
 
@@ -33,8 +33,9 @@ def state_signature(state: dict) -> str:
     return ",".join(f"{key}={format_state_value(state[key])}" for key in sorted(state))
 
 
-def image_key(story_id: str, element_id: str, state: dict | None = None) -> str:
-    base = f"{story_id}:{element_id}:image"
+def image_key(element_id: str, state: dict | None = None) -> str:
+    """Schluessel in Stories/<Name>/pictures_index.json (je Geschichte eine eigene Liste)."""
+    base = f"{element_id}:image"
     return f"{base}@{state_signature(state)}" if state else base
 
 
