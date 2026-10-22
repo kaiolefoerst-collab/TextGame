@@ -2283,7 +2283,7 @@ elements:
       sie nicht fand. Zwölf Jahre später kehrte Clara heimlich zurück. Sie war die Frau im Regen.
     style: discovery
 - id: lb_offen_grab
-  name: Claras Bitte
+  name: Claras Brief gehört an Hannes’ Grab
   type: story
   physical: false
   layers:
@@ -2293,10 +2293,10 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: 'Clara bittet: „Bitte erzähl es ihm.“ Ihr Brief gehört zu ihrem Vater. Hannes liegt außerhalb
-      der Kirchhofsmauer begraben, unter dem Holzkreuz mit den Buchstaben H. V. Dort kannst du den Brief
-      niederlegen.'
-    style: discovery
+    style: contradiction
+    body: 'Clara bittet in ihrem Brief: „Bitte erzähl es ihm.“ Ihr Vater hat nie erfahren, dass sie die
+      Wahrheit kannte. Ihr Brief gehört an sein Grab, das Holzkreuz „H. V.“ vor der Kirchhofsmauer.'
+    openQuestion: Claras Brief muss an Hannes’ Grab gelegt werden.
 - id: lb_wahrheit
   name: Die Wahrheit über die Flut
   type: story
