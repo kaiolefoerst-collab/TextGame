@@ -318,7 +318,7 @@ function use(elementId) {
   if (!el) return;
 
   navigationTarget = elementId; // Default: das benutzte Element wird selbst fokussiert
-  const fromLocation = engine.stack[0];
+  const fromView = engine.stack.join('>');
   // Bedingungen der Zwischensequenz gelten fuer den Moment des Klicks - vor den Reaktionen.
   const cutsceneAllowed = cutsceneDue(elementId);
   engine.actionCount++;
@@ -337,9 +337,11 @@ function use(elementId) {
   focusElement(navigationTarget);
   checkResolution();
 
-  // Zwischensequenz eines Weges: nur, wenn er wirklich woanders hinfuehrt (Ortswechsel
-  // oder Spielende) - ein versperrter Weg zeigt nur seine Meldung.
-  const movedOn = engine.gameFinished || engine.stack[0] !== fromLocation;
+  // Zwischensequenz eines Weges: nur, wenn er wirklich woanders hinfuehrt (die Ansicht
+  // wechselt, z.B. von der Navigationskonsole ins Cockpit, oder das Spiel endet). Ein
+  // versperrter Weg, der auf den aktuellen Ort zurueckfuehrt, zeigt nur seine Meldung.
+  const navigated = navigationTarget !== elementId && engine.stack.join('>') !== fromView;
+  const movedOn = engine.gameFinished || navigated;
   if (movedOn && cutsceneAllowed) {
     showCutscene(elementId, finishUse);
     return;

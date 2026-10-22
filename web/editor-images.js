@@ -288,7 +288,7 @@ function renderStateImageCard(el, entry, index) {
 const CUTSCENE_TIPS = {
   section: 'Zwischensequenz: Ein eigener Schirm mit Bild, Text und nur einer Taste („Weiter“), '
     + 'bevor der Spieler am Zielort ankommt. Damit trennst du Handlungsabschnitte.\n'
-    + 'Sie erscheint nur, wenn der Weg wirklich woanders hinführt (oder das Spiel beendet) – '
+    + 'Sie erscheint nur, wenn der Weg wirklich woanders hinführt (oder das Spiel beendet) – dafür braucht er ein Ziel unter „Führt zu“. '
     + 'ein versperrter Weg zeigt nur seine Meldung.\n'
     + 'Mit „Wenn“ legst du fest, in welchem Zustand sie erscheint.\n'
     + 'Ohne Text und ohne Bild-Prompt gibt es keine Zwischensequenz.',

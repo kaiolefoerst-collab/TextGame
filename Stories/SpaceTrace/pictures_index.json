@@ -1,10 +1,12 @@
 {
   "cockpit_glover_iv:image": 13,
   "cockpit_glover_iv:image@location=byHope": 16,
+  "flug_zum_unbekanntem_objekt:cutscene": 22,
   "kommunikationsanlage:image": 14,
   "kommunikationsanlage_2:image": 20,
   "laderaum:image": 15,
   "manuelle_steuerung:image": 18,
+  "navigationskonsole:image": 21,
   "navigationssystem:image": 19,
   "start_point:image": 12,
   "weg_navigationssystem_cockpit_glover_iv:cutscene": 17

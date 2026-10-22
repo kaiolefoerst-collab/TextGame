@@ -4,16 +4,12 @@
     "y": 240
   },
   "end_point": {
-    "x": 826,
-    "y": 244
+    "x": 780,
+    "y": 242
   },
   "laderaum": {
     "x": 555,
     "y": 241
-  },
-  "navigationssystem": {
-    "x": 321,
-    "y": 408
   },
   "start_point": {
     "x": 141,
