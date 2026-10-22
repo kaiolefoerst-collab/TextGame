@@ -53,32 +53,6 @@ elements:
   exitLabel: ''
   image: 'Ein Bild mit einem Weltall Hintergrund. Beeindruckend mit Sternen und Nebeln. Darüber der Schriftzug
     als Titelbeschriebung "Space Trace" '
-- id: end_point
-  name: Endpunkt
-  type: location
-  physical: true
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf: []
-  presentation:
-    firstView: Du befindest dich am Endpunkt.
-    repeatView: Du befindest dich wieder am Endpunkt.
-- id: ein_tisch
-  name: Ein Tisch
-  type: object
-  physical: true
-  layers:
-  - present
-  locatedIn: end_point
-  initialState:
-    visible: true
-  initialPartOf: []
-  presentation:
-    firstView: Hier steht ein Tisch
-  exitLabel: Tisch verlassen
 - id: cockpit_glover_iv
   name: Cockpit Glover IV
   type: location
@@ -89,6 +63,7 @@ elements:
   initialState:
     visible: false
     location: space
+    gelandet: false
   initialPartOf: []
   presentation:
     firstView: |-
@@ -113,6 +88,47 @@ elements:
     sehen. Die Hände des Piloten sieht man nicht. Aus dem Fenster sieht man  Weltall. Das Bild soll ein
     Gefühl der EInsamkeit und Leere vermitteln. Keine Planeten oder sonstige auffälligen Himmelskörper.
   stateTexts:
+  - id: zt_hangar_mit_anzug
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - hangar
+    - inInventory: raumanzug
+    firstView: |-
+      Die Glover IV steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
+
+      Der Tank ist leer. Mit der Glover IV komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
+
+      Ich trage meinen Raumanzug. Die Schleuse im Laderaum führt hinaus in den Hangar.
+    repeatView: Die Glover IV steht im dunklen Hangar des fremden Schiffes. Ich trage meinen Raumanzug,
+      durch die Schleuse im Laderaum komme ich hinaus.
+  - id: zt_hangar
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - hangar
+    firstView: |-
+      Die Glover IV steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
+
+      Der Tank ist leer. Mit der Glover IV komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
+
+      Ohne Raumanzug verlasse ich die Glover IV allerdings nicht. Den Raumanzug bewahre ich im Laderaum neben den Medikamenten auf.
+    repeatView: Die Glover IV steht im dunklen Hangar des fremden Schiffes. Draußen herrscht Vakuum. Ohne
+      Raumanzug kann ich nicht hinaus.
+  - id: zt_anflug
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - approach
+    firstView: |-
+      Die Nabe des fremden Schiffes liegt direkt vor mir. An ihrer Stirnseite gähnt die offene Hangarbucht, ein rechteckiges Loch in der Panzerung, aus dem trübes Licht fällt. Davor ragt eine Landeplattform ins All. Ihre Leitlichter blinken in einem gleichmäßigen Takt, als hätten sie seit Jahren auf genau diesen Moment gewartet.
+
+      Irgendetwas an Bord hat noch Energie. Die Frage ist nur, was.
+    repeatView: Vor dem Cockpitfenster liegt die offene Hangarbucht des fremden Schiffes. Die Leitlichter
+      der Landeplattform blinken gleichmäßig.
   - id: zt_neue_spur
     conditions:
     - stateEquals:
@@ -136,6 +152,19 @@ elements:
     prompt: |+
       Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Der Fokus liegt auf dem Fenster und der Aussenansicht, vom Cockpit selber ist kaum was zu sehen. Aus dem Fenster sieht man  Weltall und einer  Ein gewaltiges Raumschiff bestehend aus zwei riesige Ringe, mit einer  gemeinsame Achse drehen. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
 
+  - state:
+      location: approach
+    prompt: Das Cockpit eines sehr kleinen Ein-Personen-Raumschiffs aus Sicht des Piloten, vom Cockpit
+      selbst ist kaum etwas zu sehen. Keine Hände, keine Personen. Durch das Fenster blickt man aus nächster
+      Nähe auf die Stirnseite der Nabe eines gigantischen Raumschiffs. Darin eine offene, rechteckige
+      Hangarbucht, aus der trübes Licht fällt. Davor ragt eine Landeplattform ins All, gesäumt von kleinen,
+      blinkenden Leitlichtern. Die Panzerung ist zerkratzt und von Mikrometeoriten gezeichnet.
+  - state:
+      location: hangar
+    prompt: Das Cockpit eines sehr kleinen Ein-Personen-Raumschiffs aus Sicht des Piloten, vom Cockpit
+      selbst ist kaum etwas zu sehen. Keine Hände, keine Personen. Durch das Fenster blickt man in einen
+      riesigen, dunklen Hangar im roten Notlicht. Die Wände verlieren sich im Schatten, an Streben und
+      Kanten glitzern Eiskristalle. Auf dem Boden eine Reihe grüner Leitlichter.
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door
@@ -162,8 +191,10 @@ elements:
     visible: true
   initialPartOf: []
   presentation:
-    firstView: |
+    firstView: |-
       Im Laderaum stehen die Transportbehälter mit den Medikamenten. Ordentlich verzurrt und völlig uninteressant. Die Temperaturregelung funktioniert wenigstens noch. Ein paar kleine grüne Kontrollleuchten zeigen mir, dass mit der Fracht alles in Ordnung ist. Schön für die Medikamente.
+
+      An der Rückwand liegt die Schleuse, daneben die Halterung für meinen Raumanzug.
   image: 'Das Bild eines kleinen Laderaumen eines Raumschiffes mit etwas Fracht die nicht genauer spezifiert
     ist. Der Raaum ist ca. 10m x 6m groß. '
 - id: weg_cockpit_glover_iv_laderaum
@@ -198,36 +229,6 @@ elements:
     - setCurrentElement: cockpit_glover_iv
     conditions: []
   presentation: {}
-- id: weg_laderaum_end_point
-  name: Schleuse um das Raumschiff zu verlassen
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: laderaum
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: go_weg_laderaum_end_point
-    enabled: true
-    effects:
-    - setCurrentElement: end_point
-- id: weg_end_point_laderaum
-  name: Weg nach Laderaum
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: end_point
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: go_weg_end_point_laderaum
-    enabled: true
-    effects:
-    - setCurrentElement: laderaum
 - id: medikamente
   name: Medikamente
   type: object
@@ -273,7 +274,37 @@ elements:
     mehreren Tasten und Schaltern, fest eingebaut in die Cockpitkonsole. Daneben einige zusätzliche Bedienelemente
     und kleine Statusanzeigen. Der Joystick steht deutlich im Mittelpunkt. Keine Hände oder Personen im
     Bild.
-  onUse: []
+  stateTexts:
+  - id: ms_hangar
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - hangar
+    firstView: Die Steuerdüsen sind verstummt. Die Treibstoffanzeige steht auf null. Mit der manuellen
+      Steuerung komme ich nirgendwo mehr hin. Die Glover IV bleibt in diesem Hangar.
+    repeatView: Der Tank ist leer. Die Glover IV fliegt nirgendwo mehr hin.
+  - id: ms_anflug
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - approach
+    firstView: Die Landeplattform liegt genau vor mir, keine zweihundert Meter entfernt. Die Treibstoffanzeige
+      blinkt. Es reicht für einen einzigen Landeanflug. Einen zweiten Versuch wird es nicht geben.
+    repeatView: Die Landeplattform liegt direkt vor mir. Der Treibstoff reicht für genau einen Landeanflug.
+  - id: ms_hope
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - byHope
+    firstView: |-
+      Der Autopilot hat mich bis auf etwa zwanzig Kilometer an das fremde Schiff herangebracht und dann abgeschaltet. Für ein Anflugmanöver an ein unbekanntes Objekt fehlen ihm die Daten. Den Rest muss ich selbst fliegen.
+
+      Dafür sind die letzten Treibstoffreserven da. Eine bessere Gelegenheit, sie einzusetzen, wird es nicht geben.
+    repeatView: Mit der manuellen Steuerung kann ich näher an das fremde Schiff heranfliegen. Der Treibstoff
+      reicht dafür gerade noch.
 - id: kommunikationsanlage_2
   name: Kommunikationskonsole
   type: feature
@@ -318,6 +349,36 @@ elements:
     um den Bildschirm befinden sich mehrere kleine Bedientasten und Schalter. Eine der Tasten ist deutlich
     mit „Autopilot“ beschriftet. Das Navigationssystem ist fest in die Cockpitkonsole integriert. Die
     Anzeige wirkt funktional und übersichtlich.
+  stateTexts:
+  - id: nav_hangar
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - hangar
+    firstView: Die Anzeige ist voller Störungen. Die Wände des Hangars schirmen die Sensoren ab. Ich sehe
+      nur noch die Glover IV selbst, einen kleinen Punkt in einem großen, dunklen Nichts.
+    repeatView: Im Hangar sind die Sensoren blind. Die Anzeige zeigt nur Störungen.
+  - id: nav_anflug
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - approach
+    firstView: Das fremde Schiff füllt die gesamte Anzeige aus. Die Landeplattform an der Nabe ist als
+      blinkendes Rechteck markiert. Eine Kennung sendet das Schiff nicht, und auf meine Rufe antwortet
+      niemand.
+    repeatView: Die Landeplattform ist als blinkendes Rechteck markiert. Das Schiff sendet keine Kennung.
+  - id: nav_hope
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - byHope
+    firstView: Aus dem weißen Punkt ist ein Schiff geworden. Über zwei Kilometer lang, keine Kennung,
+      kein Funkverkehr. Der Autopilot hält respektvollen Abstand. Für den letzten Anflug müsste ich die
+      manuelle Steuerung benutzen.
+    repeatView: Das fremde Schiff sendet keine Kennung. Näher heran komme ich nur mit der manuellen Steuerung.
 - id: flug_zum_unbekanntem_objekt
   name: Flug zu unbekanntem Objekt
   type: door
@@ -337,6 +398,7 @@ elements:
       - cockpit_glover_iv
       - location
       - byHope
+    - revealElement: anflug_hope
     - setCurrentElement: cockpit_glover_iv
     conditions: []
   - id: reaktion_2
@@ -358,3 +420,308 @@ elements:
       eine Cockpit, dahinter ein Fensterloser Frachrraum. Das Raumschiff ist ca. 30 Meter Lang und 10
       Meter Breit. '
     buttonLabel: Weiter
+- id: anflug_hope
+  name: Mit der manuellen Steuerung heranfliegen
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: manuelle_steuerung
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation: {}
+  onUse:
+  - id: go_anflug_hope
+    enabled: true
+    effects:
+    - setElementState:
+      - cockpit_glover_iv
+      - location
+      - approach
+    - revealElement: landung_hope
+    - hideElement: anflug_hope
+    - setCurrentElement: cockpit_glover_iv
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Ich schalte den Autopiloten ab und lege die Hand an den Steuerknüppel. Ein kurzer Schub, dann noch einer. Die Glover IV gleitet auf das fremde Schiff zu.
+
+      Mit jedem Kilometer wächst es weiter an, bis es das gesamte Cockpitfenster ausfüllt. Die Ringe sind übersät mit Narben von Mikrometeoriten. Nirgendwo brennt ein Fenster.
+
+      Ich folge der Achse bis zur Nabe. Und dort, an ihrer Stirnseite, entdecke ich etwas, womit ich nicht gerechnet habe: eine offene Hangarbucht. Davor eine Landeplattform, gesäumt von schwach blinkenden Leitlichtern.
+    image: 'Weltraumszene: ein winziges Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit,
+      dahinter ein fensterloser Frachtraum) nähert sich von hinten einem gigantischen, dunklen Raumschiff
+      aus zwei riesigen Ringen auf einer gemeinsamen Achse, verbunden durch unzählige Streben, im Zentrum
+      eine Antriebseinheit. Das kleine Schiff wirkt winzig vor dem Koloss, aus seinen Steuerdüsen kommt
+      ein kurzer bläulicher Schub. In den Fenstern des großen Schiffes brennt kein Licht.'
+    buttonLabel: Weiter
+- id: landung_hope
+  name: Auf der Landeplattform landen
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: manuelle_steuerung
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation: {}
+  onUse:
+  - id: go_landung_hope
+    enabled: true
+    effects:
+    - setElementState:
+      - cockpit_glover_iv
+      - location
+      - hangar
+    - setElementState:
+      - cockpit_glover_iv
+      - gelandet
+      - true
+    - hideElement: landung_hope
+    - setCurrentElement: cockpit_glover_iv
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Ich nehme Fahrt raus und richte die Glover IV an den Leitlichtern aus. Die Treibstoffanzeige springt auf Rot und dann auf null, genau in dem Moment, in dem die Landestützen aufsetzen. Ein dumpfer Schlag geht durch den Rumpf. Magnetklammern rasten ein.
+
+      Hinter mir setzt sich das Hangartor in Bewegung. Lautlos schiebt es sich vor die Sterne, bis nur noch das rote Notlicht des Hangars bleibt.
+
+      Ich habe es geschafft. Ich weiß nur nicht, wohin.
+    image: Ein winziges Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit, dahinter ein fensterloser
+      Frachtraum) ist auf einer Landeplattform im Inneren eines riesigen, dunklen Hangars gelandet. Rotes
+      Notlicht und eine Reihe grüner Leitlichter auf dem Boden. Im Hintergrund schließt sich ein gewaltiges
+      Hangartor und verdeckt die letzten Sterne. Eiskristalle an den Wänden, tiefe Schatten.
+    buttonLabel: Weiter
+- id: raumanzug
+  name: Raumanzug
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: laderaum
+  initialState:
+    visible: true
+  initialPartOf: []
+  portable: true
+  presentation:
+    firstView: Mein Raumanzug. Ein robustes Standardmodell mit Magnetstiefeln, Helmlampe und Sauerstoff
+      für sechs Stunden. Seit dem Start von Titan habe ich ihn nicht gebraucht.
+    repeatView: 'Mein Raumanzug: Magnetstiefel, Helmlampe, Sauerstoff für sechs Stunden.'
+    takeText: 'Ich steige in den Raumanzug, schließe die Dichtungen und setze den Helm auf. Mit einem
+      leisen Klicken rastet er ein. Sauerstoff: sechs Stunden.'
+    dropText: Ich nehme den Helm ab und steige aus dem Raumanzug.
+  stateTexts:
+  - id: anzug_getragen
+    conditions:
+    - inInventory: raumanzug
+    firstView: Ich trage meinen Raumanzug. Der Helm ist geschlossen, die Anzeige im Visier meldet Sauerstoff
+      für knapp sechs Stunden. Die Magnetstiefel sind aktiviert.
+    repeatView: Ich trage meinen Raumanzug. Sauerstoff für knapp sechs Stunden.
+  image: Ein robuster, abgenutzter, leerer Raumanzug hängt in einer Wandhalterung im kleinen Frachtraum
+    eines Raumschiffs, der Helm an einem Haken daneben. Daneben verzurrte Transportbehälter mit kleinen
+    grünen Kontrollleuchten. Niemand trägt den Anzug.
+- id: schleuse_glover
+  name: Schleuse
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: laderaum
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation: {}
+  messages:
+    Draussen ist das All: Ich lege die Hand auf den Öffnungsschalter der Schleuse und lasse sie wieder
+      sinken. Draußen ist nichts außer Vakuum und Leere. Wohin sollte ich gehen?
+    Ohne Raumanzug: Die Außensensoren melden Vakuum. Ohne Raumanzug wäre das mein letzter Schritt. Den
+      Raumanzug bewahre ich hier im Laderaum neben den Medikamenten auf.
+  onUse:
+  - id: schleuse_im_all
+    enabled: true
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - gelandet
+      - false
+    effects:
+    - showTextFrom: schleuse_glover.messages.Draussen ist das All
+    - setCurrentElement: laderaum
+  - id: schleuse_ohne_anzug
+    enabled: true
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - gelandet
+      - true
+    - notInInventory: raumanzug
+    effects:
+    - showTextFrom: schleuse_glover.messages.Ohne Raumanzug
+    - setCurrentElement: laderaum
+  - id: go_schleuse_glover
+    enabled: true
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - gelandet
+      - true
+    - inInventory: raumanzug
+    effects:
+    - setCurrentElement: hangar
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Ich schließe das innere Schott hinter mir. Die Pumpen saugen die Luft ab, das Zischen wird leiser und verstummt. Dann gleitet die Außenluke auf.
+
+      Vor mir liegt der Hangar. Kalt, still, riesig. In der Schwerelosigkeit treibt Staub durch das Licht meiner Helmlampe. Ich setze den ersten Schritt auf die Plattform, und die Magnetstiefel greifen mit einem dumpfen Ruck.
+    image: Blick aus der geöffneten Außenluke einer kleinen Raumschiffschleuse hinaus in einen riesigen,
+      dunklen Hangar. Im Lichtkegel einer Helmlampe schweben Staubpartikel. Rotes Notlicht, grüne Leitlichter
+      auf der Landeplattform, Eiskristalle an den Wänden. Keine Personen sichtbar.
+    buttonLabel: Weiter
+- id: hangar
+  name: Hangar
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Der Hangar ist größer, als es von außen den Anschein hatte. Das rote Notlicht reicht nur ein paar Dutzend Meter weit, dahinter beginnt die Dunkelheit. An den Streben und Kanten hängt Eis.
+
+      Die Glover IV steht klein und verloren auf der Landeplattform. Andere Schiffe sehe ich nicht, die Andockplätze ringsum sind leer.
+
+      Am hinteren Ende des Hangars leuchtet ein einzelnes Bedienfeld neben einer Schleuse. Grün.
+    repeatView: Der Hangar liegt still im roten Notlicht. Die Glover IV steht auf der Landeplattform,
+      am hinteren Ende leuchtet das Bedienfeld der Schleuse grün.
+  image: Ein riesiger, dunkler Hangar im Inneren eines gigantischen Raumschiffs, nur von rotem Notlicht
+    beleuchtet, das sich nach wenigen Dutzend Metern im Dunkel verliert. In der Mitte steht ein winziges
+    Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit, dahinter ein fensterloser Frachtraum)
+    auf einer Landeplattform mit grünen Leitlichtern. Leere Andockplätze ringsum, Eis an Streben und Kanten.
+    Am hinteren Ende leuchtet ein einzelnes grünes Bedienfeld neben einer schweren Schleusentür. Menschenleer.
+- id: landeplattform
+  name: Landeplattform
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: hangar
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Auf dem Boden der Plattform sind Buchstaben aufgemalt, groß genug, um sie aus dem Cockpit eines anfliegenden Schiffes zu lesen. Die Farbe ist verblasst und an vielen Stellen abgeplatzt:
+
+      HOPE · ANDOCKBUCHT 3
+
+      Hope. So heißt dieses Schiff also. Ein Name, der hier draußen fast wie Spott klingt.
+    repeatView: 'Auf der Plattform steht in verblassten Buchstaben: HOPE · ANDOCKBUCHT 3.'
+  image: 'Blick von oben auf den Boden einer Landeplattform in einem dunklen Hangar. Große, verblasste,
+    an vielen Stellen abgeplatzte Schablonenbuchstaben: „HOPE · ANDOCKBUCHT 3“. Rotes Notlicht, grüne
+    Leitlichter am Rand der Plattform, Eis und Staub auf dem Metall.'
+- id: hangartor
+  name: Hangartor
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: hangar
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Das Hangartor ist geschlossen. Eine Wand aus Stahl, gut fünfzig Meter breit, mit gelb-schwarzen Warnstreifen. Ein Bedienfeld gibt es auf dieser Seite nicht. Jemand oder etwas hat das Tor hinter mir geschlossen, nachdem die Glover IV gelandet war.
+
+      Automatik, sage ich mir. Bestimmt nur die Automatik.
+    repeatView: Das Hangartor ist geschlossen. Von hier aus lässt es sich nicht öffnen.
+  image: Ein gewaltiges, geschlossenes Hangartor aus Stahl, von innen gesehen, etwa fünfzig Meter breit,
+    mit gelb-schwarzen Warnstreifen und Eiskristallen in den Fugen. Rotes Notlicht wirft lange Schatten.
+    Kein Bedienfeld. Menschenleer.
+- id: weg_hangar_glover
+  name: An Bord der Glover IV gehen
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hangar
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_hangar_glover
+    enabled: true
+    effects:
+    - setCurrentElement: laderaum
+- id: schleuse_hope
+  name: Schleuse ins Innere des Schiffes
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hangar
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation: {}
+  onUse:
+  - id: go_schleuse_hope
+    enabled: true
+    effects:
+    - setCurrentElement: hope_korridor
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Das Bedienfeld reagiert sofort, als hätte es auf mich gewartet. Die Schleusentür gleitet zur Seite, ich trete in die Kammer, und hinter mir schließt sie sich wieder.
+
+      Ein Zischen. Luft strömt herein. Die Anzeige in meinem Visier klettert: Druck normal, Sauerstoff vorhanden, Temperatur vier Grad. Atembar. Kalt, aber atembar.
+
+      Das Licht über der inneren Tür springt von Rot auf Grün.
+    image: Das Innere einer engen Schleusenkammer in einem alten Raumschiff. Metallwände mit Gebrauchsspuren,
+      Frost an den Kanten, feiner Nebel aus einströmender Luft. Über der inneren Tür leuchtet eine Signalleuchte
+      grün. Menschenleer.
+    buttonLabel: Weiter
+- id: hope_korridor
+  name: Korridor hinter der Schleuse
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Hinter der Schleuse beginnt ein langer, gerader Korridor, der tief ins Innere der Nabe führt und sich im Dunkel verliert. Die Deckenleuchten flackern und gehen an, eine nach der anderen, als würde das Schiff mir den Weg zeigen.
+
+      Ohne Schwerkraft treiben Dinge durch die Luft: eine Kaffeetasse, ein Stift, ein einzelner Handschuh. Alles, was niemand festgemacht hat.
+
+      „Hallo?“ Meine Stimme klingt dünn in der kalten Luft. Niemand antwortet.
+    repeatView: Der Korridor führt tief ins Innere der Nabe. Die Deckenleuchten brennen, in der Luft treiben
+      vergessene Gegenstände. Niemand antwortet.
+  image: Ein langer, gerader Korridor im Inneren eines alten, gigantischen Raumschiffs, der sich in der
+    Ferne im Dunkel verliert. Flackernde Deckenleuchten, Metallwände mit Gebrauchsspuren, Frost. In der
+    Schwerelosigkeit schweben eine Kaffeetasse, ein Stift und ein einzelner Handschuh. Menschenleer, kalt,
+    still.
+- id: weg_hope_hangar
+  name: Schleuse zum Hangar
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hope_korridor
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_hope_hangar
+    enabled: true
+    effects:
+    - setCurrentElement: hangar
