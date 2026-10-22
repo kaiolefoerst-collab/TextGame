@@ -185,6 +185,7 @@ const ed = {
   layout: {},      // feste Positionen der Ellipsen: elementId -> {x, y} (editor_layout.json)
   graph: null,     // DOM-Ebenen des Ortsgraphs (canvas, svg, overlay)
   selection: new Set(), // ausgewaehlte Orte (gemeinsam verschiebbar)
+  openContents: null,   // Ort, dessen Inhaltsliste an der Ellipse aufgeklappt ist
 };
 
 function isLocation(el) {
@@ -644,6 +645,7 @@ function renderGraph() {
       <button class="loc-connect-btn">🔗</button>
     `;
     const contained = childrenOfEditor(el.id).filter((c) => !isDoor(ed.elementsById[c])).length;
+    appendContentsButton(node, el);
     setTip(node, ed.connectSource
       ? `Hier klicken, um den Weg nach „${el.name}“ anzulegen.`
       : `${TYPE_INFO[el.type] || el.type}\n${contained} Element(e) darin.${isStart ? '\n★ Hier beginnt die Geschichte.' : ''}\n`
@@ -671,6 +673,86 @@ function renderGraph() {
     canvas.appendChild(node);
   }
   updateSelectionBanner();
+}
+
+// ---------------------------------------------------------------------
+// Inhalt eines Ortes direkt an der Ellipse: Knopf "▾ Anzahl" klappt eine Liste aller
+// Elemente auf, die (auch verschachtelt) im Ort liegen. Ein Klick oeffnet das Element samt
+// Fensterpfad (Ort -> Behaelter -> Element), damit "Zurueck" wie gewohnt funktioniert.
+// Wege direkt am Ort fehlen in der Liste - die stehen schon als Pfeile im Graph.
+// ---------------------------------------------------------------------
+
+// [{ id, depth, path }] in Baumreihenfolge, je Ebene nach Namen sortiert.
+function containedTree(locId) {
+  const result = [];
+  const seen = new Set();
+  const byName = (a, b) => (ed.elementsById[a].name || a).localeCompare(ed.elementsById[b].name || b, 'de');
+  const walk = (parentId, depth, path) => {
+    for (const cid of childrenOfEditor(parentId).sort(byName)) {
+      const c = ed.elementsById[cid];
+      if (seen.has(cid) || isLocation(c) || (depth === 0 && isDoor(c))) continue;
+      seen.add(cid);
+      const itemPath = [...path, cid];
+      result.push({ id: cid, depth, path: itemPath });
+      walk(cid, depth + 1, itemPath);
+    }
+  };
+  walk(locId, 0, [locId]);
+  return result;
+}
+
+function appendContentsButton(node, loc) {
+  const items = containedTree(loc.id);
+  if (items.length === 0) return;
+  const btn = document.createElement('button');
+  btn.className = 'loc-contents-btn';
+  btn.textContent = `▾ ${items.length}`;
+  setTip(btn, `Inhalt von „${loc.name}“ anzeigen: ${items.length} Element(e), auch verschachtelte.\n`
+    + 'Ein Eintrag lässt sich direkt anklicken und bearbeiten.');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (ed.openContents === loc.id) closeContentsList();
+    else {
+      ed.openContents = loc.id;
+      renderGraph();
+    }
+  });
+  node.appendChild(btn);
+  if (ed.openContents !== loc.id) return;
+
+  node.classList.add('contents-open');
+  const list = document.createElement('div');
+  list.className = 'loc-contents';
+  for (const item of items) {
+    const c = ed.elementsById[item.id];
+    const category = menuCategoryOf(c);
+    const hidden = !!(c.initialState && c.initialState.visible === false);
+    const entry = document.createElement('button');
+    entry.className = 'loc-contents-item' + (hidden ? ' is-hidden' : '');
+    entry.style.paddingLeft = (0.5 + item.depth * 1) + 'rem';
+    entry.textContent = `${category.icon} ${c.name || c.id}`;
+    const inside = item.path.slice(1, -1).map((id) => ed.elementsById[id].name).join(' › ');
+    setTip(entry, `${category.label}${inside ? ` – in „${inside}“` : ''}${hidden ? '\nZu Beginn verborgen.' : ''}\n`
+      + 'Klicken, um es zu bearbeiten.');
+    entry.addEventListener('click', () => {
+      closeContentsList();
+      ed.stack = item.path.slice();
+      renderEditorStack();
+    });
+    list.appendChild(entry);
+  }
+  // Klicks und Ziehen in der Liste gehoeren nicht zur Ellipse (oeffnen/verschieben).
+  list.addEventListener('click', (e) => e.stopPropagation());
+  list.addEventListener('pointerdown', (e) => e.stopPropagation());
+  node.appendChild(list);
+}
+
+// Schliesst die Liste ohne den Graph neu zu zeichnen - sonst ginge ein gerade begonnenes
+// Ziehen an einer anderen Ellipse verloren.
+function closeContentsList() {
+  ed.openContents = null;
+  document.querySelectorAll('#editor-canvas .loc-contents').forEach((n) => n.remove());
+  document.querySelectorAll('#editor-canvas .contents-open').forEach((n) => n.classList.remove('contents-open'));
 }
 
 // ---------------------------------------------------------------------
@@ -704,7 +786,7 @@ function updateSelectionBanner() {
 function enableDrag(node, id) {
   node.dataset.id = id;
   node.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || e.target.closest('button')) return;
+    if (e.button !== 0 || e.target.closest('button, .loc-contents')) return;
     if (isMultiKey(e)) {
       // Auswahl umschalten statt verschieben; der folgende Klick oeffnet kein Fenster.
       const next = new Set(ed.selection);
@@ -942,6 +1024,12 @@ function openElementWindow(id) {
   renderEditorStack();
 }
 
+function closeAllEditorWindows() {
+  ed.stack = [];
+  renderEditorStack();
+  renderGraph();
+}
+
 function closeEditorTopWindow() {
   ed.stack.pop();
   renderEditorStack();
@@ -980,14 +1068,25 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
 
   const header = document.createElement('div');
   header.className = 'window-header';
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'close-btn';
-  closeBtn.textContent = isFirstInStack ? '← Zum Ortsgraph' : '← Zurück';
-  setTip(closeBtn, isFirstInStack
-    ? 'Fenster schließen und zur Übersicht aller Orte zurückkehren. Änderungen bleiben erhalten (aber noch nicht gespeichert).'
-    : 'Dieses Fenster schließen und zum darunterliegenden Element zurückkehren.');
-  closeBtn.addEventListener('click', closeEditorTopWindow);
-  header.appendChild(closeBtn);
+  // Ganz links immer der Weg zum Ortsgraph, daneben "↑ <Name>" um eine Ebene nach oben
+  // (nur, wenn es eine Ebene darueber gibt).
+  const graphBtn = document.createElement('button');
+  graphBtn.className = 'close-btn';
+  graphBtn.textContent = '⌂ Zum Ortsgraph';
+  setTip(graphBtn, 'Alle Fenster schließen und zur Übersicht aller Orte zurückkehren. Änderungen bleiben erhalten (aber noch nicht gespeichert).');
+  graphBtn.addEventListener('click', closeAllEditorWindows);
+  header.appendChild(graphBtn);
+  if (!isFirstInStack) {
+    const backBtn = document.createElement('button');
+    backBtn.className = 'close-btn';
+    // Beschriftet mit dem Ziel (Ebene darueber), lange Namen gekuerzt - voller Name im Tooltip.
+    const parentName = ed.elementsById[ed.stack[ed.stack.length - 2]].name || '';
+    const shortName = parentName.length > 24 ? parentName.slice(0, 23) + '…' : parentName;
+    backBtn.textContent = `↑ ${shortName}`;
+    setTip(backBtn, `Eine Ebene höher: dieses Fenster schließen und zu „${parentName}“ wechseln.`);
+    backBtn.addEventListener('click', closeEditorTopWindow);
+    header.appendChild(backBtn);
+  }
   const nameInput = document.createElement('input');
   nameInput.className = 'window-name-input';
   nameInput.value = el.name || '';
@@ -1642,6 +1741,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initTooltips();
   initSelectionRectangle();
 
+  document.addEventListener('pointerdown', (e) => {
+    if (!ed.openContents) return;
+    if (e.target.closest && e.target.closest('.loc-contents, .loc-contents-btn')) return;
+    closeContentsList();
+  });
   document.addEventListener('keydown', (e) => {
     if (document.getElementById('screen-editor-graph').hidden) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -1651,6 +1755,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!document.getElementById('leave-dialog').hidden) hideLeaveDialog();
       else if (!document.getElementById('meta-dialog').hidden) hideMetaDialog();
       else if (ed.connectSource) cancelConnect();
+      else if (ed.openContents) closeContentsList();
       else if (ed.stack.length > 0) closeEditorTopWindow();
       else if (ed.selection.size > 0) setSelection(new Set());
     }
