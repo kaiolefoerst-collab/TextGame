@@ -1,4 +1,8 @@
 {
+  "bruecke": {
+    "x": 532,
+    "y": 562
+  },
   "cockpit_glover_iv": {
     "x": 328,
     "y": 240
@@ -14,6 +18,14 @@
   "laderaum": {
     "x": 555,
     "y": 241
+  },
+  "maschinenraum": {
+    "x": 136,
+    "y": 781
+  },
+  "schlafring": {
+    "x": 435,
+    "y": 762
   },
   "start_point": {
     "x": 141,

@@ -316,8 +316,10 @@ elements:
     visible: true
   initialPartOf: []
   presentation:
-    firstView: 'Kommunikation ist auch tot. Die würde viele Probleme lösen. '
-    repeatView: Funktioniert leider nicht.
+    firstView: Die Kommunikation ist tot. Der Sender ist seit dem Defekt ausgefallen, nur die Antenne
+      meldet noch Bereitschaft. Eine Antenne ohne Sender nützt mir allerdings herzlich wenig. Ein funktionierender
+      Funk würde so viele Probleme lösen.
+    repeatView: Der Sender ist ausgefallen. Nur die Antenne funktioniert noch.
   image: Technische Nahaufnahme einer Kommunikationskonsole, die seitlich im Cockpit eines kleinen Ein-Mann-Raumschiffs
     eingebaut ist. Im Mittelpunkt steht die Konsole mit einem kompakten Display, mehreren Bedientasten,
     Drehreglern, Statusleuchten und einem integrierten Lautsprecher. Die Anlage dient der Sprachkommunikation
@@ -704,8 +706,10 @@ elements:
       Ohne Schwerkraft treiben Dinge durch die Luft: eine Kaffeetasse, ein Stift, ein einzelner Handschuh. Alles, was niemand festgemacht hat.
 
       „Hallo?“ Meine Stimme klingt dünn in der kalten Luft. Niemand antwortet.
-    repeatView: Der Korridor führt tief ins Innere der Nabe. Die Deckenleuchten brennen, in der Luft treiben
-      vergessene Gegenstände. Niemand antwortet.
+
+      Schilder an den Wänden zeigen den Weg: Brücke, Maschinenraum, Speiche B zum Schlafring.
+    repeatView: Der Korridor führt tief ins Innere der Nabe. In der Luft treiben vergessene Gegenstände.
+      Schilder zeigen den Weg zur Brücke, zum Maschinenraum und durch die Speiche zum Schlafring.
   image: Ein langer, gerader Korridor im Inneren eines alten, gigantischen Raumschiffs, der sich in der
     Ferne im Dunkel verliert. Flackernde Deckenleuchten, Metallwände mit Gebrauchsspuren, Frost. In der
     Schwerelosigkeit schweben eine Kaffeetasse, ein Stift und ein einzelner Handschuh. Menschenleer, kalt,
@@ -725,3 +729,701 @@ elements:
     enabled: true
     effects:
     - setCurrentElement: hangar
+- id: werftplakette
+  name: Plakette an der Wand
+  type: inscription
+  physical: true
+  layers:
+  - present
+  locatedIn: hope_korridor
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Neben der Schleuse ist eine Metallplakette in die Wand eingelassen. Sie glänzt, als hätte
+      jemand sie über Jahre immer wieder mit dem Ärmel blank gerieben.
+    repeatView: Die blank geriebene Plakette neben der Schleuse.
+    contentText: |-
+      KOLONIESCHIFF HOPE
+      Kronos-Werft, Titan
+      340 Kolonisten · 8 Besatzungsmitglieder
+      „Wir tragen sie alle.“
+  messages:
+    Erinnerung: |-
+      Die Hope. Natürlich. Jedes Kind auf Titan kennt diesen Namen. Ich war noch klein, als sie aufbrach, und ich weiß noch, wie die halbe Stadt am Raumhafen stand und zum Himmel schaute. Fünf Jahre später brach der Kontakt ab. Reaktorunfall, hieß es. Keine Überlebenden. Es gab eine Gedenkfeier, und irgendwann sprach niemand mehr darüber.
+
+      Aber dieses Schiff ist nicht zerstört. Es hat Energie. Und es hat mich hereingelassen.
+  onUse:
+  - id: plakette_erinnerung
+    enabled: true
+    effects:
+    - showTextFrom: werftplakette.messages.Erinnerung
+    - disableSelfTrigger: plakette_erinnerung
+  - id: plakette_widerspruch
+    enabled: true
+    effects:
+    - revealElement: lb_offiziell
+    - revealElement: lb_widerspruch_intakt
+    - disableSelfTrigger: plakette_widerspruch
+    conditions:
+    - stateEquals:
+      - maras_notizbuch
+      - gelesen
+      - false
+  image: 'Eine blank polierte Metallplakette in der Wand eines alten Raumschiffkorridors, eingravierte
+    Schrift: „KOLONIESCHIFF HOPE · Kronos-Werft, Titan · 340 Kolonisten · 8 Besatzungsmitglieder · Wir
+    tragen sie alle.“ Ringsum Metall mit Gebrauchsspuren und Frost, kaltes Licht der Deckenleuchten. Menschenleer.'
+- id: weg_korridor_bruecke
+  name: Zur Brücke
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hope_korridor
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_korridor_bruecke
+    enabled: true
+    effects:
+    - setCurrentElement: bruecke
+- id: weg_korridor_maschinenraum
+  name: Zum Maschinenraum
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hope_korridor
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_korridor_maschinenraum
+    enabled: true
+    effects:
+    - setCurrentElement: maschinenraum
+- id: speiche_b
+  name: Durch die Speiche zum Schlafring
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: hope_korridor
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_speiche_b
+    enabled: true
+    effects:
+    - setCurrentElement: schlafring
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Die Speiche ist ein enger Schacht, dreihundert Meter lang, mit einer Leiter an der Wand. Ohne Schwerkraft gibt es kein Oben und kein Unten, also ziehe ich mich Sprosse für Sprosse voran. Das Licht meiner Helmlampe tanzt über Rohre und Kabelbündel.
+
+      Je weiter ich komme, desto kälter wird es. Auf den Sprossen liegt Raureif. Dann öffnet sich der Schacht, und ich schwebe hinein in den Schlafring.
+    image: Blick durch einen engen, runden Schacht in einem Raumschiff, eine Leiter an der Wand, Rohre
+      und Kabelbündel, Raureif auf den Sprossen. Der Lichtkegel einer Helmlampe verliert sich in der Tiefe,
+      am Ende des Schachts ein schwaches grünes Leuchten. Menschenleer.
+    buttonLabel: Weiter
+- id: bruecke
+  name: Brücke der Hope
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Die Brücke der Hope ist ein halbrunder Raum mit acht Sitzen. Alle leer. Lose Gurte treiben in der Luft wie Seetang. Durch das große Sichtfenster sieht man die Sterne und die gewaltigen Ringe, die sich nicht mehr drehen.
+
+      Die meisten Konsolen sind dunkel. Nur die Statusübersicht und der Langstreckensender haben noch Strom. Am Platz des Kapitäns klemmt ein Tablet in seiner Halterung.
+    repeatView: Die Brücke liegt still. Acht leere Sitze, treibende Gurte, draußen die reglosen Ringe.
+  image: 'Die Brücke eines alten, gigantischen Kolonieraumschiffs: ein halbrunder Raum mit acht leeren
+    Pilotensitzen, lose Gurte schweben in der Schwerelosigkeit. Die meisten Konsolen sind dunkel, nur
+    zwei leuchten. Durch ein großes Sichtfenster sieht man Sterne und einen Teil eines riesigen, stillstehenden
+    Rings. Menschenleer.'
+- id: weg_bruecke_korridor
+  name: In den Korridor
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: bruecke
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_bruecke_korridor
+    enabled: true
+    effects:
+    - setCurrentElement: hope_korridor
+- id: schiffsstatus
+  name: Statusübersicht
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: bruecke
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Auf dem einzigen hellen Bildschirm der Brücke läuft eine Statusübersicht. Die meisten Zeilen
+      sind rot.
+    repeatView: 'Die Statusübersicht der Hope:'
+    contentText: |-
+      HAUPTREAKTOR: abgeschaltet
+      NOTREAKTOR: in Betrieb · Brennstoff 2 %
+      RING A (Wohnring): versiegelt · Rotation aus
+      RING B (Kälteschlaf): in Betrieb
+      RESTLAUFZEIT KÄLTESCHLAF: 9 Tage 4 Stunden
+      HAUPTANTENNE: zerstört
+      LANGSTRECKENSENDER: betriebsbereit · keine Antenne
+      SHUTTLE 1, SHUTTLE 2: nicht an Bord
+  messages:
+    Neun Tage: Neun Tage. Irgendwo in diesem Schiff schlafen Menschen. Und in neun Tagen hört dieser Schlaf
+      auf, einer zu sein.
+  onUse:
+  - id: status_gelesen
+    enabled: true
+    effects:
+    - showTextFrom: schiffsstatus.messages.Neun Tage
+    - revealElement: lb_lage
+    - disableSelfTrigger: status_gelesen
+  image: Nahaufnahme eines Statusbildschirms auf der Brücke eines alten Raumschiffs. Eine Liste technischer
+    Zeilen, die meisten in Rot, eine einzelne in Grün. Der Bildschirm ist die einzige Lichtquelle, ringsum
+    Dunkelheit und dunkle Konsolen. Menschenleer.
+- id: logbuch_kapitaen
+  name: Tablet des Kapitäns
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: bruecke
+  initialState:
+    visible: true
+  initialPartOf: []
+  contentVoice: male3
+  presentation:
+    firstView: Das Tablet klemmt in der Halterung am Platz des Kapitäns. Der Akku hat durchgehalten. Geöffnet
+      ist der letzte Eintrag im Logbuch der Hope.
+    repeatView: 'Der letzte Eintrag im Logbuch der Hope:'
+    contentText: |-
+      Logbuch der Hope. Kapitän Ruben Thal.
+
+      Der Hauptreaktor ist verloren. Mara sagt, der Notreaktor hält die Kapseln am Leben, wenn niemand sonst ihm Energie abzieht. Acht wache Menschen ziehen Energie ab. Wärme, Luft, Licht.
+
+      Wir haben abgestimmt. Wir nehmen beide Shuttles und verlassen die Hope noch heute. Die 340 bleiben in ihren Kapseln.
+
+      Möge man uns eines Tages verzeihen.
+  onUse:
+  - id: kapitaen_gelesen
+    enabled: true
+    effects:
+    - revealElement: lb_geruecht_flucht
+    - disableSelfTrigger: kapitaen_gelesen
+    conditions:
+    - stateEquals:
+      - maras_notizbuch
+      - gelesen
+      - false
+  image: Ein Tablet in einer Halterung an der Armlehne eines Kapitänssitzes auf einer dunklen Raumschiffbrücke.
+    Auf dem Bildschirm ein kurzer Logbucheintrag, das Display wirft schwaches Licht. Keine Hände, keine
+    Personen.
+- id: langstreckensender
+  name: Langstreckensender
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: bruecke
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: 'Der Langstreckensender der Hope ist betriebsbereit. Auf seinem Display blinkt eine einzige
+      Meldung: KEINE ANTENNE VERBUNDEN. Ohne Antenne reicht sein Signal nicht einmal bis zum Hangartor.'
+    repeatView: 'Der Sender ist betriebsbereit. Auf dem Display blinkt: KEINE ANTENNE VERBUNDEN.'
+  stateTexts:
+  - id: sender_verbunden
+    conditions:
+    - stateEquals:
+      - datenkupplung
+      - verbunden
+      - true
+    firstView: 'Auf dem Display des Senders steht eine neue Meldung: ANTENNE VERBUNDEN · GLOVER IV · ANDOCKBUCHT
+      3. Die kleine Antenne meines Schiffes ist jetzt die Stimme der Hope. Ein Notruf würde die Forschungsstation
+      erreichen, zu der ich eigentlich unterwegs war.'
+    repeatView: ANTENNE VERBUNDEN · GLOVER IV. Der Sender ist bereit für einen Notruf.
+  image: Nahaufnahme einer großen, alten Funkanlage auf der Brücke eines Raumschiffs, mit Reglern, Schaltern
+    und einem Mikrofon an einem Spiralkabel. Auf dem Display blinkt eine rote Meldung. Gebrauchsspuren,
+    Staub, kaltes Licht. Menschenleer.
+- id: notruf_senden
+  name: Notruf senden
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: langstreckensender
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation: {}
+  messages:
+    Antwort: |-
+      „Glover IV, hier Forschungsstation Kuiper Sieben. Wir empfangen Sie klar und deutlich. Wir haben die Hope auf unseren Schirmen. Ein Rettungsschiff mit Brennstoff für Ihren Notreaktor und einem Ärzteteam an Bord startet noch in dieser Stunde. Ankunft in sechs Tagen. Halten Sie durch.“
+
+      Sechs Tage. Der Notreaktor hat neun.
+
+      Ich schwebe zurück in den Schlafring, an den langen Reihen grüner Lichter vorbei, bis zur Reservekapsel R-1. Hinter dem vereisten Glas ist ein Gesicht zu erahnen. „Sie kommen, Mara“, sage ich. „Du hast lange genug gewartet.“
+
+      Noch vor Kurzem habe ich im Cockpit gesessen und auf mein Ende gewartet, mit leerem Tank und einer Ladung Medikamente für eine Station am Rand des Sonnensystems. Jetzt werden 329 Menschen wieder aufwachen. Und ein Ärzteteam wird sich über ein paar Kisten Medikamente freuen.
+
+      Die Hope hat ihren Namen am Ende doch verdient.
+  onUse:
+  - id: notruf
+    enabled: true
+    effects:
+    - showTextFrom: notruf_senden.messages.Antwort
+    - finishGame: true
+  cutscene:
+    onlyOnce: true
+    text: |-
+      Ich nehme das Mikrofon und spreche langsam, damit jedes Wort ankommt. Mein Name, die Glover IV, meine Position. Dann die Hope. 340 Menschen im Kälteschlaf, zwölf davon schon verloren. Neun Tage.
+
+      Danach heißt es warten. Ich schwebe vor dem Sender, starre auf das Display und zähle die Minuten, wie ich es schon im Cockpit der Glover IV getan habe. Nur dass ich diesmal nicht auf mein Ende warte.
+
+      Nach elf Stunden knackt es im Lautsprecher.
+    image: 'Weltraumszene: Ein gigantisches, dunkles Kolonieraumschiff aus zwei riesigen Ringen auf einer
+      gemeinsamen Achse treibt durch das All. Von einem winzigen Raumschiff, das in der Nabe angedockt
+      ist, geht ein feiner, kaum sichtbarer Lichtstrahl in die Weite des Alls hinaus. In der Ferne ein
+      einzelner, schwach leuchtender Punkt.'
+    buttonLabel: Weiter
+- id: maschinenraum
+  name: Maschinenraum
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Im Maschinenraum ist es warm. Zum ersten Mal, seit ich die Glover IV verlassen habe, beschlägt mein Visier nicht vor Kälte. Der Notreaktor brummt leise in seiner Verkleidung. Überall hängen Kabel, mit Klebeband an Rohren befestigt, provisorisch und doch sorgfältig.
+
+      An einer Wand ist ein Schlafsack festgeschnallt, daneben steht eine Werkbank. Hier hat jemand gewohnt. Lange.
+    repeatView: Der warme Maschinenraum. Der Notreaktor brummt, an der Wand hängt der festgeschnallte
+      Schlafsack neben der Werkbank.
+  image: Ein warmer, enger Maschinenraum in einem alten Raumschiff. In der Mitte die Verkleidung eines
+    kompakten Reaktors mit orangefarbenen Kontrollleuchten. Überall provisorisch mit Klebeband befestigte
+    Kabel. An der Wand ein festgeschnallter Schlafsack und eine Werkbank mit Werkzeug. Warmes Licht im
+    Kontrast zum kalten Blau. Menschenleer.
+- id: weg_maschinenraum_korridor
+  name: In den Korridor
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: maschinenraum
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_maschinenraum_korridor
+    enabled: true
+    effects:
+    - setCurrentElement: hope_korridor
+- id: notreaktor
+  name: Notreaktor
+  type: mechanism
+  physical: true
+  layers:
+  - present
+  locatedIn: maschinenraum
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Der Notreaktor ist kaum größer als ein Kühlschrank. Seine Brennstoffanzeige steht auf zwei Prozent.
+
+      Auf die Verkleidung hat jemand mit Filzstift Striche gemalt. Hunderte, in Fünfergruppen, Reihe um Reihe. Ein Kalender. Die ersten Reihen sind gerade und sauber. Die letzten Striche zittern.
+    repeatView: 'Der Notreaktor brummt. Brennstoff: zwei Prozent. Auf der Verkleidung die Reihen von Strichen,
+      die letzten zittrig.'
+  image: Nahaufnahme der Verkleidung eines kompakten Reaktors in einem Raumschiff. Auf das Metall sind
+    mit schwarzem Filzstift Hunderte Zählstriche in Fünfergruppen gemalt, die oberen Reihen ordentlich,
+    die unteren zittrig. Daneben eine Brennstoffanzeige mit einem fast leeren Balken. Orangefarbene Kontrollleuchten.
+    Menschenleer.
+- id: maras_notizbuch
+  name: Notizbuch an der Werkbank
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: maschinenraum
+  initialState:
+    visible: true
+    gelesen: false
+  initialPartOf: []
+  contentVoice: female1
+  presentation:
+    firstView: 'An der Werkbank ist ein Notizbuch mit Klebeband befestigt, damit es nicht davontreibt.
+      Ein echtes Notizbuch aus Papier. Auf dem Umschlag steht: M. Ilves, Technik. Die letzte Seite ist
+      an jemanden gerichtet, den die Schreiberin nie getroffen hat.'
+    repeatView: 'Mara Ilves’ Notizbuch, die letzte Seite:'
+    contentText: |-
+      An wen auch immer, der das hier liest.
+
+      Wenn du hier bist, hat die Hope dich hereingelotst. Ich habe ihr beigebracht, jedem Schiff die Bucht 3 zu öffnen und das Tor hinter ihm zu schließen. Entschuldige den Schreck. Ich wollte nur sicher sein, dass du nicht wieder wegfliegst, bevor du das hier gelesen hast.
+
+      Ich bin Mara Ilves, Ingenieurin der Hope. Nach dem Unfall reichte die Energie nicht mehr für alle. Nicht für 340 Schlafende und acht Wache. Ruben und die anderen haben die Hope mit den Shuttles verlassen, damit die Kapseln ihre Energie bekommen. Sie wollten Hilfe holen. Niemand hat je geantwortet. Ich glaube nicht, dass sie angekommen sind.
+
+      Ich bin geblieben. Irgendjemand musste den Notreaktor am Laufen halten.
+
+      Vierzehn Jahre waren es. Jetzt werde ich krank, die Strahlung vom Reaktor. Darum lege ich mich in die Reservekapsel R-1 im Schlafring. Vielleicht kann mir eines Tages jemand helfen.
+
+      Die Hauptantenne ist zerstört, aber der Sender auf der Brücke funktioniert. Er braucht nur eine Antenne. Dein Schiff hat eine. An der Landeplattform von Andockbucht 3 im Hangar gibt es eine Datenkupplung. Verbinde dein Schiff damit, dann kannst du von der Brücke aus senden.
+
+      Bitte. Ruf jemanden.
+
+      Mara
+  onUse:
+  - id: notizbuch_gelesen
+    enabled: true
+    effects:
+    - setElementState:
+      - maras_notizbuch
+      - gelesen
+      - true
+    - hideElement: lb_offiziell
+    - hideElement: lb_widerspruch_intakt
+    - hideElement: lb_geruecht_flucht
+    - hideElement: lb_widerspruch_r1
+    - revealElement: lb_wahrheit
+    - revealElement: lb_mara
+    - revealElement: lb_kupplung
+    - revealElement: datenkupplung
+    - revealElement: kapsel_r1
+    - disableSelfTrigger: notizbuch_gelesen
+  image: Ein aufgeschlagenes Notizbuch aus Papier, mit Klebeband auf einer Werkbank in einem Maschinenraum
+    befestigt. Handschriftliche Zeilen, die zum Ende hin unregelmäßiger werden. Daneben ein Stift an einer
+    Schnur und festgeklebtes Werkzeug. Warmes Licht. Menschenleer.
+- id: schlafring
+  name: Schlafring
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Der Schlafring krümmt sich vor mir nach oben, bis er hinter seiner eigenen Biegung verschwindet. Kapsel an Kapsel liegen die Schlafenden in langen Reihen, jede mit einem kleinen Licht. Die meisten leuchten grün.
+
+      Es ist bitterkalt. Außer dem leisen Summen der Kühlaggregate ist nichts zu hören.
+
+      Am Eingang des Rings steht die Kälteschlafkonsole.
+    repeatView: Die langen Reihen der Kälteschlafkapseln, die meisten Lichter grün. Am Eingang die Kälteschlafkonsole.
+  image: Das Innere eines riesigen, ringförmigen Raumschiffsegments, der Boden krümmt sich in der Ferne
+    nach oben. In langen Reihen liegen Hunderte Kälteschlafkapseln mit vereisten Sichtfenstern, an jeder
+    ein kleines grünes Licht, einzelne Lichter rot. Bitterkalte Atmosphäre, Frost, feiner Nebel über dem
+    Boden, kaltes blaues Licht. Keine Personen sichtbar.
+- id: weg_schlafring_korridor
+  name: Durch die Speiche zur Nabe
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: schlafring
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_schlafring_korridor
+    enabled: true
+    effects:
+    - setCurrentElement: hope_korridor
+- id: kaelteschlafkonsole
+  name: Kälteschlafkonsole
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: schlafring
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Die Konsole am Eingang des Rings zeigt den Zustand aller Kapseln.
+    repeatView: 'Die Kälteschlafkonsole:'
+    contentText: |-
+      RING B · KÄLTESCHLAF
+      Kolonistenkapseln: 340 · davon ausgefallen: 12
+      Reservekapsel R-1: belegt seit 2.561 Tagen
+      Restlaufzeit: 9 Tage 4 Stunden
+  onUse:
+  - id: konsole_widerspruch
+    enabled: true
+    effects:
+    - revealElement: lb_widerspruch_r1
+    - disableSelfTrigger: konsole_widerspruch
+    conditions:
+    - stateEquals:
+      - maras_notizbuch
+      - gelesen
+      - false
+    - stateEquals:
+      - kapsel_r1
+      - entdeckt
+      - false
+  - id: konsole_r1
+    enabled: true
+    effects:
+    - revealElement: kapsel_r1
+    - disableSelfTrigger: konsole_r1
+  image: Nahaufnahme einer Kälteschlafkonsole in einem kalten Raumschiffring, ein Bildschirm mit Statuszeilen
+    in Grün und Rot, Frost an den Rändern der Konsole. Im unscharfen Hintergrund Reihen von Kälteschlafkapseln
+    mit kleinen grünen Lichtern. Menschenleer.
+- id: kapselreihen
+  name: Kapselreihen
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: schlafring
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      An jeder Kapsel klebt ein Namensschild. Okonkwo. Lindqvist. Haddad. Drei Kapseln mit dem Namen Varga, zwei davon kaum länger als ein Kind.
+
+      Bei zwölf Kapseln leuchtet das Licht rot. Ihre Sichtfenster sind dunkel. Ich schaue nicht hinein.
+    repeatView: Reihe um Reihe Kälteschlafkapseln mit Namensschildern. Zwölf Lichter leuchten rot.
+  image: Eine lange Reihe von Kälteschlafkapseln in einem kalten Raumschiff, vereiste Sichtfenster, an
+    jeder Kapsel ein kleines Namensschild und ein grünes Statuslicht. Eine einzelne Kapsel in der Reihe
+    hat ein rotes Licht und ein dunkles Fenster. Frost, kaltes blaues Licht, keine Gesichter sichtbar.
+- id: kapsel_r1
+  name: Reservekapsel R-1
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: schlafring
+  initialState:
+    visible: false
+    entdeckt: false
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Die Reservekapsel liegt etwas abseits am Ende der Reihe, direkt neben einem Wartungsschacht. Ihr Sichtfenster ist von innen vereist. Ich kann ein Gesicht erahnen, mehr nicht. Auf einem Streifen Klebeband am Rand der Kapsel steht in krakeliger Handschrift: M. Ilves.
+
+      Die Lebenszeichen sind schwach. Aber sie sind da.
+    repeatView: In der Reservekapsel R-1 schläft Mara Ilves. Ihre Lebenszeichen sind schwach, aber stabil.
+  onUse:
+  - id: r1_entdeckt
+    enabled: true
+    effects:
+    - setElementState:
+      - kapsel_r1
+      - entdeckt
+      - true
+    - hideElement: lb_widerspruch_r1
+    - revealElement: lb_mara
+    - disableSelfTrigger: r1_entdeckt
+  image: Eine einzelne Kälteschlafkapsel am Ende einer Reihe neben einem Wartungsschacht. Hinter dem von
+    innen vereisten Sichtfenster ist schemenhaft ein schlafendes Frauengesicht zu erahnen. Am Rand der
+    Kapsel ein Streifen Klebeband mit der Handschrift „M. Ilves“. Ein schwaches grünes Licht, Frost, kaltes
+    blaues Licht.
+- id: datenkupplung
+  name: Datenkupplung
+  type: mechanism
+  physical: true
+  layers:
+  - present
+  locatedIn: hangar
+  initialState:
+    visible: false
+    verbunden: false
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
+
+      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
+    repeatView: |-
+      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
+
+      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
+  stateTexts:
+  - id: kupplung_verbunden
+    conditions:
+    - stateEquals:
+      - datenkupplung
+      - verbunden
+      - true
+    firstView: |-
+      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
+
+      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
+    repeatView: 'Das Kabel führt von der Datenkupplung zur Glover IV. Die Anzeige leuchtet grün: ANTENNE
+      GLOVER IV · VERBUNDEN.'
+  onUse:
+  - id: kupplung_verbinden
+    enabled: true
+    effects:
+    - setElementState:
+      - datenkupplung
+      - verbunden
+      - true
+    - revealElement: notruf_senden
+    - hideElement: lb_kupplung
+    - revealElement: lb_verbunden
+    - disableSelfTrigger: kupplung_verbinden
+    conditions:
+    - stateEquals:
+      - datenkupplung
+      - verbunden
+      - false
+  image: Ein armdicker Anschluss ragt am Rand einer Landeplattform aus dem Boden eines dunklen Hangars.
+    Ein dickes Kabel führt von dort zur Unterseite eines kleinen Raumschiffs. Auf einem kleinen Display
+    am Anschluss leuchtet eine grüne Anzeige. Rotes Notlicht, Eis auf dem Metall. Menschenleer.
+- id: lb_offiziell
+  name: Die offizielle Geschichte der Hope
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Auf Titan gilt die Hope seit einundzwanzig Jahren als verloren. Reaktorunfall, keine Überlebenden.
+    style: discovery
+- id: lb_widerspruch_intakt
+  name: Die zerstörte Hope
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Die Hope soll bei einem Reaktorunfall zerstört worden sein. Doch das Schiff ist intakt, hat
+      Energie und hat die Glover IV in seinen Hangar gelotst.
+    style: contradiction
+    openQuestion: Was ist an Bord der Hope wirklich geschehen?
+- id: lb_lage
+  name: Neun Tage
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Der Notreaktor der Hope hält den Kälteschlafring noch neun Tage am Leben. Der Langstreckensender
+      auf der Brücke ist betriebsbereit, aber die Hauptantenne ist zerstört.
+    style: discovery
+- id: lb_geruecht_flucht
+  name: Die geflohene Besatzung
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Laut Logbuch des Kapitäns hat die Besatzung die Hope mit beiden Shuttles verlassen. Die 340
+      Kolonisten blieben in ihren Kapseln zurück.
+    style: contradiction
+    openQuestion: Hat die Besatzung die Schlafenden im Stich gelassen?
+- id: lb_widerspruch_r1
+  name: Die Reservekapsel
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Die Hope trug 340 Kolonisten. Im Schlafring ist aber auch die Reservekapsel R-1 belegt, seit
+      über sieben Jahren.
+    style: contradiction
+    openQuestion: Wer liegt in der Reservekapsel R-1?
+- id: lb_wahrheit
+  name: Was auf der Hope geschah
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Nach dem Reaktorunfall verließ die Besatzung die Hope mit beiden Shuttles, damit der Notreaktor
+      genug Energie für die Schlafenden hat, und um Hilfe zu holen. Sie kam nie an. Nur die Ingenieurin
+      Mara Ilves blieb an Bord und hielt den Reaktor vierzehn Jahre lang am Laufen.
+    style: discovery
+- id: lb_mara
+  name: Mara Ilves
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Mara Ilves, die Ingenieurin der Hope, liegt krank in der Reservekapsel R-1 im Schlafring, im
+      Kälteschlaf.
+    style: discovery
+- id: lb_kupplung
+  name: Die Antenne der Glover IV
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Über die Datenkupplung an der Landeplattform im Hangar lässt sich die Antenne der Glover IV
+      mit dem Sender auf der Brücke der Hope verbinden.
+    style: discovery
+- id: lb_verbunden
+  name: Eine Stimme für die Hope
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Die Antenne der Glover IV ist mit dem Sender der Hope verbunden. Vom Langstreckensender auf
+      der Brücke kann ich einen Notruf absetzen.
+    style: discovery
