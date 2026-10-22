@@ -1,79 +1,54 @@
-# SpeechGenerator
+# StoryGame
 
-Liest `input_vocs.txt` zeilenweise und erzeugt für jede Zeile ein mp3-Sample über die Gemini TTS API. Liest `input_pics.txt` zeilenweise und erzeugt für jede Zeile ein Bild über die Gemini Bildgenerierung.
+Ein elementbasiertes Erzählspiel mit grafischem Editor. Ein lokaler Python-Server liefert ein Web-Frontend aus. Dort spielt man Geschichten, die als YAML-Dateien unter `Stories/` liegen, und bearbeitet sie im Editor. Gemini-Skripte erzeugen aus den Texten Sprachaufnahmen und Bilder.
 
-## Setup
+Enthaltene Geschichten:
 
-1. Python-Abhängigkeiten installieren:
+- **Die verfluchte Mühle**: Ein Dorf im Nebel, aus dem kein Weg hinausführt, und eine Flut, die vor vierzig Jahren anders geschah, als der Gedenkstein behauptet.
+- **Space Trace**: Ein Pilot mit leerem Tank entdeckt im äußeren Sonnensystem ein verschollenes Kolonieschiff.
+
+## Einrichten
+
+1. Python-Abhängigkeiten installieren (am besten in einer virtuellen Umgebung):
    ```
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
    ```
-2. [ffmpeg](https://ffmpeg.org/download.html) installieren und sicherstellen, dass es im `PATH` liegt (wird für die mp3-Kodierung per Subprocess benötigt).
-3. `.env.example` nach `.env` kopieren und den eigenen Gemini API-Key eintragen:
+2. [ffmpeg](https://ffmpeg.org/download.html) installieren und in den `PATH` legen. Es wird für mp3 und JPEG gebraucht.
+3. Nur für Sprache und Bilder: eine Datei `.env` mit dem eigenen Gemini-API-Key anlegen:
    ```
-   cp .env.example .env
+   GEMINI_API_KEY=dein-key
    ```
+   Die `.env` steht in `.gitignore` und wird nie committet.
 
-## Eingabeformat (`input_vocs.txt`)
-
-- Eine Zeile = ein Sample, Format: `Nummer "Text";Sprecher`
-- `Nummer`: 5-stellig (z. B. `00001`), bestimmt den Dateinamen des Samples.
-- `Text`: in Anführungszeichen.
-- `Sprecher` (optional, nach dem Semikolon): `male1`, `male2`, `female1`, `female2` oder `standard`
-  (Platzhalter-Sprecher, aktuell identisch zu `male1`, gedacht fuer Elemente, die noch keine
-  eigene Stimme zugewiesen bekommen sollen). Zuordnung zu tatsaechlichen Gemini-Stimmen siehe
-  `SPEAKER_VOICES` in `generate_samples.py`.
-  Ohne Sprecher wird die Standardstimme verwendet (`--voice`, Default entspricht Sprecher `male1`).
-- Zeilen, die mit `#` beginnen, oder leere Zeilen werden ignoriert.
-
-Beispiel:
+## Spielen und bearbeiten
 
 ```
-00001 "Hallo und herzlich willkommen zu diesem Sprachsample.";female1
-00002 "Das hier verwendet die Standardstimme.";
+python game.py [--port 8000] [--no-browser]
 ```
 
-## Ausführen
+Öffnet http://127.0.0.1:8000/. Auf der Startseite wählt man eine Geschichte oder öffnet mit „🛠 Editor“ den Editor.
+
+- Der Server liest die Geschichten nur beim Start. Nach einer Änderung an einer YAML-Datei muss er neu gestartet werden.
+- Änderungen an `web/*` brauchen nur einen Browser-Reload (Strg+F5).
+- Es gibt noch keinen Spielstand: Wer eine Geschichte verlässt, beginnt beim nächsten Mal von vorn.
+
+## Sprache und Bilder erzeugen
+
+Beide Skripte fragen nach der Geschichte, exportieren die Texte bzw. Bild-Prompts selbst und fragen vor den (kostenpflichtigen) API-Aufrufen nach. Unveränderte Dateien werden übersprungen.
 
 ```
-python generate_samples.py
+python generate_samples.py  [--story <Name>|alle] [--dry-run] [--yes] [--force]
+python generate_pictures.py [--story <Name>|alle] [--dry-run] [--yes] [--force]
 ```
 
-Optionen:
+- `--dry-run` zeigt nur an, was erzeugt würde.
+- `--force` erzeugt alles neu.
+- Ergebnis: `Stories/<Name>/samples/sample_NNNNN.mp3` bzw. `Stories/<Name>/pictures/pic_NNNNN.jpg`.
+- Die Dateien `samples_index.json` und `pictures_index.json` ordnen jedem Text bzw. Bild seine feste Nummer zu. Sie dürfen nicht von Hand zurückgesetzt werden.
 
-```
-python generate_samples.py --input input_vocs.txt --output-dir output_vocs --voice Puck --model gemini-2.5-flash-preview-tts
-```
+## Weitere Dokumentation
 
-Die Ergebnisse landen als `output_vocs/sample_00001.mp3`, `output_vocs/sample_00002.mp3`, usw. (Nummer aus `input_vocs.txt`).
-
-Bereits generierte Samples werden übersprungen, solange sich Text/Sprecher/Modell nicht geändert haben (siehe `output_vocs/.manifest.json`). Mit `--force` werden alle Samples neu generiert.
-
-## Eingabeformat (`input_pics.txt`)
-
-- Eine Zeile = ein Bild, Format: `Nummer "Prompt";"Zusatzinfo"`
-- `Nummer`: 5-stellig, bestimmt den Dateinamen des Bildes.
-- `Prompt`: Bildbeschreibung in Anführungszeichen.
-- `Zusatzinfo` (optional, nach dem Semikolon, in Anführungszeichen): zusätzlicher System-Prompt/Kontext für die Bildgenerierung.
-- Zeilen, die mit `#` beginnen, oder leere Zeilen werden ignoriert.
-
-Beispiel:
-
-```
-00001 "Ein ruhiger Bergsee bei Sonnenaufgang.";"Fotorealistisch, warmes Licht."
-00002 "Ein gemütliches Wohnzimmer mit Kamin.";
-```
-
-### Ausführen
-
-```
-python generate_pictures.py
-```
-
-Optionen:
-
-```
-python generate_pictures.py --input input_pics.txt --output-dir output_pics --model gemini-2.5-flash-image
-```
-
-Die Ergebnisse landen als `output_pics/pic_00001.jpg`, `output_pics/pic_00002.jpg`, usw. Bereits generierte Bilder werden übersprungen, solange sich Prompt/Zusatzinfo/Modell nicht geändert haben (siehe `output_pics/.manifest.json`). Mit `--force` werden alle Bilder neu generiert.
+- [CLAUDE.md](CLAUDE.md): Architektur, Story-Format, Editor- und Medien-Konventionen (für Entwickler und KI-Assistenten)
+- [Game-Description/](Game-Description/): Spielkonzept und Autorenregeln für neue Geschichten

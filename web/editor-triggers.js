@@ -78,9 +78,9 @@ const EFFECT_DEFS = {
     defaults: (el) => [el.id],
   },
   showText: {
-    label: 'Zeige Kurztext (nicht gesprochen)',
-    tip: 'Zeigt einen kurzen, hier direkt geschriebenen Text im Fenster, z.B. „Klick!“.\n'
-      + 'Wird NICHT vorgelesen. Für erzählende Meldungen, die gesprochen werden sollen, „Zeige Meldung“ verwenden.',
+    label: 'Zeige Kurztext',
+    tip: 'Zeigt einen kurzen, hier direkt geschriebenen Text im Fenster, z.B. „Klick!“. Wird vorgelesen.\n'
+      + 'Für längere oder mehrfach genutzte Meldungen besser „Zeige Meldung“ verwenden.',
     shape: 'single',
     args: [{ kind: 'text' }],
     defaults: () => [''],

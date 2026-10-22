@@ -1,51 +1,121 @@
 # Automatisch erzeugt von export_vocs.py aus cursed_mill.yaml - nicht von Hand bearbeiten.
 # Format pro Zeile: Nummer "Text";Sprecher (Sprecher optional)
 
-00001 "Du durchsuchst deine Habseligkeiten.";
-00002 "Du durchsuchst erneut deine Habseligkeiten.";
-00003 "Dichter Nebel umschließt das verlassene Gelände und verhindert jede Sicht auf die Umgebung.";
-00004 "Der Nebel liegt weiterhin wie eine geschlossene Wand um das Gelände.";
-00005 "Du stehst auf einem kleinen, verlassenen Dorfplatz. Feuchte Pflastersteine verschwinden am Rand im dichten Nebel. In der Mitte steht ein alter Gedenkstein.";
-00006 "Du stehst wieder auf dem feuchten Dorfplatz. Der Nebel liegt unbeweglich zwischen den verlassenen Häusern.";
-00007 "Du wischst Moos von der verwitterten Inschrift. Unter dem offiziellen Text wurde später ein weiterer Satz eingeritzt.";
-00008 "Die Inschrift und der später eingeritzte Satz sind bereits vollständig lesbar.";
-00009 "Zum Gedenken an Clara Voss, die in der großen Flut ihr Leben verlor. Verursacht durch die schuldhafte Bedienung des Mühlenwehrs durch ihren Vater Hannes Voss. Später eingeritzt: 'Die Wahrheit liegt noch immer im Wasser.'";
-00010 "Der Weg verschwindet im Nebel. Wenige Schritte später stehst du auf dem Dorfplatz.";
-00011 "Du folgst dem Weg aus dem Dorf. Der Gedenkstein verschwindet hinter dir, und der Ort zieht dich nicht zurück. Die Geschichte der verfluchten Mühle ist abgeschlossen.";
-00012 "Der Weg endet an einer halb eingestürzten Wassermühle. Die stärksten Schäden befinden sich auf der flussabgewandten Seite. Es wirkt, als sei eine gewaltige Wassermenge mitten durch die Mühle geströmt.";
-00013 "Du stehst wieder zwischen den eingestürzten Balken der alten Mühle.";
-00014 "An der Wand neben dem Schreibtisch sitzt die dritte Bohle deutlich lockerer als die übrigen.";
-00015 "Im geöffneten Schreibtisch liegen zerfallene Rechnungen, verrostete Schreibfedern und ein dickes altes Geschäftsbuch.";
-00016 "Im Schreibtisch scheint es derzeit nichts Weiteres zu entdecken zu geben.";
-00017 "Die ersten Seiten enthalten gewöhnliche Einträge über Mehl, Getreide und Lieferungen. Die letzten Seiten sind durch Schlamm und Feuchtigkeit miteinander verklebt.";
-00018 "Ohne einen konkreten Hinweis kannst du zwischen den beschädigten Zeilen nichts Auffälliges erkennen.";
-00020 "Claras Eintrag ist bereits vollständig gelesen. Im Buch gibt es derzeit nichts Weiteres zu entdecken.";
-00019 "Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren Handschrift. Unter ihr stehen die Initialen 'C. V.'.";
-00021 "Claras verblasste Notiz auf der letzten beschriebenen Seite wird vollständig lesbar.";Standard
-00022 "Der Eintrag beschreibt die Blockade des Kanals und Claras Absicht, Brandt zur Rede zu stellen. Weitere Informationen enthält er nicht.";Standard
-00023 "Brandts Männer haben den Entlastungskanal mit Balken und Steinen verschlossen. Das Wasser läuft deshalb nur noch durch seine Turbine. Vater sagt, dass dies bei starkem Regen gefährlich ist. Über dem Wald stehen dunkle Wolken. Ich gehe zum Sägewerk und verlange von Herrn Brandt, dass er den Kanal öffnen lässt. C. V.";Standard
-00024 "Du entfernst Schlamm von der Mechanik. Der Stellhebel steht in äußerster Position. Die Markierungen zeigen, dass das Notwehr vollständig geöffnet wurde und das Wasser vom Dorf weg durch die Mühle leitete.";
-00025 "Die Mechanik bestätigt weiterhin die vollständige, offenbar bewusste Öffnung des Notwehrs. Weitere Informationen gibt sie nicht preis.";
-00026 "Die dritte Wandbohle neben Hannes' Schreibtisch sitzt deutlich lockerer als die übrigen.";
-00028 "Der Hohlraum hinter der dritten Bohle ist bereits geöffnet.";
-00029 "Du faltest den trockenen, spröden Brief auseinander. Er ist mit 'Clara Voss' unterzeichnet.";female1
-00030 "Claras Brief enthält die vollständige Erklärung der Flutnacht und ihrer späteren Rückkehr.";female1
-00031 "Für denjenigen, der noch nach der Wahrheit sucht. Ich habe die Flut überlebt. Richard Brandt sperrte mich im Lagerraum ein, nachdem ich ihn wegen des verschlossenen Kanals zur Rede gestellt hatte. Mein Vater öffnete das Notwehr und leitete das Wasser durch unsere Mühle. Er verlor alles, aber das Dorf wurde gerettet. Danach holte er mich aus dem Sägewerk. Brandt drohte, mich zum Schweigen zu bringen. Mein Vater schickte mich zu meiner Tante und ließ alle glauben, ich sei gestorben. Er nahm die Schuld an der Flut auf sich, damit niemand nach mir suchte. Zwölf Jahre sind vergangen. Ich bin zur Mühle gekommen, um diesen Brief zu hinterlassen. Auf der letzten beschriebenen Seite von Vaters Geschäftsbuch steht, was ich vor dem Unwetter gesehen habe. Vielleicht wird jemand verstehen, was mein Vater für das Dorf und für mich getan hat. Clara Voss";female1
-00032 "Das Hauptgebäude des alten Sägewerks ist teilweise eingestürzt. Hinter ihm verläuft ein vollständig verschlossener Entlastungskanal.";
-00033 "Du stehst wieder zwischen den verfallenen Gebäudeteilen des Sägewerks.";
-00034 "Im eingestürzten Seitenflügel befindet sich der Zugang zu einem alten Lagerraum.";
-00035 "Im verfallenen Büro liegt unter einer losen Glasplatte eine noch lesbare Wartungsnotiz mit dem Stempel des Sägewerks.";
-00036 "Im Büro scheint es derzeit nichts Weiteres zu entdecken zu geben.";
-00037 "Die Notiz trägt Brandts Unterschrift. Eine Bleistiftnotiz eines Arbeiters erwähnt das Mädchen von der Mühle und Hannes' Geschäftsbuch.";Standard
-00038 "Brandt ordnete die Blockade selbst an. Das Mädchen von der Mühle schrieb ihre Beobachtung in Hannes' Buch. Weitere Informationen enthält die Notiz nicht.";Standard
-00039 "Arbeitsanweisung Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen. Der gesamte Wasserlauf ist der Turbine zuzuführen. Richard Brandt Bleistiftnotiz eines Arbeiters: 'Das Mädchen von der Mühle hat uns gesehen. Sie sagte, sie hätte alles in Hannes' Buch geschrieben.'";Standard
-00040 "Der kleine Lagerraum besitzt kein Fenster. Seine schwere Tür kann nur von außen verriegelt werden. Zwischen verrotteten Säcken liegt ein verblasstes Haarband.";
-00041 "Haarband, Verriegelung und Kratzspuren sind untersucht. Im Lagerraum gibt es derzeit nichts Weiteres zu entdecken.";
-00042 "Die schwere Verriegelung befindet sich ausschließlich außen. Auf der Innenseite der Tür sind tiefe Kratzspuren zu erkennen.";
-00043 "Die Verriegelung kann nur von außen bedient werden. Die Kratzspuren innen sind bereits dokumentiert.";
-00044 "In den Saum sind die Initialen 'C. V.' eingestickt. Auf der Rückseite befindet sich eine handschriftliche Notiz.";Standard
-00045 "Das Haarband gehörte Clara. Der Hinweis auf der Rückseite nennt eindeutig das Versteck in der Mühle.";Standard
-00046 "Wenn ich zur Mühle zurückkomme: hinter der dritten Wandbohle neben Vaters Schreibtisch.";Standard
-00047 "Passend zugeschnittene Balken und gesetzte Steine zeigen, dass der Kanal absichtlich und mit erheblichem Aufwand verschlossen wurde.";
-00048 "Die Blockade ist eindeutig menschengemacht. Weitere Informationen sind hier derzeit nicht zu finden.";
-00051 "Der Nebel über dem Weg wird dünner. Der Ort hält dich nicht länger fest.";
+00001 "Du durchsuchst deine Taschen.";male3
+00066 "Irgendwo im Tal schlägt die Glocke. Einmal, lang und tief. Dann wird es still, und du merkst, dass sich etwas verändert hat. Der Nebel bewegt sich. Er zieht ab, langsam, wie Wasser, das nach einer Flut zurückweicht. Der Weg aus dem Dorf ist frei.";male3
+00067 "Seit der Wagen am Waldrand liegen geblieben ist, gehst du zu Fuß. Eine Stunde schon, vielleicht länger. Mit jedem Schritt wird der Nebel dichter. Irgendwann hört der Asphalt auf. Unter deinen Schuhen knirschen Kies und nasses Laub. Kein Vogel, kein Wind. Nur das Rauschen von Wasser, irgendwo links von dir im Grau. Dann taucht ein schiefes Ortsschild aus dem Nebel auf. Die Buchstaben sind kaum noch zu lesen: Mühlbach.";male3
+00068 "Das schiefe Ortsschild: Mühlbach.";male3
+00069 "Du gehst an dem Schild vorbei. Hinter dir schließt sich der Nebel wie ein Vorhang. Nach ein paar Dutzend Schritten drehst du dich um. Der Weg, auf dem du gekommen bist, ist verschwunden. Nicht verdeckt. Verschwunden. Wo eben noch die Straße war, steht nur graue, nasse Stille. Aus der Ferne schlägt eine Kirchenglocke. Einmal. Dann nichts mehr.";male3
+00005 "Ein kleiner Platz, gesäumt von Fachwerkhäusern mit eingesunkenen Dächern. Hinter den blinden Fenstern rührt sich nichts. Auf dem Pflaster liegt ein feuchter Film, als hätte es eben erst geregnet. Doch es fällt kein Tropfen. In der Mitte steht ein Gedenkstein. Er ist der einzige Stein auf dem ganzen Platz, auf dem kein Moos wächst. Wege führen in alle Richtungen: hinunter zum Fluss, wo die Mühle stehen muss, zum Sägewerk, zum Kirchhof und hinauf zu einem großen Haus am Hang. Gegenüber hängt das Schild eines Gasthauses.";male3
+00006 "Der stille Platz. In der Mitte der Gedenkstein.";male3
+00007 "Der Stein ist sauber, als würde ihn jemand jede Woche abwaschen. Die Inschrift ist tief und ordentlich gemeißelt. Darunter hat jemand später einen Satz in den Stein gekratzt, mit unruhiger Hand und einem Werkzeug, das dafür nicht gemacht war. Auf dem Sockel steht klein der Name des Stifters.";male3
+00008 "Der Gedenkstein:";male3
+00009 "ZUM GEDENKEN AN CLARA VOSS, die in der großen Flut ihr junges Leben verlor. Verursacht durch die schuldhafte Bedienung des Mühlenwehrs durch ihren Vater Hannes Voss. Später eingekratzt: „Die Wahrheit liegt noch immer im Wasser.“ Auf dem Sockel: Gestiftet von Richard Brandt";male3
+00070 "Diesmal trägt dich der Weg. Mit jedem Schritt wird der Nebel dünner, und zum ersten Mal hörst du wieder etwas anderes als Wasser: einen Vogel, dann den Wind in den Bäumen. Am Ortsschild bleibst du stehen und schaust zurück. Über dem Tal liegt nur noch ein heller Schleier. Darunter, klein und grau, die Mühle am Fluss. Die Glocke schweigt.";male3
+00071 "Wieder der Dorfplatz. Der Nebel lässt dich nicht gehen.";male3
+00072 "Du folgst dem Weg aus dem Dorf hinaus. Der Nebel wird dichter, das Pflaster weicher, deine Schritte leiser. Nach einer Weile tauchen vor dir Fachwerkhäuser auf. Ein Platz. Ein Gedenkstein. Du bist im Kreis gegangen. Obwohl der Weg schnurgerade war.";male3
+00073 "Später wirst du versuchen, Mühlbach auf einer Karte zu finden. Du wirst es nicht finden. Aber du wirst dich erinnern. An einen Gedenkstein, auf dem eine Lüge steht, und an ein Holzkreuz an einer Friedhofsmauer, an dem jetzt ein Brief liegt. An Hannes Voss, der seine Mühle opferte und seinen guten Namen dazu. An Clara, die überlebte und zu spät zurückkam. Und an Richard Brandt, der die Wahrheit kannte und mit ihr allein blieb, bis der Nebel ihn nicht mehr hergab. Die Wahrheit lag im Wasser. Jetzt liegt sie bei dir.";male3
+00074 "Die Tür steht einen Spalt offen. Drinnen riecht es nach kaltem Rauch und nassem Holz. Die Stühle stehen umgedreht auf den Tischen, als hätte der Wirt nur kurz zugesperrt und wäre nie zurückgekommen. Auf der Theke liegt ein aufgeschlagenes Gästebuch. Dahinter hängt eine alte Laterne an einem Haken. Neben der Tür ist ein vergilbter Aushang an die Wand genagelt.";male3
+00075 "Die stille Gaststube.";male3
+00076 "Eine Sturmlaterne aus schwarzem Blech. Im Tank schwappt noch Petroleum. Mit ihr ließe sich auch ein dunkler Raum ausleuchten.";male3
+00077 "Die Sturmlaterne.";male3
+00078 "Die Laterne brennt ruhig in deiner Hand. Ihr Licht reicht ein paar Schritte weit in jede Dunkelheit.";male3
+00079 "Die Laterne brennt.";male3
+00080 "Du nimmst die Laterne vom Haken und zündest sie an. Der Docht nimmt die Flamme sofort an, als hätte er darauf gewartet.";male3
+00081 "Du stellst die Laterne ab. Ihr Licht flackert und wird kleiner.";male3
+00082 "Das Gästebuch ist an einer Stelle aufgeschlagen, an der seit Langem niemand weitergeblättert hat. Der letzte Eintrag ist achtundzwanzig Jahre alt. Darunter hat der Wirt etwas mit Bleistift notiert.";male3
+00083 "Der letzte Eintrag im Gästebuch:";male3
+00084 "„C. Hartmann. Auf der Durchreise. Ein Zimmer für eine Nacht.“ Darunter, in der Handschrift des Wirts: „Die Fremde fragte nach der Mühle und nach dem Grab des Müllers. In der Nacht ging sie hinaus in den Regen. Am Morgen war das Zimmer leer, das Bett unberührt. Seitdem erzählen die Leute von der Frau im Regen. Ich sage nichts dazu. Aber sie hatte die Augen von Hannes.“";male1
+00085 "Ein Zettel, mit vier rostigen Nägeln an die Wand geschlagen. Das Papier ist gelb und wellig, die Schrift amtlich.";male3
+00166 "Der Aushang:";male3
+00087 "BEKANNTMACHUNG DES GEMEINDERATS Dem Müller Hannes Voss, durch dessen Schuld die Flut über Mühlbach kam, ist im Ort weder Arbeit noch Brot zu geben. Wer ihm hilft, stellt sich gegen die Gemeinde. Für den Gemeinderat: Richard Brandt, Vorsitzender";male3
+00012 "Der Weg fällt steil zum Fluss ab. Unten steht die Mühle, oder was die Flut von ihr übrig gelassen hat. Die flussabgewandte Seite ist aufgerissen, als wäre etwas Gewaltiges von innen nach außen gebrochen. Balken ragen wie Rippen in den Nebel. Das große Wasserrad hängt schief in seiner Achse und bewegt sich nicht, obwohl der Fluss darunter rauscht. Drinnen steht noch ein vermoderter Schreibtisch. Eine schmale Treppe führt hinunter in die Radkammer. Dort unten ist es vollkommen dunkel.";male3
+00013 "Die aufgerissene Mühle. Das Rad steht still.";male3
+00088 "Neben dem Schreibtisch, an der Wand: die dritte Bohle. Sie sitzt lockerer als die anderen.";male3
+00089 "Die dritte Bohle neben dem Schreibtisch sitzt locker.";male3
+00090 "Das Rad ist höher als ein Haus. Seine Schaufeln sind gesplittert, die Achse ist aus dem Lager gesprungen. Von hier aus siehst du, dass das Wasser nicht gegen die Mühle geprallt ist. Es ist durch sie hindurchgeschossen, vom Wehr her quer durch das Haus und auf der anderen Seite wieder hinaus. Wenn du lange genug hinsiehst, meinst du, das Rad habe sich bewegt. Ein kleines Stück. Rückwärts.";male3
+00091 "Das Rad steht still. Fast.";male3
+00015 "Die Schubladen sind aufgequollen und lassen sich nur mit Gewalt öffnen. Darin liegen zerfallene Rechnungen, verrostete Federn und ein dickes, in Leder gebundenes Geschäftsbuch. Neben dem Schreibtisch liegt ein Lager aus alten Mehlsäcken und einer zerfressenen Decke. Hier hat jemand geschlafen. Lange nach der Flut.";male3
+00016 "Der Schreibtisch des Müllers, daneben das Lager aus Säcken.";male3
+00017 "Hannes Voss führte Buch über alles: Säcke Roggen, Säcke Weizen, Lieferungen, Schulden. Eine saubere, schwere Handschrift. Die letzten Seiten sind vom Schlamm verklebt. Ohne zu wissen, wonach du suchst, findest du dazwischen nichts.";male3
+00018 "Das Geschäftsbuch des Müllers. Die letzten Seiten sind verklebt.";male3
+00092 "Du weißt jetzt, wonach du suchst. Vorsichtig löst du die verklebten Seiten. Zwischen Mehlpreisen steht ein Eintrag in einer anderen, jüngeren Handschrift, unterschrieben mit „C. V.“";male3
+00093 "Claras Eintrag auf einer der letzten Seiten.";male3
+00021 "Die Tinte ist verblasst, aber die Buchstaben sind rund und eilig. Die Schrift eines jungen Mädchens.";male3
+00022 "Claras Eintrag:";male3
+00023 "Brandts Männer haben heute den Entlastungskanal mit Balken und Steinen verschlossen. Das Wasser läuft jetzt nur noch durch seine Turbine. Vater sagt, das ist gefährlich, wenn es stark regnet. Über dem Wald stehen schwarze Wolken. Ich gehe zum Sägewerk und verlange, dass Herr Brandt den Kanal wieder öffnen lässt. C. V.";female2
+00094 "Die Stufen sind glitschig. Das Licht der Laterne reicht kaum bis zu deinen Füßen. Mit jedem Schritt wird die Luft kälter und das Rauschen des Flusses lauter, bis es klingt, als liefe er direkt neben dir durch die Wand. Unten stehst du knöcheltief im Wasser. Vor dir, im Laternenlicht, glänzt nasses Eisen.";male3
+00095 "Die Treppe verschwindet nach drei Stufen in vollkommener Schwärze. Von unten hörst du Wasser tropfen, langsam und gleichmäßig wie eine Uhr. Ohne Licht gehst du da nicht hinunter.";male3
+00096 "Ein niedriges Gewölbe unter der Mühle, halb voll mit schwarzem Wasser. An der Wand zum Fluss sitzt die Mechanik des Notwehrs, ein Gerüst aus Eisen und Holz mit einem großen Stellhebel. Von der Decke tropft es. Jeder Tropfen klingt laut in der Stille.";male3
+00097 "Die nasse, dunkle Radkammer.";male3
+00024 "Der Stellhebel ist bis zum Anschlag umgelegt. In das Holz daneben sind Markierungen eingebrannt: GESCHLOSSEN, HALB, OFFEN. Ein Pfeil zeigt, wohin das Wasser bei voller Öffnung läuft. Nicht zum Dorf hinunter, sondern quer durch die Mühle in den alten Flutgraben. Wer diesen Hebel umgelegt hat, wusste genau, was er tat. Er hat das Wasser von den Häusern weggelenkt und mitten durch sein eigenes Haus geschickt. In den Hebel ist mit einem Messer etwas eingeritzt, klein und tief: „Für Mühlbach. H. V.“";male3
+00025 "Der Hebel steht bis zum Anschlag auf OFFEN. „Für Mühlbach. H. V.“";male3
+00026 "Die Bohle lässt sich mit den Fingern lösen. Dahinter ist ein schmaler Hohlraum. Darin liegt etwas, in ein Wachstuch eingeschlagen und sorgfältig verschnürt.";male3
+00028 "Der Hohlraum hinter der dritten Bohle.";male3
+00029 "Du schlägst das Wachstuch auseinander. Darin liegt ein gefalteter Brief, trocken und unversehrt. Die Schrift ist dieselbe wie im Geschäftsbuch, nur älter und ruhiger.";male3
+00030 "Claras Brief:";male3
+00031 "Für den, der noch nach der Wahrheit sucht. Ich bin Clara Voss. Ich bin nicht ertrunken. In der Nacht der Flut ging ich zu Richard Brandt und verlangte, dass er den Kanal öffnen lässt. Er sperrte mich in den Lagerraum seines Sägewerks und ging. Ich habe an der Tür gekratzt, bis meine Finger bluteten. Draußen stieg das Wasser. Mein Vater hat das Notwehr geöffnet. Er hat das Wasser durch unsere Mühle geleitet, damit es nicht über das Dorf kommt. Dann hat er mich mit der Brechstange aus dem Lagerraum geholt. Am nächsten Morgen kam Brandt zu uns. Er sagte, wenn ich rede, gibt es bald ein zweites Unglück. Vater hat mich noch in derselben Nacht zu meiner Tante Martha Hartmann in die Stadt gebracht. Er ließ alle glauben, ich sei ertrunken. Und er hat geschwiegen, als sie ihm die Schuld gaben, damit niemand nach mir sucht. Zwölf Jahre sind vergangen. Vater ist tot, und ich habe ihn nie wiedergesehen. Ich bin zurückgekommen, um ihm zu sagen, dass ich es weiß. An seinem Grab durfte ich nicht weinen, man hätte mich gehört. Was ich vor dem Unwetter gesehen habe, steht auf einer der letzten Seiten in Vaters Geschäftsbuch. Bitte erzähl es ihm. Mir hat er nie zuhören können. Clara Voss";female1
+00098 "Du faltest den Brief zusammen und steckst ihn ein. Er wiegt fast nichts.";male3
+00099 "Du legst Claras Brief ab.";male3
+00032 "Das Sägewerk war einmal das größte Gebäude im Tal. Jetzt steht nur noch die Halle, die Dachbalken schwarz vor Nässe. Die große Bandsäge ist festgerostet, ihr Blatt hängt in der Luft wie ein erstarrtes Grinsen. Hinter der Halle verläuft ein steinerner Kanal, vollgestopft mit Balken und Steinen. Im Seitenflügel liegt ein kleines Büro. Daneben gibt es eine schwere Tür mit einem eisernen Riegel. An der Werkbank liegt noch Werkzeug.";male3
+00033 "Die Halle des Sägewerks. Die rostige Säge.";male3
+00047 "Der Kanal ist breit genug für ein Ruderboot. Jemand hat ihn mit passend zugesägten Balken und sorgfältig gesetzten Steinen verschlossen, Lage um Lage, wie eine Mauer. Das war keine Notlösung. Das war Arbeit für viele Männer und viele Tage. Hinter der Sperre liegt das Kanalbett trocken. Seit vierzig Jahren.";male3
+00048 "Der zugemauerte Kanal.";male3
+00100 "Eine lange Werkbank voller Rost und Sägemehl, das zu grauem Brei verklumpt ist. Feilen, Keile, ein zerbrochener Hobel. Und eine schwere Brechstange, quer über die Bank gelegt.";male3
+00101 "Die rostige Werkbank.";male3
+00102 "Eine schwere Brechstange, rostig, aber unbeschädigt. Damit ließe sich auch eine festsitzende Tür aufbrechen.";male3
+00103 "Die Brechstange.";male3
+00104 "Du nimmst die Brechstange. Sie ist kalt und schwerer, als sie aussieht.";male3
+00105 "Du legst die Brechstange ab.";male3
+00106 "Du setzt die Brechstange in den Spalt und stemmst dich dagegen. Das Holz ächzt. Einmal, zweimal, dann gibt die Tür mit einem Knall nach, und ein Schwall kalter, abgestandener Luft schlägt dir entgegen. Es riecht nach Moder und nach etwas anderem, Älterem. Für einen Moment glaubst du, drinnen hätte jemand Luft geholt.";male3
+00107 "Die Tür ist von außen mit einem schweren Riegel gesichert. Den Riegel kannst du zurückschieben, aber die Tür selbst gibt nicht nach. Das Holz ist aufgequollen und sitzt fest im Rahmen. Mit bloßen Händen bekommst du sie nicht auf.";male3
+00035 "Ein enger Raum mit einem Stehpult und einem Schrank, dessen Türen herausgerissen sind. Auf dem Pult liegt unter einer gesprungenen Glasplatte ein Blatt Papier, das die Jahre erstaunlich gut überstanden hat. An der Wand hängt ein Schlüsselbrett.";male3
+00036 "Das enge Büro mit dem Stehpult.";male3
+00037 "Die Glasplatte hat das Papier vor der Feuchtigkeit geschützt. Es ist eine Arbeitsanweisung mit dem Stempel des Sägewerks. Am Rand hat jemand mit Bleistift etwas hinzugefügt.";male3
+00038 "Die Arbeitsanweisung:";male3
+00039 "ARBEITSANWEISUNG Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen. Der gesamte Wasserlauf ist der Turbine zuzuführen. Richard Brandt Bleistiftnotiz eines Arbeiters am Rand: „Das Mädchen von der Mühle hat uns gesehen. Sie sagt, sie hat alles in Hannes’ Buch geschrieben.“";male2
+00108 "Ein schwerer Messingschlüssel an einem Lederanhänger. In das Leder ist eingebrannt: „R. B. – Schreibtisch“.";male3
+00109 "Brandts Schreibtischschlüssel.";male3
+00110 "Du nimmst den Schlüssel vom Brett. Das Messing ist eiskalt.";male3
+00111 "Du legst den Schlüssel ab.";male3
+00040 "Ein kleiner, fensterloser Raum. Durch Ritzen im Dach fällt graues Licht in dünnen Streifen. An den Wänden stapeln sich verrottete Säcke. Es ist still hier, stiller als draußen. Auf einem Balken zwischen den Säcken liegt ein verblasstes Haarband. Es liegt ordentlich da, fast feierlich, als hätte es jemand mit Absicht hingelegt.";male3
+00041 "Der fensterlose Lagerraum.";male3
+00042 "Auf dieser Seite der Tür gibt es keinen Griff und keinen Riegel. Nur Holz. Und Kratzspuren, tief und dicht nebeneinander, in Brusthöhe. Manche sind dunkel verfärbt. Am Rahmen siehst du alte Kerben, älter als deine eigenen. Schon einmal hat jemand diese Tür von außen aufgebrochen.";male3
+00043 "Die zerkratzte Innenseite der Tür.";male3
+00044 "Ein Haarband aus blauem Stoff, längst grau geworden. In den Saum sind die Initialen „C. V.“ gestickt. Auf der Rückseite hat jemand mit Tinte eine Zeile geschrieben.";male3
+00045 "Claras Haarband:";male3
+00046 "„Wenn du das findest: hinter der dritten Wandbohle neben Vaters Schreibtisch.“";female1
+00112 "Eine niedrige Bruchsteinmauer umschließt den Kirchhof. Die Grabsteine stehen schief, viele sind umgekippt, die Namen von Flechten zerfressen. Krähen sitzen auf dem Dach der Kapelle und sehen dir zu, ohne einen Laut. Nahe dem Tor steht ein kleiner weißer Grabstein, sauberer als alle anderen. Außerhalb der Mauer, wo das Gras hoch und ungemäht steht, ragt ein einfaches Holzkreuz aus dem Boden.";male3
+00113 "Der stille Kirchhof. Die Krähen auf der Kapelle.";male3
+00114 "Ein kleiner weißer Stein, sauber wie der Gedenkstein auf dem Platz. „Clara Voss. Sechzehn Jahre. Vom Wasser genommen.“ Die Erde davor ist glatt und fest, als wäre sie nie aufgegraben worden.";male3
+00115 "Claras Grabstein. Die Erde davor ist unberührt.";male3
+00116 "Das Kreuz ist aus zwei Latten zusammengenagelt und steht schief. Kein Name, nur zwei Buchstaben, mit dem Messer eingeschnitten: „H. V.“ Darunter, kleiner und von einer anderen Hand: „Ich weiß es, Vater. C.“ Das Grab liegt außerhalb der Mauer. Nicht in geweihter Erde.";male3
+00117 "Das Holzkreuz außerhalb der Mauer. „H. V.“";male3
+00118 "Claras Brief liegt am Fuß des Kreuzes. Über dem Kirchhof ist der Nebel dünn geworden, und die Krähen sind fort.";male3
+00119 "Claras Brief am Kreuz. Der Nebel ist dünn.";male3
+00120 "Claras Brief liegt am Fuß des Kreuzes. Doch der Nebel hängt noch immer über der Mauer, als warte er auf etwas. Noch ist nicht alles verstanden, was in jener Nacht geschah.";male3
+00121 "Claras Brief am Kreuz. Der Nebel wartet.";male3
+00122 "Du ziehst Claras Brief hervor und legst ihn am Fuß des Kreuzes nieder, beschwert mit einem flachen Stein. Nach all den Jahren sind ihre Worte bei ihrem Vater.";male3
+00123 "Die Kapelle ist kalt und riecht nach Wachs und Mäusen. Die Bänke sind leer, der Altar ist mit einem grauen Tuch verhängt. Über dem Eingang hängt ein Glockenseil. Es bewegt sich leicht, obwohl hier drinnen kein Luftzug geht. Auf einem Lesepult neben der Sakristeitür liegt ein dickes Kirchenbuch.";male3
+00124 "Die kalte Kapelle. Das Seil bewegt sich leicht.";male3
+00125 "Das Seil ist trocken und fest. Oben im Turm hängt die Glocke, die du bei deiner Ankunft gehört hast. Der Staub auf dem Boden unter dem Seil ist unberührt. Hier hat seit Jahren niemand gestanden.";male3
+00126 "Der Staub unter dem Seil ist unberührt.";male3
+00127 "Das Kirchenbuch ist bei den Sterbefällen aufgeschlagen. Zwei Einträge hat der Pfarrer mit einem Lesezeichen markiert. Neben dem zweiten steht eine Randnotiz.";male3
+00128 "Die beiden markierten Einträge:";male3
+00129 "„Clara Voss, 16 Jahre. In der Nacht der großen Flut für tot erklärt. Ein Leichnam wurde nicht gefunden. Gedenkstein auf dem Kirchhof.“ „Hannes Voss, Müller. Sechs Jahre nach der Flut im Winter tot aufgefunden, allein in der Ruine seiner Mühle. Auf Beschluss des Gemeinderats, Vorsitz Richard Brandt, außerhalb der Mauer begraben.“ Randnotiz: „In der Nacht nach seinem Begräbnis kam der Nebel ins Tal. Er ist nicht wieder gegangen. Gott vergebe uns, was wir ihm angetan haben. Pfr. A. Lenz“";male1
+00130 "Das Haus ist das größte im Dorf, zwei Stockwerke aus Stein, mit Säulen am Eingang, die hier niemand gebraucht hätte. Die Haustür ist nicht verschlossen. In der Eingangshalle hängt ein großes Ölgemälde. Der Teppich ist schwarz vor Schimmel. Eine Tür führt in ein Arbeitszimmer.";male3
+00131 "Die modrige Eingangshalle. Das Gemälde an der Wand.";male3
+00132 "Ein Mann in dunklem Anzug, die Hand auf einem Stapel Papiere. Breite Schultern, schmale Lippen. Auf dem Rahmen ein Messingschild: „Richard Brandt, Sägewerksbesitzer und Vorsitzender des Gemeinderats“. Der Maler hat sich Mühe gegeben, ihn würdevoll aussehen zu lassen. Nur die Augen sind ihm nicht gelungen. Sie sehen an dir vorbei zur Tür, als würde Brandt auf jemanden warten.";male3
+00213 "Richard Brandt sieht zur Tür.";male3
+00134 "Bücherregale bis zur Decke, die Bücher aufgequollen und verklebt. Am Fenster steht ein schwerer Schreibtisch aus Eiche. Über dem Sessel davor liegt ein Mantel, als hätte ihn jemand eben erst abgelegt. Die Luft ist kalt und abgestanden. Der Schreibtisch hat eine einzige Schublade mit einem Messingschloss.";male3
+00135 "Das kalte Arbeitszimmer. Der Mantel auf dem Sessel.";male3
+00136 "Die Schublade ist verschlossen. Das Messingschloss ist blank, das einzige Metall in diesem Haus, das nicht angelaufen ist. Ohne den passenden Schlüssel bekommst du sie nicht auf.";male3
+00217 "Verschlossen.";male3
+00138 "Der Schlüssel passt. Das Schloss springt mit einem trockenen Klicken auf. In der Schublade liegen nur zwei Dinge: eine sorgfältig gefaltete Rechnung und ein Brief ohne Umschlag.";male3
+00139 "Die offene Schublade.";male3
+00140 "Eine Rechnung auf gutem Papier, mit dem Briefkopf eines Steinmetzbetriebs aus der Stadt.";male3
+00141 "Die Rechnung des Steinmetzes:";male3
+00142 "„Für Herrn Richard Brandt, Mühlbach. Ein Gedenkstein, grauer Granit, mit Sockel. Inschrift nach Ihrem persönlichen Diktat. Stifterzeile auf dem Sockel. Betrag dankend erhalten.“";male3
+00143 "Ein Brief ohne Umschlag. Die Handschrift ist groß und herrisch, aber gegen Ende zittert sie.";male3
+00144 "Brandts Brief:";male3
+00145 "„Hannes, ich schreibe dir, obwohl du tot bist. Es gibt sonst niemanden mehr, dem ich es schreiben könnte. Ich habe sie gesehen. Vor ein paar Tagen, im Regen, an der Mühle. Eine Frau mit deinen Augen. Die Leute sagen, es war ein Geist. Ich weiß, dass es keiner war. Du hast sie gerettet und dafür die Schuld getragen, die meine war. Ich habe den Kanal schließen lassen. Ich habe das Mädchen eingesperrt. Ich habe den Stein bestellt und jedes Wort darauf gewählt. Die anderen gehen fort, einer nach dem anderen. Mich hält der Nebel fest. Ich glaube, er wartet darauf, dass ich es jemandem sage. Aber ich kann es nicht. R. B.“";male2

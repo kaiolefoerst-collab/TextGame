@@ -62,13 +62,13 @@ const FIELD_INFO = {
   },
   takeText: {
     label: 'Meldung beim Aufnehmen',
-    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand ins Inventar legt (wird nicht vorgelesen).\n'
+    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand ins Inventar legt. Wird vorgelesen (nach dem Erzeugen der Sprachdateien).\n'
       + 'Leer lassen = „Du nimmst „Name“ an dich.“',
     placeholder: 'z.B. Du steckst den rostigen Schlüssel ein.',
   },
   dropText: {
     label: 'Meldung beim Ablegen',
-    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand wieder ablegt (wird nicht vorgelesen).\n'
+    tip: 'Kurze Meldung, wenn der Spieler diesen Gegenstand wieder ablegt. Wird vorgelesen (nach dem Erzeugen der Sprachdateien).\n'
       + 'Leer lassen = „Du legst „Name“ hier ab.“',
     placeholder: 'z.B. Du legst den Schlüssel vorsichtig auf den Tisch.',
   },

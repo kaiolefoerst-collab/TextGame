@@ -1,0 +1,50 @@
+{
+  "nebelweg": {
+    "x": 60,
+    "y": 260
+  },
+  "village_square_present": {
+    "x": 330,
+    "y": 260
+  },
+  "gasthaus": {
+    "x": 330,
+    "y": 60
+  },
+  "mill_ruin_present": {
+    "x": 600,
+    "y": 130
+  },
+  "radkammer": {
+    "x": 860,
+    "y": 60
+  },
+  "sawmill_ruin_present": {
+    "x": 600,
+    "y": 400
+  },
+  "sawmill_office_present": {
+    "x": 860,
+    "y": 330
+  },
+  "old_store_room_present": {
+    "x": 860,
+    "y": 480
+  },
+  "kirchhof": {
+    "x": 330,
+    "y": 470
+  },
+  "kapelle": {
+    "x": 330,
+    "y": 640
+  },
+  "brandt_haus": {
+    "x": 80,
+    "y": 470
+  },
+  "arbeitszimmer": {
+    "x": 80,
+    "y": 640
+  }
+}

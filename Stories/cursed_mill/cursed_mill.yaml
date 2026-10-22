@@ -4,7 +4,9 @@
 #   layers: bekannte Ebenen dieser Geschichte.
 #   resolution: globale Abschlussbedingung (Kapitel D05 des Elementkatalogs).
 #   elements: alle physischen und reinen Story-Elemente.
-# Konditionstypen: stateEquals[elementId,property,value], partOfExists[elementId,target], partOfMissing[elementId,target]
+# Konditionstypen: stateEquals[elementId,property,value], partOfExists[elementId,target], partOfMissing[elementId,target],
+#                  inInventory elementId, notInInventory elementId,
+#                  inInventory elementId, notInInventory elementId
 # Effekttypen: discoverFragment, revealElement, hideElement, addPartOf[elementId,target], removePartOf[elementId,target],
 #              replacePartOf{elementId,remove,add}, setElementState[elementId,property,value], setLocatedIn[elementId,value],
 #              setCurrentElement, showText, showTextFrom("elementId.messages.Name"), disableSelfTrigger, disableTrigger[elementId,triggerId],
@@ -15,11 +17,30 @@ header:
   title: Die verfluchte Mühle
   author: Kai Olefoerst
   version: 1
-  teaser: Ein verlassenes Mühlendorf, dichter Nebel, der niemanden hinauslässt - und eine vierzig Jahre
-    alte Flutkatastrophe, die anders geschah, als der Gedenkstein behauptet.
+  teaser: Ein Dorf im Nebel, aus dem kein Weg hinausführt. Ein Gedenkstein, der lügt. Und eine Flut, die
+    vor vierzig Jahren anders geschah, als alle glauben.
   partOf: null
   chapterIndex: null
-  startElement: village_square_present
+  startElement: nebelweg
+  narratorVoice: male3
+  imageMasterPrompt: |-
+    Alle Bilder gehören zu derselben Geschichte und müssen aussehen wie Standbilder aus einem einzigen Film.
+
+    Bildstil: fotorealistisch und filmisch, wie mit einer Kinokamera auf Augenhöhe aufgenommen, natürliche Perspektive, feine Filmkörnung, geringe Schärfentiefe nur bei Nahaufnahmen. Keine Illustration, keine Malerei, kein Comic, keine Fantasy, keine Monster, keine übernatürlichen Erscheinungen. Das Unheimliche entsteht allein durch Leere, Nebel, Licht und Verfall.
+
+    Ort: Mühlbach, ein seit Jahrzehnten verlassenes Dorf in einem bewaldeten Flusstal in Mitteleuropa. Fachwerkhäuser mit dunklem Balkenwerk und Schieferdächern, Wege aus Kopfsteinpflaster oder Kies, Mauern aus grauem Bruchstein. Gebäude, Möbel und Gegenstände stammen aus der ersten Hälfte des 20. Jahrhunderts. Nichts Modernes: keine Autos, keine Stromleitungen, kein Plastik.
+
+    Wetter und Licht, in allen Außenbildern gleich: dichter grauer Nebel, bedeckter Himmel ohne Sonne und ohne Blau. Alles ist nass, aber es fällt kein Regen. Tageszeit unbestimmt, fahles, diffuses Licht ohne harte Schatten. Innenräume sind dämmrig: fahles Tageslicht durch schmutzige Fenster oder Ritzen, Staub in der Luft. Warmes Licht gibt es nur, wenn der Detailprompt eine brennende Laterne ausdrücklich nennt.
+
+    Farben: entsättigt und einheitlich gegradet, kühles Grau, Graugrün, Moosgrün, nasses Dunkelbraun, Schwarz. Keine kräftigen Farben.
+
+    Materialien: verwitterter Stein, nasses dunkles Holz, Rost, Moos, Flechten, Schlamm, vergilbtes Papier. Alles ist alt und verfallen, aber glaubwürdig.
+
+    Personen: Niemals Menschen, Gestalten, Silhouetten, Hände oder Gesichter, auch nicht schemenhaft im Hintergrund. Einzige Ausnahme ist ein gemaltes Porträt, wenn der Detailprompt es ausdrücklich verlangt.
+
+    Schrift: Lesbare Schrift erscheint nur, wenn der Detailprompt den Wortlaut in Anführungszeichen vorgibt, dann genau dieser Wortlaut ohne weitere Wörter. Alle anderen Inschriften und Schriftstücke sind nur als unleserliche Zeilen angedeutet.
+
+    Der Detailprompt beschreibt das Motiv verbindlich und hat Vorrang, wo er von diesen Regeln abweicht.
 layers:
 - id: present
   name: Gegenwart
@@ -32,162 +53,223 @@ layers:
   description: Claras heimliche Rückkehr zwölf Jahre nach der Flut.
 resolution:
   conditions:
-  - partOfExists:
-    - richard_brandt_past
-    - illegal_channel_closure
-  - partOfExists:
-    - hannes_past
-    - emergency_opening
-  - partOfExists:
-    - clara_past
-    - clara_imprisonment
-  - partOfExists:
-    - clara_past
-    - clara_survived_story
-  - partOfExists:
-    - clara_past
-    - clara_secret_return
-  - partOfMissing:
-    - hannes_past
-    - hannes_guilt_rumor
-  - partOfMissing:
-    - clara_past
-    - clara_death_story
+  - stateEquals:
+    - ermittlung
+    - kanal
+    - true
+  - stateEquals:
+    - ermittlung
+    - notwehr
+    - true
+  - stateEquals:
+    - ermittlung
+    - stein
+    - true
+  - stateEquals:
+    - hannes_grab
+    - brief
+    - true
   effects:
-  - setElementState:
-    - case_resolution
-    - visible
-    - true
-  - setElementState:
-    - case_resolution
-    - complete
-    - true
-  - setElementState:
-    - case_cursed_mill
-    - resolved
-    - true
   - setElementState:
     - cursed_site_present
     - curseActive
     - false
-  - setElementState:
-    - road_out_present
-    - blockedByCurse
-    - false
-  - showTextFrom: case_resolution.messages.Auflösungstext
+  - hideElement: lb_nebel
+  - hideElement: lb_offen_grab
+  - revealElement: lb_wahrheit
+  - showTextFrom: ermittlung.messages.Auflösung
 elements:
 - id: player
-  name: Ich
+  name: Inventar
   type: player
   physical: true
   layers:
   - present
-  locatedIn: village_square_present
-  initialState: {}
+  locatedIn: null
+  initialState:
+    visible: true
   initialPartOf: []
   presentation:
-    firstView: Du durchsuchst deine Habseligkeiten.
-    repeatView: Du durchsuchst erneut deine Habseligkeiten.
-- id: cursed_site_present
-  name: Verlassenes Mühlendorf
-  type: location
-  physical: true
+    firstView: Du durchsuchst deine Taschen.
+- id: ermittlung
+  name: Stand der Ermittlung
+  type: story
+  physical: false
   layers:
   - present
   locatedIn: null
-  image: Dichter, undurchdringlicher Nebel umschließt ein verlassenes Dorf mit einer zerstörten Wassermühle
-    in der Ferne. Düstere, melancholische Stimmung, keine Menschen sichtbar, gedämpftes Licht.
+  initialPartOf: []
+  initialState:
+    visible: true
+    kanal: false
+    notwehr: false
+    stein: false
+    eingesperrt: false
+    lebt: false
+  messages:
+    Auflösung: |-
+      Irgendwo im Tal schlägt die Glocke. Einmal, lang und tief. Dann wird es still, und du merkst, dass sich etwas verändert hat. Der Nebel bewegt sich. Er zieht ab, langsam, wie Wasser, das nach einer Flut zurückweicht.
+
+      Der Weg aus dem Dorf ist frei.
+- id: cursed_site_present
+  name: Mühlbach im Nebel
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialPartOf: []
   initialState:
     visible: true
     curseActive: true
-    investigation: open
-  initialPartOf:
-  - case_cursed_mill
-  presentation:
-    firstView: Dichter Nebel umschließt das verlassene Gelände und verhindert jede Sicht auf die Umgebung.
-    repeatView: Der Nebel liegt weiterhin wie eine geschlossene Wand um das Gelände.
-  fragments:
-  - id: f_site_fog
-    fact: Dichter Nebel umschließt das Gelände und verhindert die Abreise.
-    assumption: Der Ort scheint mich festzuhalten, bis ich etwas verstanden habe.
-- id: village_square_present
-  name: Verlassener Dorfplatz
+- id: nebelweg
+  name: Landstraße im Nebel
   type: location
   physical: true
   layers:
   - present
   locatedIn: null
-  exitLabel: Gelände verlassen
-  image: Ein kleiner, verlassener Dorfplatz mit feuchten Pflastersteinen, die am Rand im Nebel verschwinden.
-    Ein alter, moosbewachsener Gedenkstein steht in der Mitte, verlassene Fachwerkhäuser im Hintergrund,
-    dichter Nebel.
   initialState:
     visible: true
-    investigation: open
-  initialPartOf:
-  - case_cursed_mill
+  initialPartOf: []
   presentation:
-    firstView: Du stehst auf einem kleinen, verlassenen Dorfplatz. Feuchte Pflastersteine verschwinden
-      am Rand im dichten Nebel. In der Mitte steht ein alter Gedenkstein.
-    repeatView: Du stehst wieder auf dem feuchten Dorfplatz. Der Nebel liegt unbeweglich zwischen den
-      verlassenen Häusern.
-  fragments:
-  - id: f_square_abandoned
-    fact: Der Dorfplatz ist verlassen; nur der alte Gedenkstein wird noch gepflegt.
-    assumption: Die Überschwemmung scheint das zentrale Ereignis dieses Ortes gewesen zu sein.
+    firstView: |-
+      Seit der Wagen am Waldrand liegen geblieben ist, gehst du zu Fuß. Eine Stunde schon, vielleicht länger. Mit jedem Schritt wird der Nebel dichter.
+
+      Irgendwann hört der Asphalt auf. Unter deinen Schuhen knirschen Kies und nasses Laub. Kein Vogel, kein Wind. Nur das Rauschen von Wasser, irgendwo links von dir im Grau.
+
+      Dann taucht ein schiefes Ortsschild aus dem Nebel auf. Die Buchstaben sind kaum noch zu lesen: Mühlbach.
+    repeatView: 'Das schiefe Ortsschild: Mühlbach.'
+  image: Eine schmale Landstraße aus Kies und nassem Laub führt geradeaus in dichten grauen Nebel. Links
+    neben dem Weg ist im Nebel ein Fluss nur zu erahnen. Rechts am Wegrand steht ein schiefes, verwittertes
+    Ortsschild aus Blech auf einem Holzpfosten mit der verblassten Aufschrift „Mühlbach“. Kahle Bäume
+    als dunkle Silhouetten im Nebel.
+- id: weg_ins_dorf
+  name: Ins Dorf gehen
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: nebelweg
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_ins_dorf
+    enabled: true
+    effects:
+    - setCurrentElement: village_square_present
+  cutscene:
+    onlyOnce: true
+    buttonLabel: Weiter
+    text: |-
+      Du gehst an dem Schild vorbei. Hinter dir schließt sich der Nebel wie ein Vorhang.
+
+      Nach ein paar Dutzend Schritten drehst du dich um. Der Weg, auf dem du gekommen bist, ist verschwunden. Nicht verdeckt. Verschwunden. Wo eben noch die Straße war, steht nur graue, nasse Stille.
+
+      Aus der Ferne schlägt eine Kirchenglocke. Einmal. Dann nichts mehr.
+    image: Blick zurück auf einen Kiesweg mit nassem Laub. Wenige Meter hinter dem Betrachter endet der
+      Weg abrupt in einer undurchdringlichen, gleichmäßig grauen Nebelwand. Kein Horizont, keine Bäume,
+      nur Grau. Am Rand der Nebelwand ist ein schiefes, verwittertes Ortsschild aus Blech auf einem Holzpfosten,
+      von hinten gesehen, nur noch als schwacher Umriss zu erahnen.
+- id: village_square_present
+  name: Dorfplatz von Mühlbach
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Ein kleiner Platz, gesäumt von Fachwerkhäusern mit eingesunkenen Dächern. Hinter den blinden Fenstern rührt sich nichts. Auf dem Pflaster liegt ein feuchter Film, als hätte es eben erst geregnet. Doch es fällt kein Tropfen.
+
+      In der Mitte steht ein Gedenkstein. Er ist der einzige Stein auf dem ganzen Platz, auf dem kein Moos wächst.
+
+      Wege führen in alle Richtungen: hinunter zum Fluss, wo die Mühle stehen muss, zum Sägewerk, zum Kirchhof und hinauf zu einem großen Haus am Hang. Gegenüber hängt das Schild eines Gasthauses.
+    repeatView: Der stille Platz. In der Mitte der Gedenkstein.
+  image: Ein kleiner Dorfplatz aus nassem, glänzendem Kopfsteinpflaster, gesäumt von verlassenen Fachwerkhäuser
+    mit dunklem, verwittertem Balkenwerk, grau verschmutzten Gefachen, eingesunkenen Schieferdächern und
+    blinden Fenstern. In der Mitte des Platzes steht eine schlanke, aufrechte, etwa mannshohe Stele aus
+    grauem Granit auf einem quadratischen Sockel, auffallend sauber und ohne Moos; alle anderen Steine
+    ringsum sind von Moos überzogen. Am Rand hängt an einem eisernen Ausleger ein verwittertes Wirtshausschild
+    mit einem geschnitzten Mühlrad, ohne Schrift. Mehrere Gassen verlieren sich im dichten Nebel, am Hang
+    darüber zeichnet sich schwach ein großes Steinhaus ab.
 - id: memorial_stone_present
   name: Gedenkstein der Flut
-  type: object
+  type: inscription
   physical: true
   layers:
   - present
   locatedIn: village_square_present
-  image: Ein alter, verwitterter Gedenkstein aus grauem Stein mit einer moosbedeckten Inschrift, darunter
-    eine zweite, später eingeritzte Zeile in unregelmäßigerer Schrift.
   initialState:
     visible: true
-    investigation: open
-  initialPartOf:
-  - official_flood_story
+  initialPartOf: []
   presentation:
-    contentText: |
-      Zum Gedenken an Clara Voss, die in der großen Flut ihr Leben verlor.
-      Verursacht durch die schuldhafte Bedienung des Mühlenwehrs durch ihren Vater Hannes Voss.
+    firstView: Der Stein ist sauber, als würde ihn jemand jede Woche abwaschen. Die Inschrift ist tief
+      und ordentlich gemeißelt. Darunter hat jemand später einen Satz in den Stein gekratzt, mit unruhiger
+      Hand und einem Werkzeug, das dafür nicht gemacht war. Auf dem Sockel steht klein der Name des Stifters.
+    repeatView: 'Der Gedenkstein:'
+    contentText: |-
+      ZUM GEDENKEN AN CLARA VOSS,
+      die in der großen Flut ihr junges Leben verlor.
+      Verursacht durch die schuldhafte Bedienung des Mühlenwehrs
+      durch ihren Vater Hannes Voss.
 
-      Später eingeritzt:
-      "Die Wahrheit liegt noch immer im Wasser."
-    firstView: Du wischst Moos von der verwitterten Inschrift. Unter dem offiziellen Text wurde später
-      ein weiterer Satz eingeritzt.
-    repeatView: Die Inschrift und der später eingeritzte Satz sind bereits vollständig lesbar.
+      Später eingekratzt:
+      „Die Wahrheit liegt noch immer im Wasser.“
+
+      Auf dem Sockel:
+      Gestiftet von Richard Brandt
   fragments:
   - id: f_memorial_text
-    fact: Der Stein nennt Clara Voss als Opfer und Hannes Voss als Verursacher der Flut.
-    assumption: Der Müller verursachte die Katastrophe, bei der seine Tochter starb.
-  - id: f_memorial_scratched_sentence
-    fact: Unter der Inschrift steht eingeritzt "Die Wahrheit liegt noch immer im Wasser."
-    assumption: Jemand zweifelte an der offiziellen Darstellung der Flut.
+    fact: Der Gedenkstein nennt Clara Voss als Opfer der Flut und ihren Vater Hannes als Schuldigen.
+    assumption: Der Müller hat die Katastrophe verursacht, bei der seine eigene Tochter starb.
+  - id: f_memorial_scratched
+    fact: 'Unter der Inschrift ist später eingekratzt: „Die Wahrheit liegt noch immer im Wasser.“'
+    assumption: Jemand hat der offiziellen Geschichte nicht geglaubt.
+  - id: f_memorial_donor
+    fact: Gestiftet hat den Stein Richard Brandt.
+    assumption: Brandt muss im Dorf ein angesehener Mann gewesen sein.
   onUse:
-  - id: use_memorial_first
+  - id: stein_gelesen
     enabled: true
     effects:
     - discoverFragment: f_memorial_text
-    - discoverFragment: f_memorial_scratched_sentence
-    - revealElement: official_flood_story
-    - revealElement: hannes_guilt_rumor
-    - revealElement: clara_death_story
-    - addPartOf:
-      - hannes_past
-      - hannes_guilt_rumor
-    - addPartOf:
-      - clara_past
-      - clara_death_story
-    - setElementState:
-      - memorial_stone_present
-      - investigation
-      - complete
-    - disableSelfTrigger: use_memorial_first
+    - discoverFragment: f_memorial_scratched
+    - discoverFragment: f_memorial_donor
+    - disableSelfTrigger: stein_gelesen
+  - id: stein_offiziell
+    enabled: true
+    effects:
+    - revealElement: lb_offiziell
+    - disableSelfTrigger: stein_offiziell
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  - id: stein_frage_wehr
+    enabled: true
+    effects:
+    - revealElement: lb_frage_wehr
+    - disableSelfTrigger: stein_frage_wehr
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - notwehr
+      - false
+  image: 'Nahaufnahme: eine schlanke, aufrechte, etwa mannshohe Stele aus grauem Granit auf einem quadratischen
+    Sockel, auffallend sauber und ohne Moos, auf nassem, moosbewachsenem Kopfsteinpflaster. Auf der Vorderseite
+    tief und ordentlich gemeißelt: „ZUM GEDENKEN AN CLARA VOSS, / die in der großen Flut ihr junges Leben
+    verlor. / Verursacht durch die schuldhafte Bedienung des Mühlenwehrs / durch ihren Vater Hannes Voss.“
+    Darunter grob und unregelmäßig in den Stein gekratzt: „Die Wahrheit liegt noch immer im Wasser.“ Auf
+    dem Sockel klein gemeißelt: „Gestiftet von Richard Brandt“. Im Hintergrund unscharf Fachwerkhäuser
+    im Nebel.'
 - id: path_to_mill
-  name: Weg zur Mühle
+  name: Hinunter zur Mühle
   type: door
   physical: true
   layers:
@@ -197,12 +279,12 @@ elements:
     visible: true
   initialPartOf: []
   onUse:
-  - id: enter_mill
+  - id: go_path_to_mill
     enabled: true
     effects:
     - setCurrentElement: mill_ruin_present
 - id: path_to_sawmill
-  name: Weg zum Sägewerk
+  name: Zum Sägewerk
   type: door
   physical: true
   layers:
@@ -212,10 +294,55 @@ elements:
     visible: true
   initialPartOf: []
   onUse:
-  - id: enter_sawmill
+  - id: go_path_to_sawmill
     enabled: true
     effects:
     - setCurrentElement: sawmill_ruin_present
+- id: weg_platz_gasthaus
+  name: Ins Gasthaus
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: village_square_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_platz_gasthaus
+    enabled: true
+    effects:
+    - setCurrentElement: gasthaus
+- id: weg_platz_kirchhof
+  name: Zum Kirchhof
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: village_square_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_platz_kirchhof
+    enabled: true
+    effects:
+    - setCurrentElement: kirchhof
+- id: weg_platz_brandthaus
+  name: Hinauf zum Haus am Hang
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: village_square_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_platz_brandthaus
+    enabled: true
+    effects:
+    - setCurrentElement: brandt_haus
 - id: road_out_present
   name: Weg aus dem Dorf
   type: door
@@ -225,35 +352,236 @@ elements:
   locatedIn: village_square_present
   initialState:
     visible: true
-    blockedByCurse: true
-  initialPartOf:
-  - curse_of_place
+    versucht: false
+  initialPartOf: []
   presentation: {}
+  messages:
+    Im Kreis: |-
+      Du folgst dem Weg aus dem Dorf hinaus. Der Nebel wird dichter, das Pflaster weicher, deine Schritte leiser. Nach einer Weile tauchen vor dir Fachwerkhäuser auf. Ein Platz. Ein Gedenkstein.
+
+      Du bist im Kreis gegangen. Obwohl der Weg schnurgerade war.
+    Wieder im Kreis: Wieder der Dorfplatz. Der Nebel lässt dich nicht gehen.
+    Abschied: |-
+      Später wirst du versuchen, Mühlbach auf einer Karte zu finden. Du wirst es nicht finden.
+
+      Aber du wirst dich erinnern. An einen Gedenkstein, auf dem eine Lüge steht, und an ein Holzkreuz an einer Friedhofsmauer, an dem jetzt ein Brief liegt. An Hannes Voss, der seine Mühle opferte und seinen guten Namen dazu. An Clara, die überlebte und zu spät zurückkam. Und an Richard Brandt, der die Wahrheit kannte und mit ihr allein blieb, bis der Nebel ihn nicht mehr hergab.
+
+      Die Wahrheit lag im Wasser. Jetzt liegt sie bei dir.
   onUse:
-  - id: exit_blocked
+  - id: ausgang_wieder
     enabled: true
     conditions:
-    - stateEquals:
+    - &id001
+      stateEquals:
       - cursed_site_present
       - curseActive
       - true
+    - stateEquals:
+      - road_out_present
+      - versucht
+      - true
     effects:
-    - showTextFrom: road_out_present.messages.Weg versperrt
+    - showTextFrom: road_out_present.messages.Wieder im Kreis
     - setCurrentElement: village_square_present
-  - id: exit_released
+  - id: ausgang_erstmals
     enabled: true
     conditions:
-    - stateEquals:
+    - *id001
+    effects:
+    - showTextFrom: road_out_present.messages.Im Kreis
+    - setElementState:
+      - road_out_present
+      - versucht
+      - true
+    - setCurrentElement: village_square_present
+    - disableSelfTrigger: ausgang_erstmals
+  - id: ausgang_frei
+    enabled: true
+    conditions:
+    - &id002
+      stateEquals:
       - cursed_site_present
       - curseActive
       - false
     effects:
-    - showTextFrom: road_out_present.messages.Abschiedstext
+    - showTextFrom: road_out_present.messages.Abschied
     - finishGame: true
-  messages:
-    Weg versperrt: Der Weg verschwindet im Nebel. Wenige Schritte später stehst du auf dem Dorfplatz.
-    Abschiedstext: Du folgst dem Weg aus dem Dorf. Der Gedenkstein verschwindet hinter dir, und der Ort
-      zieht dich nicht zurück. Die Geschichte der verfluchten Mühle ist abgeschlossen.
+  cutscene:
+    onlyOnce: true
+    buttonLabel: Weiter
+    text: |-
+      Diesmal trägt dich der Weg. Mit jedem Schritt wird der Nebel dünner, und zum ersten Mal hörst du wieder etwas anderes als Wasser: einen Vogel, dann den Wind in den Bäumen.
+
+      Am Ortsschild bleibst du stehen und schaust zurück. Über dem Tal liegt nur noch ein heller Schleier. Darunter, klein und grau, die Mühle am Fluss.
+
+      Die Glocke schweigt.
+    image: Blick von einem Hang zurück in ein bewaldetes Flusstal. Im Vordergrund am Wegrand ein schiefes,
+      verwittertes Ortsschild aus Blech auf einem Holzpfosten, von hinten gesehen. Der Nebel liegt nur
+      noch als heller, dünner Schleier über dem Tal, der Himmel ist hell bedeckt. Unten im Tal klein ein
+      verlassenes Dorf aus Fachwerkhäusern, eine kleine Kapelle aus grauem Bruchstein mit einem schmalen
+      Glockentürmchen und Schieferdach und am Fluss die Ruine einer Wassermühle mit schiefem Wasserrad.
+      Ausnahmsweise heller und ruhiger als alle anderen Bilder, melancholisch, ein Hauch von Erleichterung.
+- id: gasthaus
+  name: Gasthaus Zum Mühlrad
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Die Tür steht einen Spalt offen. Drinnen riecht es nach kaltem Rauch und nassem Holz. Die Stühle stehen umgedreht auf den Tischen, als hätte der Wirt nur kurz zugesperrt und wäre nie zurückgekommen.
+
+      Auf der Theke liegt ein aufgeschlagenes Gästebuch. Dahinter hängt eine alte Laterne an einem Haken. Neben der Tür ist ein vergilbter Aushang an die Wand genagelt.
+    repeatView: Die stille Gaststube.
+  image: 'Die Gaststube eines verlassenen Dorfgasthauses: dunkle Holzdielen, schwere Holztische, auf denen
+    umgedrehte Stühle stehen. Eine lange hölzerne Theke, darauf ein aufgeschlagenes dickes Buch. Hinter
+    der Theke hängt an einem Haken eine schwarze Sturmlaterne aus Blech mit Glaszylinder und Drahtbügel,
+    nicht angezündet. Neben der Eingangstür ein vergilbter Papierzettel, mit vier Nägeln an die Holzwand
+    geschlagen. Die Tür steht einen Spalt offen, draußen Nebel. Fahles Licht durch beschlagene Fenster,
+    Staub.'
+- id: weg_gasthaus_platz
+  name: Hinaus auf den Dorfplatz
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: gasthaus
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_gasthaus_platz
+    enabled: true
+    effects:
+    - setCurrentElement: village_square_present
+- id: laterne
+  name: Alte Laterne
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: gasthaus
+  initialState:
+    visible: true
+  initialPartOf: []
+  portable: true
+  presentation:
+    firstView: Eine Sturmlaterne aus schwarzem Blech. Im Tank schwappt noch Petroleum. Mit ihr ließe sich
+      auch ein dunkler Raum ausleuchten.
+    repeatView: Die Sturmlaterne.
+    takeText: Du nimmst die Laterne vom Haken und zündest sie an. Der Docht nimmt die Flamme sofort an,
+      als hätte er darauf gewartet.
+    dropText: Du stellst die Laterne ab. Ihr Licht flackert und wird kleiner.
+  stateTexts:
+  - id: laterne_getragen
+    conditions:
+    - inInventory: laterne
+    firstView: Die Laterne brennt ruhig in deiner Hand. Ihr Licht reicht ein paar Schritte weit in jede
+      Dunkelheit.
+    repeatView: Die Laterne brennt.
+  image: 'Nahaufnahme: eine schwarze Sturmlaterne aus Blech mit Glaszylinder und Drahtbügel, nicht angezündet,
+    hängt an einem Haken an einer dunklen Holzwand hinter einer staubigen Theke. Im Tank ist ein Rest
+    Petroleum zu erahnen. Daneben verstaubte Flaschen auf einem Regal, Spinnweben.'
+- id: gaestebuch
+  name: Gästebuch
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: gasthaus
+  initialState:
+    visible: true
+  initialPartOf: []
+  exitLabel: Buch zuklappen
+  contentVoice: male1
+  presentation:
+    firstView: Das Gästebuch ist an einer Stelle aufgeschlagen, an der seit Langem niemand weitergeblättert
+      hat. Der letzte Eintrag ist achtundzwanzig Jahre alt. Darunter hat der Wirt etwas mit Bleistift
+      notiert.
+    repeatView: 'Der letzte Eintrag im Gästebuch:'
+    contentText: |-
+      „C. Hartmann. Auf der Durchreise. Ein Zimmer für eine Nacht.“
+
+      Darunter, in der Handschrift des Wirts:
+      „Die Fremde fragte nach der Mühle und nach dem Grab des Müllers. In der Nacht ging sie hinaus in den Regen. Am Morgen war das Zimmer leer, das Bett unberührt. Seitdem erzählen die Leute von der Frau im Regen. Ich sage nichts dazu. Aber sie hatte die Augen von Hannes.“
+  fragments:
+  - id: f_guest_hartmann
+    fact: Vor achtundzwanzig Jahren übernachtete eine C. Hartmann im Gasthaus und fragte nach der Mühle
+      und dem Grab des Müllers.
+    assumption: Die „Frau im Regen“ hatte eine Verbindung zu Hannes Voss.
+  onUse:
+  - id: gaestebuch_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_guest_hartmann
+    - disableSelfTrigger: gaestebuch_gelesen
+  - id: gaestebuch_geruecht
+    enabled: true
+    effects:
+    - revealElement: lb_frau_im_regen
+    - disableSelfTrigger: gaestebuch_geruecht
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  image: 'Nahaufnahme eines aufgeschlagenen, vergilbten Gästebuchs auf einer staubigen hölzernen Theke,
+    daneben ein eingetrocknetes Tintenfass mit Feder. Auf der rechten Seite oben ein kurzer Eintrag mit
+    Tinte: „C. Hartmann. Auf der Durchreise. Ein Zimmer für eine Nacht.“ Darunter eine längere Notiz mit
+    Bleistift in anderer Handschrift: „Die Fremde fragte nach der Mühle und nach dem Grab des Müllers.
+    In der Nacht ging sie hinaus in den Regen. Am Morgen war das Zimmer leer, das Bett unberührt. Seitdem
+    erzählen die Leute von der Frau im Regen. Ich sage nichts dazu. Aber sie hatte die Augen von Hannes.“
+    Wo die Schrift zu klein ist, darf sie unscharf werden.'
+- id: aushang
+  name: Aushang an der Wand
+  type: inscription
+  physical: true
+  layers:
+  - present
+  locatedIn: gasthaus
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Ein Zettel, mit vier rostigen Nägeln an die Wand geschlagen. Das Papier ist gelb und wellig,
+      die Schrift amtlich.
+    repeatView: 'Der Aushang:'
+    contentText: |-
+      BEKANNTMACHUNG DES GEMEINDERATS
+
+      Dem Müller Hannes Voss, durch dessen Schuld die Flut über Mühlbach kam, ist im Ort weder Arbeit noch Brot zu geben. Wer ihm hilft, stellt sich gegen die Gemeinde.
+
+      Für den Gemeinderat:
+      Richard Brandt, Vorsitzender
+  fragments:
+  - id: f_aushang
+    fact: Der Gemeinderat unter Richard Brandt verbot, Hannes Voss Arbeit oder Brot zu geben.
+    assumption: Hannes wurde nach der Flut aus dem Dorf ausgestoßen.
+  onUse:
+  - id: aushang_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_aushang
+    - disableSelfTrigger: aushang_gelesen
+  - id: aushang_frage
+    enabled: true
+    effects:
+    - revealElement: lb_frage_brandt
+    - disableSelfTrigger: aushang_frage
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - stein
+      - false
+  image: 'Nahaufnahme eines vergilbten, welligen Papierzettels in amtlichem Druck, mit vier rostigen Nägeln
+    an eine dunkle Holzwand geschlagen. Die Schrift ist lesbar und lautet genau: „BEKANNTMACHUNG DES GEMEINDERATS
+    / Dem Müller Hannes Voss, durch dessen Schuld die Flut über Mühlbach kam, ist im Ort weder Arbeit
+    noch Brot zu geben. Wer ihm hilft, stellt sich gegen die Gemeinde. / Für den Gemeinderat: / Richard
+    Brandt, Vorsitzender“. Wo sie zu klein ist, darf sie unscharf werden. Schatten, Staub.'
 - id: mill_ruin_present
   name: Ruine der Wassermühle
   type: location
@@ -261,36 +589,82 @@ elements:
   layers:
   - present
   locatedIn: null
-  exitLabel: Mühle verlassen
-  image: Eine halb eingestürzte, alte Wassermühle mit einem großen Wasserrad. Die stärksten Schäden liegen
-    auf der flussabgewandten Seite, als sei eine gewaltige Wassermenge mitten durch das Gebäude geströmt.
-    Moos und Schlamm überall.
   initialState:
     visible: true
-    investigation: open
-    currentHint: null
-    neue_spur: false
-  initialPartOf:
-  - case_cursed_mill
-  - history_mill
+  initialPartOf: []
   presentation:
-    firstView: Der Weg endet an einer halb eingestürzten Wassermühle. Die stärksten Schäden befinden sich
-      auf der flussabgewandten Seite. Es wirkt, als sei eine gewaltige Wassermenge mitten durch die Mühle
-      geströmt.
-    repeatView: Du stehst wieder zwischen den eingestürzten Balken der alten Mühle.
-  fragments:
-  - id: f_mill_damage
-    fact: Die stärksten Schäden liegen auf der flussabgewandten Seite der Mühle.
-    assumption: Die Mühle wurde von einer gewaltigen Wassermenge durchströmt.
+    firstView: |-
+      Der Weg fällt steil zum Fluss ab. Unten steht die Mühle, oder was die Flut von ihr übrig gelassen hat. Die flussabgewandte Seite ist aufgerissen, als wäre etwas Gewaltiges von innen nach außen gebrochen. Balken ragen wie Rippen in den Nebel.
+
+      Das große Wasserrad hängt schief in seiner Achse und bewegt sich nicht, obwohl der Fluss darunter rauscht. Drinnen steht noch ein vermoderter Schreibtisch. Eine schmale Treppe führt hinunter in die Radkammer. Dort unten ist es vollkommen dunkel.
+    repeatView: Die aufgerissene Mühle. Das Rad steht still.
   stateTexts:
-  - id: zt_neue_spur
+  - id: zt_bohle
     conditions:
     - stateEquals:
-      - mill_ruin_present
-      - neue_spur
+      - loose_wall_board_present
+      - visible
       - true
-    firstView: An der Wand neben dem Schreibtisch sitzt die dritte Bohle deutlich lockerer als die übrigen.
-    repeatView: ''
+    - stateEquals:
+      - loose_wall_board_present
+      - geoeffnet
+      - false
+    firstView: 'Neben dem Schreibtisch, an der Wand: die dritte Bohle. Sie sitzt lockerer als die anderen.'
+    repeatView: Die dritte Bohle neben dem Schreibtisch sitzt locker.
+  image: 'Das Innere einer zerstörten Wassermühle aus grauem Bruchstein und dunklem Fachwerk. Eine Flut
+    ist quer durch das Gebäude geschossen: Die Wand auf der dem Fluss abgewandten Seite ist weggerissen,
+    gebrochene Balken ragen wie Rippen ins Freie, dahinter Nebel. Der Bretterboden ist aufgerissen, überall
+    liegen getrockneter Schlamm, Geröll und Treibholz, an den Wänden eine dunkle Wasserlinie in Hüfthöhe.
+    In einer Ecke steht ein vermoderter Holzschreibtisch, daneben führt eine schmale Steintreppe hinab
+    in völlige Dunkelheit. Durch eine Lücke in der Flussseite sieht man draußen das große hölzerne Wasserrad:
+    aus seiner Halterung gerissen, schief verkantet, mit gesplitterten Schaufeln.'
+- id: path_mill_to_square
+  name: Hinauf zum Dorfplatz
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: mill_ruin_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_path_mill_to_square
+    enabled: true
+    effects:
+    - setCurrentElement: village_square_present
+- id: muehlrad
+  name: Wasserrad
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: mill_ruin_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Das Rad ist höher als ein Haus. Seine Schaufeln sind gesplittert, die Achse ist aus dem Lager gesprungen. Von hier aus siehst du, dass das Wasser nicht gegen die Mühle geprallt ist. Es ist durch sie hindurchgeschossen, vom Wehr her quer durch das Haus und auf der anderen Seite wieder hinaus.
+
+      Wenn du lange genug hinsiehst, meinst du, das Rad habe sich bewegt. Ein kleines Stück. Rückwärts.
+    repeatView: Das Rad steht still. Fast.
+  fragments:
+  - id: f_mill_damage
+    fact: Die Flut ist quer durch die Mühle geströmt, vom Wehr her und auf der flussabgewandten Seite
+      hinaus.
+    assumption: Das Wasser wurde absichtlich oder durch einen Fehler durch die Mühle geleitet.
+  onUse:
+  - id: rad_gesehen
+    enabled: true
+    effects:
+    - discoverFragment: f_mill_damage
+    - disableSelfTrigger: rad_gesehen
+  image: 'Nahaufnahme: das große hölzerne Wasserrad einer Mühlenruine aus grauem Bruchstein, aus seiner
+    Halterung gerissen. Die Achse ist aus dem gebrochenen Lager gesprungen, das Rad hängt schief und verkantet
+    an der zerstörten Mauer, mehrere Schaufeln sind gesplittert oder fehlen. Darunter fließt ein dunkler,
+    schneller Fluss, doch das Rad steht still. Nebel steigt vom Wasser auf, Moos auf dem nassen, schwarzen
+    Holz.'
 - id: mill_desk_present
   name: Vermoderter Schreibtisch
   type: feature
@@ -298,22 +672,19 @@ elements:
   layers:
   - present
   locatedIn: mill_ruin_present
-  exitLabel: Schreibtisch schließen
   initialState:
     visible: true
-    investigation: open
-  initialPartOf:
-  - history_mill
-  - hannes_past
+  initialPartOf: []
   presentation:
-    firstView: Im geöffneten Schreibtisch liegen zerfallene Rechnungen, verrostete Schreibfedern und ein
-      dickes altes Geschäftsbuch.
-    repeatView: Im Schreibtisch scheint es derzeit nichts Weiteres zu entdecken zu geben.
-  onUse:
-  - id: focus_desk
-    enabled: true
-    effects:
-    - setCurrentElement: mill_desk_present
+    firstView: |-
+      Die Schubladen sind aufgequollen und lassen sich nur mit Gewalt öffnen. Darin liegen zerfallene Rechnungen, verrostete Federn und ein dickes, in Leder gebundenes Geschäftsbuch.
+
+      Neben dem Schreibtisch liegt ein Lager aus alten Mehlsäcken und einer zerfressenen Decke. Hier hat jemand geschlafen. Lange nach der Flut.
+    repeatView: Der Schreibtisch des Müllers, daneben das Lager aus Säcken.
+  image: 'Im Inneren einer zerstörten Mühle: ein vermoderter, aufgequollener Holzschreibtisch, eine Schublade
+    halb herausgezogen, darin ein dickes, in braunes Leder gebundenes Geschäftsbuch. Neben dem Schreibtisch
+    auf dem Boden ein Lager aus alten Mehlsäcken und einer zerfressenen Wolldecke. Dahinter eine Wand
+    aus senkrechten Holzbohlen. Schlamm auf dem Boden, fahles Licht fällt durch ein Loch im Dach.'
 - id: business_ledger_present
   name: Altes Geschäftsbuch
   type: document
@@ -321,241 +692,226 @@ elements:
   layers:
   - present
   locatedIn: mill_desk_present
-  exitLabel: Buch zuklappen
-  image: Ein dickes, altes, ledergebundenes Geschäftsbuch, aufgeschlagen, mit vergilbten, teils verklebten
-    und schlammverschmutzten Seiten.
   initialState:
     visible: true
-    investigation: open
-    neue_spur: false
-  initialPartOf:
-  - history_mill
-  - hannes_past
+  initialPartOf: []
+  exitLabel: Buch zuklappen
   presentation:
-    firstView: Die ersten Seiten enthalten gewöhnliche Einträge über Mehl, Getreide und Lieferungen. Die
-      letzten Seiten sind durch Schlamm und Feuchtigkeit miteinander verklebt.
-    repeatView: Ohne einen konkreten Hinweis kannst du zwischen den beschädigten Zeilen nichts Auffälliges
-      erkennen.
+    firstView: 'Hannes Voss führte Buch über alles: Säcke Roggen, Säcke Weizen, Lieferungen, Schulden.
+      Eine saubere, schwere Handschrift. Die letzten Seiten sind vom Schlamm verklebt. Ohne zu wissen,
+      wonach du suchst, findest du dazwischen nichts.'
+    repeatView: Das Geschäftsbuch des Müllers. Die letzten Seiten sind verklebt.
+  stateTexts:
+  - id: zt_eintrag
+    conditions:
+    - stateEquals:
+      - clara_ledger_entry_present
+      - visible
+      - true
+    firstView: Du weißt jetzt, wonach du suchst. Vorsichtig löst du die verklebten Seiten. Zwischen Mehlpreisen
+      steht ein Eintrag in einer anderen, jüngeren Handschrift, unterschrieben mit „C. V.“
+    repeatView: Claras Eintrag auf einer der letzten Seiten.
   fragments:
   - id: f_ledger_general
-    fact: Das Geschäftsbuch gehörte Hannes Voss. Die letzten Seiten sind verschmutzt und teilweise verklebt.
-    assumption: Vielleicht enthält das Buch noch Informationen über die Zeit vor der Flut.
+    fact: Das Geschäftsbuch gehörte Hannes Voss. Die letzten Seiten sind verschmutzt und verklebt.
+    assumption: Das Buch könnte noch etwas über die Zeit vor der Flut verraten.
   onUse:
-  - id: open_ledger
+  - id: buch_geoeffnet
     enabled: true
     effects:
     - discoverFragment: f_ledger_general
-    - setCurrentElement: business_ledger_present
-  stateTexts:
-  - id: zt_abgeschlossen
-    conditions:
-    - stateEquals:
-      - business_ledger_present
-      - investigation
-      - complete
-    firstView: Claras Eintrag ist bereits vollständig gelesen. Im Buch gibt es derzeit nichts Weiteres
-      zu entdecken.
-    repeatView: ''
-  - id: zt_neue_spur
-    conditions:
-    - stateEquals:
-      - business_ledger_present
-      - neue_spur
-      - true
-    firstView: Auf der letzten beschriebenen Seite befindet sich eine Notiz in einer deutlich jüngeren
-      Handschrift. Unter ihr stehen die Initialen "C. V.".
-    repeatView: ''
+    - disableSelfTrigger: buch_geoeffnet
+  image: 'Nahaufnahme: ein dickes, in braunes Leder gebundenes Geschäftsbuch, aufgeschlagen, vergilbte
+    Seiten voller Zahlenkolonnen in sauberer, schwerer Handschrift, unleserlich angedeutet. Die hinteren
+    Seiten sind von getrocknetem Schlamm verklebt und gewellt.'
 - id: clara_ledger_entry_present
-  name: Claras Eintrag auf der letzten Seite
+  name: Claras Eintrag
   type: document_entry
   physical: true
   layers:
   - present
   locatedIn: business_ledger_present
-  exitLabel: Eintrag schließen
-  voice: Standard
   initialState:
     visible: false
-    investigation: open
   initialPartOf: []
+  exitLabel: Seite umblättern
+  contentVoice: female2
   presentation:
-    contentText: |
-      Brandts Männer haben den Entlastungskanal mit Balken und Steinen verschlossen.
-      Das Wasser läuft deshalb nur noch durch seine Turbine.
-      Vater sagt, dass dies bei starkem Regen gefährlich ist.
+    firstView: Die Tinte ist verblasst, aber die Buchstaben sind rund und eilig. Die Schrift eines jungen
+      Mädchens.
+    repeatView: 'Claras Eintrag:'
+    contentText: |-
+      Brandts Männer haben heute den Entlastungskanal mit Balken und Steinen verschlossen. Das Wasser läuft jetzt nur noch durch seine Turbine. Vater sagt, das ist gefährlich, wenn es stark regnet.
 
-      Über dem Wald stehen dunkle Wolken. Ich gehe zum Sägewerk und verlange von Herrn Brandt, dass er den Kanal öffnen lässt.
+      Über dem Wald stehen schwarze Wolken. Ich gehe zum Sägewerk und verlange, dass Herr Brandt den Kanal wieder öffnen lässt.
 
       C. V.
-    firstView: Claras verblasste Notiz auf der letzten beschriebenen Seite wird vollständig lesbar.
-    repeatView: Der Eintrag beschreibt die Blockade des Kanals und Claras Absicht, Brandt zur Rede zu
-      stellen. Weitere Informationen enthält er nicht.
   fragments:
   - id: f_clara_saw_channel_closed
-    fact: Clara notierte, dass Brandts Arbeiter den Entlastungskanal mit Balken und Steinen verschlossen.
-    assumption: Brandt könnte die spätere Flutgefahr selbst verursacht haben.
+    fact: Clara notierte, dass Brandts Arbeiter den Entlastungskanal verschlossen.
+    assumption: Brandt könnte die Flutgefahr selbst verursacht haben.
   - id: f_clara_confront_brandt
-    fact: Clara schrieb, sie werde Brandt bei aufziehendem Regen zur Rede stellen.
-    assumption: Clara ging in der Flutnacht freiwillig zum Sägewerk.
+    fact: Clara schrieb, sie gehe vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen.
+    assumption: Clara war in der Flutnacht nicht in der Mühle, sondern am Sägewerk.
   onUse:
-  - id: read_clara_entry
+  - id: eintrag_gelesen
     enabled: true
     effects:
     - discoverFragment: f_clara_saw_channel_closed
     - discoverFragment: f_clara_confront_brandt
-    - revealElement: illegal_channel_closure
-    - revealElement: confrontation_at_sawmill
-    - addPartOf:
-      - richard_brandt_past
-      - illegal_channel_closure
-    - addPartOf:
-      - clara_past
-      - illegal_channel_closure
-    - addPartOf:
-      - clara_past
-      - confrontation_at_sawmill
-    - revealElement: old_store_room_present
-    - revealElement: weg_sawmill_ruin_present_old_store_room_present
-    - revealElement: weg_old_store_room_present_sawmill_ruin_present
     - setElementState:
-      - sawmill_ruin_present
-      - neue_spur
+      - ermittlung
+      - kanal
       - true
-    - revealElement: question_clara_at_sawmill
-    - setElementState:
-      - sawmill_ruin_present
-      - investigation
-      - open
-    - setElementState:
-      - sawmill_ruin_present
-      - currentHint
-      - Claras Spur führt zum alten Lagerraum im Sägewerk. Du kannst das Sägewerk untersuchen.
-    - setElementState:
-      - business_ledger_present
-      - investigation
-      - complete
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - null
-    - setElementState:
-      - clara_ledger_entry_present
-      - investigation
-      - complete
-    - disableSelfTrigger: read_clara_entry
-  - id: complete_mill_if_gate_already_examined
+    - revealElement: lb_kanal
+    - hideElement: lb_frage_kanal
+    - disableSelfTrigger: eintrag_gelesen
+  - id: eintrag_frage
     enabled: true
+    effects:
+    - revealElement: lb_frage_clara
+    - disableSelfTrigger: eintrag_frage
     conditions:
     - stateEquals:
-      - emergency_gate_mechanism_present
-      - investigation
-      - complete
-    effects:
-    - setElementState:
-      - mill_ruin_present
-      - investigation
-      - complete
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: complete_mill_if_gate_already_examined
-  - id: neue_spur_gesehen
-    enabled: true
-    effects:
-    - setElementState:
-      - business_ledger_present
-      - neue_spur
+      - ermittlung
+      - eingesperrt
       - false
-- id: emergency_gate_mechanism_present
-  name: Mechanik des alten Notwehrs
-  type: mechanism
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  image: 'Nahaufnahme einer vergilbten Seite aus einem alten Geschäftsbuch: oben Zahlenkolonnen, darunter
+    ein Eintrag in runder, eiliger Mädchenhandschrift mit verblasster Tinte, Schlammflecken am Rand. Die
+    Schrift ist lesbar und lautet genau: „Brandts Männer haben heute den Entlastungskanal mit Balken und
+    Steinen verschlossen. Das Wasser läuft jetzt nur noch durch seine Turbine. Vater sagt, das ist gefährlich,
+    wenn es stark regnet. / Über dem Wald stehen schwarze Wolken. Ich gehe zum Sägewerk und verlange,
+    dass Herr Brandt den Kanal wieder öffnen lässt. / C. V.“. Wo sie zu klein ist, darf sie unscharf werden.'
+- id: weg_radkammer
+  name: Hinunter in die Radkammer
+  type: door
   physical: true
   layers:
   - present
   locatedIn: mill_ruin_present
   initialState:
     visible: true
-    investigation: open
-  initialPartOf:
-  - history_mill
+  initialPartOf: []
+  presentation: {}
+  messages:
+    Zu dunkel: Die Treppe verschwindet nach drei Stufen in vollkommener Schwärze. Von unten hörst du Wasser
+      tropfen, langsam und gleichmäßig wie eine Uhr. Ohne Licht gehst du da nicht hinunter.
+  onUse:
+  - id: radkammer_dunkel
+    enabled: true
+    conditions:
+    - notInInventory: laterne
+    effects:
+    - showTextFrom: weg_radkammer.messages.Zu dunkel
+    - setCurrentElement: mill_ruin_present
+  - id: go_weg_radkammer
+    enabled: true
+    conditions:
+    - inInventory: laterne
+    effects:
+    - setCurrentElement: radkammer
+  cutscene:
+    onlyOnce: true
+    buttonLabel: Weiter
+    text: |-
+      Die Stufen sind glitschig. Das Licht der Laterne reicht kaum bis zu deinen Füßen. Mit jedem Schritt wird die Luft kälter und das Rauschen des Flusses lauter, bis es klingt, als liefe er direkt neben dir durch die Wand.
+
+      Unten stehst du knöcheltief im Wasser. Vor dir, im Laternenlicht, glänzt nasses Eisen.
+    image: Eine schmale, glitschige Steintreppe führt von oben hinab in ein dunkles Gewölbe unter einer
+      Mühle. Warmes Licht einer brennenden Laterne außerhalb des Bildrands fällt von oben auf die nassen
+      Stufen. Am Fuß der Treppe steht schwarzes Wasser, darin glänzt im Licht nasses Eisen. Ringsum völlige
+      Dunkelheit.
+- id: radkammer
+  name: Radkammer
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
   presentation:
-    firstView: Du entfernst Schlamm von der Mechanik. Der Stellhebel steht in äußerster Position. Die
-      Markierungen zeigen, dass das Notwehr vollständig geöffnet wurde und das Wasser vom Dorf weg durch
-      die Mühle leitete.
-    repeatView: Die Mechanik bestätigt weiterhin die vollständige, offenbar bewusste Öffnung des Notwehrs.
-      Weitere Informationen gibt sie nicht preis.
+    firstView: Ein niedriges Gewölbe unter der Mühle, halb voll mit schwarzem Wasser. An der Wand zum
+      Fluss sitzt die Mechanik des Notwehrs, ein Gerüst aus Eisen und Holz mit einem großen Stellhebel.
+      Von der Decke tropft es. Jeder Tropfen klingt laut in der Stille.
+    repeatView: Die nasse, dunkle Radkammer.
+  image: Ein niedriges Gewölbe aus grauem Bruchstein unter einer Wassermühle, halb mit stillem, schwarzem
+    Wasser gefüllt. An der Wand zum Fluss ein großer eiserner Stellhebel an einem Gerüst aus Eisen und
+    dunklem Holz, rostig und nass. Wassertropfen fallen von der Decke. Einzige Lichtquelle ist das warme
+    Licht einer brennenden Laterne außerhalb des Bildrands, der Rest versinkt in Schwärze.
+- id: weg_radkammer_muehle
+  name: Hinauf in die Mühle
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: radkammer
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_radkammer_muehle
+    enabled: true
+    effects:
+    - setCurrentElement: mill_ruin_present
+- id: emergency_gate_mechanism_present
+  name: Mechanik des Notwehrs
+  type: mechanism
+  physical: true
+  layers:
+  - present
+  locatedIn: radkammer
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Der Stellhebel ist bis zum Anschlag umgelegt. In das Holz daneben sind Markierungen eingebrannt: GESCHLOSSEN, HALB, OFFEN. Ein Pfeil zeigt, wohin das Wasser bei voller Öffnung läuft. Nicht zum Dorf hinunter, sondern quer durch die Mühle in den alten Flutgraben.
+
+      Wer diesen Hebel umgelegt hat, wusste genau, was er tat. Er hat das Wasser von den Häusern weggelenkt und mitten durch sein eigenes Haus geschickt.
+
+      In den Hebel ist mit einem Messer etwas eingeritzt, klein und tief: „Für Mühlbach. H. V.“
+    repeatView: Der Hebel steht bis zum Anschlag auf OFFEN. „Für Mühlbach. H. V.“
   fragments:
   - id: f_gate_direction
-    fact: Die Mechanik wurde vollständig geöffnet. In dieser Stellung leitete sie Wasser durch die Mühle
-      und vom Dorf weg.
-    assumption: Wer das Wehr öffnete, nahm die Zerstörung der Mühle bewusst in Kauf, um das Dorf zu schützen.
+    fact: Das Notwehr wurde vollständig geöffnet. So floss das Wasser vom Dorf weg und durch die Mühle.
+    assumption: Wer das Wehr öffnete, opferte die Mühle bewusst, um das Dorf zu schützen.
+  - id: f_gate_carving
+    fact: 'In den Stellhebel ist eingeritzt: „Für Mühlbach. H. V.“'
+    assumption: Hannes Voss hat das Wehr selbst geöffnet, um das Dorf zu retten.
   onUse:
-  - id: inspect_gate
+  - id: wehr_gesehen
     enabled: true
     effects:
     - discoverFragment: f_gate_direction
-    - revealElement: emergency_opening
-    - addPartOf:
-      - hannes_past
-      - emergency_opening
-    - addPartOf:
-      - history_mill
-      - emergency_opening
+    - discoverFragment: f_gate_carving
     - setElementState:
-      - emergency_gate_mechanism_present
-      - investigation
-      - complete
-    - disableSelfTrigger: inspect_gate
-  - id: reveal_hannes_contradiction_if_unresolved
-    enabled: true
-    conditions:
-    - stateEquals:
-      - corrected_flood_cause_story
-      - visible
-      - false
-    effects:
-    - revealElement: contradiction_hannes_guilt
-    - addPartOf:
-      - hannes_past
-      - contradiction_hannes_guilt
-    - addPartOf:
-      - official_flood_story
-      - contradiction_hannes_guilt
-    - disableSelfTrigger: reveal_hannes_contradiction_if_unresolved
-  - id: reveal_silence_question_after_gate
-    enabled: true
-    conditions:
-    - stateEquals:
-      - corrected_flood_cause_story
-      - visible
+      - ermittlung
+      - notwehr
       - true
-    effects:
-    - revealElement: question_hannes_silence
-    - addPartOf:
-      - hannes_past
-      - question_hannes_silence
-    - addPartOf:
-      - official_flood_story
-      - question_hannes_silence
-    - disableSelfTrigger: reveal_silence_question_after_gate
-  - id: complete_mill_if_ledger_already_read
+    - hideElement: lb_frage_wehr
+    - revealElement: lb_notwehr
+    - disableSelfTrigger: wehr_gesehen
+  - id: wehr_widerspruch
     enabled: true
+    effects:
+    - revealElement: lb_widerspruch_hannes
+    - disableSelfTrigger: wehr_widerspruch
     conditions:
     - stateEquals:
-      - clara_ledger_entry_present
-      - investigation
-      - complete
-    effects:
-    - setElementState:
-      - mill_ruin_present
-      - investigation
-      - complete
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: complete_mill_if_ledger_already_read
+      - ermittlung
+      - lebt
+      - false
+  image: 'Nahaufnahme: ein großer eiserner Stellhebel an einem Gerüst aus Eisen und dunklem Holz, bis
+    zum Anschlag umgelegt. Im Holz daneben drei eingebrannte Markierungen in einer Reihe: „GESCHLOSSEN“,
+    „HALB“, „OFFEN“, dazu ein eingebrannter Pfeil. In das Eisen des Hebels ist klein und tief eingeritzt:
+    „Für Mühlbach. H. V.“ Rost, Wassertropfen. Einzige Lichtquelle ist das warme Licht einer brennenden
+    Laterne außerhalb des Bildrands.'
 - id: loose_wall_board_present
   name: Lose Wandbohle
   type: object
@@ -563,126 +919,146 @@ elements:
   layers:
   - present
   locatedIn: mill_ruin_present
-  exitLabel: Bohle zurücklegen
   initialState:
     visible: false
-    investigation: open
+    geoeffnet: false
   initialPartOf: []
+  exitLabel: Bohle zurücklegen
   presentation:
-    firstView: Die dritte Wandbohle neben Hannes' Schreibtisch sitzt deutlich lockerer als die übrigen.
-    firstUse: Hinter der Bohle befindet sich ein schmaler Hohlraum mit einem in Tuch gewickelten Brief.
-    repeatView: Der Hohlraum hinter der dritten Bohle ist bereits geöffnet.
+    firstView: Die Bohle lässt sich mit den Fingern lösen. Dahinter ist ein schmaler Hohlraum. Darin liegt
+      etwas, in ein Wachstuch eingeschlagen und sorgfältig verschnürt.
+    repeatView: Der Hohlraum hinter der dritten Bohle.
   onUse:
-  - id: open_wall_board
-    enabled: true
-    effects:
-    - revealElement: clara_letter_present
-    - setCurrentElement: loose_wall_board_present
-    - disableSelfTrigger: open_wall_board
-  - id: neue_spur_gesehen
+  - id: bohle_geoeffnet
     enabled: true
     effects:
     - setElementState:
-      - mill_ruin_present
-      - neue_spur
-      - false
+      - loose_wall_board_present
+      - geoeffnet
+      - true
+    - revealElement: clara_letter_present
+    - hideElement: lb_versteck
+    - disableSelfTrigger: bohle_geoeffnet
+  image: Nahaufnahme einer Wand aus senkrechten, alten Holzbohlen in einer zerstörten Mühle, direkt neben
+    einem vermoderten Schreibtisch. Eine Bohle ist herausgelöst und lehnt daneben; dahinter ein schmaler
+    Hohlraum, in dem ein flaches Päckchen in gelblichem Wachstuch, mit Schnur verschnürt liegt. Staub,
+    Spinnweben, fahles Licht.
 - id: clara_letter_present
-  name: Claras versteckter Brief
+  name: Claras Brief
   type: document
   physical: true
   layers:
   - present
   locatedIn: loose_wall_board_present
-  exitLabel: Brief zurücklegen
-  voice: female1
-  image: Ein vergilbter, spröder, handgeschriebener Brief, halb aufgefaltet, mit verblasster Tinte, auf
-    rauem altem Papier.
   initialState:
     visible: false
-    investigation: open
   initialPartOf: []
+  portable: true
+  exitLabel: Brief zusammenfalten
+  contentVoice: female1
   presentation:
-    contentText: |
-      Für denjenigen, der noch nach der Wahrheit sucht.
+    firstView: Du schlägst das Wachstuch auseinander. Darin liegt ein gefalteter Brief, trocken und unversehrt.
+      Die Schrift ist dieselbe wie im Geschäftsbuch, nur älter und ruhiger.
+    repeatView: 'Claras Brief:'
+    takeText: Du faltest den Brief zusammen und steckst ihn ein. Er wiegt fast nichts.
+    dropText: Du legst Claras Brief ab.
+    contentText: |-
+      Für den, der noch nach der Wahrheit sucht.
 
-      Ich habe die Flut überlebt.
+      Ich bin Clara Voss. Ich bin nicht ertrunken.
 
-      Richard Brandt sperrte mich im Lagerraum ein, nachdem ich ihn wegen des verschlossenen Kanals zur Rede gestellt hatte. Mein Vater öffnete das Notwehr und leitete das Wasser durch unsere Mühle. Er verlor alles, aber das Dorf wurde gerettet. Danach holte er mich aus dem Sägewerk.
+      In der Nacht der Flut ging ich zu Richard Brandt und verlangte, dass er den Kanal öffnen lässt. Er sperrte mich in den Lagerraum seines Sägewerks und ging. Ich habe an der Tür gekratzt, bis meine Finger bluteten. Draußen stieg das Wasser.
 
-      Brandt drohte, mich zum Schweigen zu bringen. Mein Vater schickte mich zu meiner Tante und ließ alle glauben, ich sei gestorben. Er nahm die Schuld an der Flut auf sich, damit niemand nach mir suchte.
+      Mein Vater hat das Notwehr geöffnet. Er hat das Wasser durch unsere Mühle geleitet, damit es nicht über das Dorf kommt. Dann hat er mich mit der Brechstange aus dem Lagerraum geholt.
 
-      Zwölf Jahre sind vergangen. Ich bin zur Mühle gekommen, um diesen Brief zu hinterlassen. Auf der letzten beschriebenen Seite von Vaters Geschäftsbuch steht, was ich vor dem Unwetter gesehen habe.
+      Am nächsten Morgen kam Brandt zu uns. Er sagte, wenn ich rede, gibt es bald ein zweites Unglück. Vater hat mich noch in derselben Nacht zu meiner Tante Martha Hartmann in die Stadt gebracht. Er ließ alle glauben, ich sei ertrunken. Und er hat geschwiegen, als sie ihm die Schuld gaben, damit niemand nach mir sucht.
 
-      Vielleicht wird jemand verstehen, was mein Vater für das Dorf und für mich getan hat.
+      Zwölf Jahre sind vergangen. Vater ist tot, und ich habe ihn nie wiedergesehen. Ich bin zurückgekommen, um ihm zu sagen, dass ich es weiß. An seinem Grab durfte ich nicht weinen, man hätte mich gehört.
+
+      Was ich vor dem Unwetter gesehen habe, steht auf einer der letzten Seiten in Vaters Geschäftsbuch.
+
+      Bitte erzähl es ihm. Mir hat er nie zuhören können.
 
       Clara Voss
-    firstView: Du faltest den trockenen, spröden Brief auseinander. Er ist mit "Clara Voss" unterzeichnet.
-    repeatView: Claras Brief enthält die vollständige Erklärung der Flutnacht und ihrer späteren Rückkehr.
   fragments:
   - id: f_clara_survived
-    fact: Der Brief wurde von Clara zwölf Jahre nach der Flut geschrieben.
-    assumption: Clara starb nicht bei der Überschwemmung.
+    fact: Clara schrieb den Brief zwölf Jahre nach der Flut.
+    assumption: Clara starb nicht in der Flut.
   - id: f_hannes_rescued_clara
-    fact: Clara schreibt, ihr Vater habe sie aus Brandts Lagerraum befreit.
-    assumption: Hannes verschwieg ihr Überleben, um sie vor Brandt zu schützen.
-  - id: f_letter_ledger_hint
-    fact: Clara verweist auf ihren Eintrag auf der letzten beschriebenen Seite des Geschäftsbuchs.
-    assumption: Das alte Geschäftsbuch enthält den entscheidenden Hinweis auf die Ursache der Flut.
+    fact: Clara schreibt, ihr Vater habe das Notwehr geöffnet und sie danach aus Brandts Lagerraum befreit.
+    assumption: Hannes rettete in derselben Nacht das Dorf und seine Tochter.
+  - id: f_hannes_silence
+    fact: Hannes brachte Clara zu ihrer Tante Martha Hartmann und ließ alle glauben, sie sei ertrunken.
+    assumption: Hannes nahm die Schuld auf sich, damit Brandt Clara nicht finden konnte.
   onUse:
-  - id: read_clara_letter
+  - id: brief_gelesen
     enabled: true
     effects:
     - discoverFragment: f_clara_survived
     - discoverFragment: f_hannes_rescued_clara
-    - discoverFragment: f_letter_ledger_hint
-    - revealElement: clara_survived_story
-    - revealElement: rescue_of_clara
-    - revealElement: protective_silence
-    - revealElement: clara_secret_return
-    - hideElement: contradiction_clara_death
-    - hideElement: question_clara_at_sawmill
-    - hideElement: question_hannes_silence
-    - hideElement: clara_death_story
-    - hideElement: ghost_woman_rumor
-    - addPartOf:
-      - clara_past
-      - clara_survived_story
-    - addPartOf:
-      - hannes_past
-      - rescue_of_clara
-    - addPartOf:
-      - clara_past
-      - rescue_of_clara
-    - addPartOf:
-      - hannes_past
-      - protective_silence
-    - addPartOf:
-      - clara_past
-      - protective_silence
-    - addPartOf:
-      - clara_past
-      - clara_secret_return
-    - removePartOf:
-      - clara_past
-      - clara_death_story
-    - revealElement: clara_ledger_entry_present
+    - discoverFragment: f_hannes_silence
     - setElementState:
-      - business_ledger_present
-      - neue_spur
+      - ermittlung
+      - lebt
       - true
     - setElementState:
-      - clara_letter_present
-      - investigation
-      - complete
-    - setElementState:
-      - mill_ruin_present
-      - investigation
-      - complete
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: read_clara_letter
+      - ermittlung
+      - eingesperrt
+      - true
+    - hideElement: lb_widerspruch_clara
+    - hideElement: lb_frage_clara
+    - hideElement: lb_widerspruch_hannes
+    - hideElement: lb_frau_im_regen
+    - hideElement: lb_offiziell
+    - revealElement: lb_clara_lebt
+    - revealElement: lb_offen_grab
+    - revealElement: clara_ledger_entry_present
+    - disableSelfTrigger: brief_gelesen
+  - id: brief_frage_wehr
+    enabled: true
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - notwehr
+      - false
+    effects:
+    - revealElement: lb_frage_wehr
+    - disableSelfTrigger: brief_frage_wehr
+  - id: brief_frage_brandt
+    enabled: true
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - stein
+      - false
+    effects:
+    - revealElement: lb_frage_brandt
+    - disableSelfTrigger: brief_frage_brandt
+  - id: brief_frage_kanal
+    enabled: true
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - kanal
+      - false
+    effects:
+    - revealElement: lb_frage_kanal
+    - disableSelfTrigger: brief_frage_kanal
+  image: 'Nahaufnahme: ein aufgeschlagenes gelbliches Wachstuch, darauf ein auseinandergefalteter, vergilbter
+    Brief in ruhiger, sorgfältiger Handschrift, trocken und unversehrt. Die Schrift ist lesbar und lautet
+    genau: „Für den, der noch nach der Wahrheit sucht. / Ich bin Clara Voss. Ich bin nicht ertrunken.
+    / In der Nacht der Flut ging ich zu Richard Brandt und verlangte, dass er den Kanal öffnen lässt.
+    Er sperrte mich in den Lagerraum seines Sägewerks und ging. Ich habe an der Tür gekratzt, bis meine
+    Finger bluteten. Draußen stieg das Wasser. / Mein Vater hat das Notwehr geöffnet. Er hat das Wasser
+    durch unsere Mühle geleitet, damit es nicht über das Dorf kommt. Dann hat er mich mit der Brechstange
+    aus dem Lagerraum geholt. / Am nächsten Morgen kam Brandt zu uns. Er sagte, wenn ich rede, gibt es
+    bald ein zweites Unglück. Vater hat mich noch in derselben Nacht zu meiner Tante Martha Hartmann in
+    die Stadt gebracht. Er ließ alle glauben, ich sei ertrunken. Und er hat geschwiegen, als sie ihm die
+    Schuld gaben, damit niemand nach mir sucht. / Zwölf Jahre sind vergangen. Vater ist tot, und ich habe
+    ihn nie wiedergesehen. Ich bin zurückgekommen, um ihm zu sagen, dass ich es weiß. An seinem Grab durfte
+    ich nicht weinen, man hätte mich gehört. / Was ich vor dem Unwetter gesehen habe, steht auf einer
+    der letzten Seiten in Vaters Geschäftsbuch. / Bitte erzähl es ihm. Mir hat er nie zuhören können.
+    / Clara Voss“. Wo sie zu klein ist, darf sie unscharf werden. Fahles Licht, Staub.'
 - id: sawmill_ruin_present
   name: Ruine des Sägewerks
   type: location
@@ -690,330 +1066,51 @@ elements:
   layers:
   - present
   locatedIn: null
-  exitLabel: Sägewerk verlassen
-  image: Ein teilweise eingestürztes altes Sägewerksgebäude aus Holz und Stein, dahinter ein vollständig
-    mit Balken und Steinen verschlossener Wasserkanal, Nebel im Hintergrund.
   initialState:
     visible: true
-    investigation: open
-    currentHint: null
-    neue_spur: false
-  initialPartOf:
-  - case_cursed_mill
-  - history_sawmill
-  presentation:
-    firstView: Das Hauptgebäude des alten Sägewerks ist teilweise eingestürzt. Hinter ihm verläuft ein
-      vollständig verschlossener Entlastungskanal.
-    repeatView: Du stehst wieder zwischen den verfallenen Gebäudeteilen des Sägewerks.
-  stateTexts:
-  - id: zt_neue_spur
-    conditions:
-    - stateEquals:
-      - sawmill_ruin_present
-      - neue_spur
-      - true
-    firstView: Im eingestürzten Seitenflügel befindet sich der Zugang zu einem alten Lagerraum.
-    repeatView: ''
-- id: sawmill_office_present
-  name: Verfallenes Büro
-  type: location
-  physical: true
-  layers:
-  - present
-  locatedIn: null
-  exitLabel: Büro verlassen
-  initialState:
-    visible: true
-    investigation: open
-  initialPartOf:
-  - history_sawmill
-  - richard_brandt_past
-  presentation:
-    firstView: Im verfallenen Büro liegt unter einer losen Glasplatte eine noch lesbare Wartungsnotiz
-      mit dem Stempel des Sägewerks.
-    repeatView: Im Büro scheint es derzeit nichts Weiteres zu entdecken zu geben.
-- id: maintenance_note_present
-  name: Verblasste Wartungsnotiz
-  type: document
-  physical: true
-  layers:
-  - present
-  locatedIn: sawmill_office_present
-  exitLabel: Notiz zurücklegen
-  voice: Standard
-  initialState:
-    visible: true
-    investigation: open
-  initialPartOf:
-  - history_sawmill
-  presentation:
-    contentText: |
-      Arbeitsanweisung
-
-      Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen.
-      Der gesamte Wasserlauf ist der Turbine zuzuführen.
-
-      Richard Brandt
-
-      Bleistiftnotiz eines Arbeiters:
-      "Das Mädchen von der Mühle hat uns gesehen. Sie sagte, sie hätte alles in Hannes' Buch geschrieben."
-    firstView: Die Notiz trägt Brandts Unterschrift. Eine Bleistiftnotiz eines Arbeiters erwähnt das Mädchen
-      von der Mühle und Hannes' Geschäftsbuch.
-    repeatView: Brandt ordnete die Blockade selbst an. Das Mädchen von der Mühle schrieb ihre Beobachtung
-      in Hannes' Buch. Weitere Informationen enthält die Notiz nicht.
-  fragments:
-  - id: f_maintenance_order
-    fact: Eine Arbeitsanweisung Brandts ordnet an, den Entlastungskanal dauerhaft zu blockieren.
-    assumption: Die Blockade war kein Unfall und geschah auf Brandts ausdrücklichen Befehl.
-  - id: f_worker_ledger_reference
-    fact: Ein Arbeiter vermerkte, dass "das Mädchen von der Mühle" alles gesehen und in Hannes' Buch geschrieben
-      habe.
-    assumption: Im Geschäftsbuch der Mühle muss ein verborgener Eintrag Claras existieren.
-  onUse:
-  - id: read_maintenance_note
-    enabled: true
-    effects:
-    - discoverFragment: f_maintenance_order
-    - discoverFragment: f_worker_ledger_reference
-    - revealElement: illegal_channel_closure
-    - addPartOf:
-      - richard_brandt_past
-      - illegal_channel_closure
-    - addPartOf:
-      - sawmill_workers_past
-      - illegal_channel_closure
-    - revealElement: clara_ledger_entry_present
-    - setElementState:
-      - business_ledger_present
-      - neue_spur
-      - true
-    - hideElement: contradiction_hannes_guilt
-    - hideElement: hannes_guilt_rumor
-    - revealElement: corrected_flood_cause_story
-    - removePartOf:
-      - hannes_past
-      - hannes_guilt_rumor
-    - addPartOf:
-      - richard_brandt_past
-      - corrected_flood_cause_story
-    - addPartOf:
-      - illegal_channel_closure
-      - corrected_flood_cause_story
-    - setElementState:
-      - business_ledger_present
-      - investigation
-      - open
-    - setElementState:
-      - mill_ruin_present
-      - investigation
-      - open
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - Im Geschäftsbuch auf Hannes' Schreibtisch befindet sich ein Eintrag des Mädchens von der Mühle.
-        Du kannst die Mühle untersuchen.
-    - setElementState:
-      - maintenance_note_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_office_present
-      - investigation
-      - complete
-    - disableSelfTrigger: read_maintenance_note
-  - id: reveal_silence_question_after_brandt_evidence
-    enabled: true
-    conditions:
-    - stateEquals:
-      - emergency_opening
-      - visible
-      - true
-    effects:
-    - revealElement: question_hannes_silence
-    - addPartOf:
-      - hannes_past
-      - question_hannes_silence
-    - addPartOf:
-      - official_flood_story
-      - question_hannes_silence
-    - disableSelfTrigger: reveal_silence_question_after_brandt_evidence
-- id: old_store_room_present
-  name: Alter Lagerraum
-  type: location
-  physical: true
-  layers:
-  - present
-  locatedIn: null
-  exitLabel: Lagerraum verlassen
-  image: Ein kleiner, fensterloser Lagerraum mit einer schweren Holztür, verrottete Säcke stapeln sich
-    an den Wänden, gedämpftes Licht durch Ritzen im Dach.
-  initialState:
-    visible: false
-    investigation: open
-  initialPartOf:
-  - history_sawmill
-  presentation:
-    firstView: Der kleine Lagerraum besitzt kein Fenster. Seine schwere Tür kann nur von außen verriegelt
-      werden. Zwischen verrotteten Säcken liegt ein verblasstes Haarband.
-    repeatView: Haarband, Verriegelung und Kratzspuren sind untersucht. Im Lagerraum gibt es derzeit nichts
-      Weiteres zu entdecken.
-- id: store_room_lock_present
-  name: Verriegelung des Lagerraums
-  type: object
-  physical: true
-  layers:
-  - present
-  locatedIn: old_store_room_present
-  initialState:
-    visible: true
-    investigation: open
   initialPartOf: []
   presentation:
-    firstView: Die schwere Verriegelung befindet sich ausschließlich außen. Auf der Innenseite der Tür
-      sind tiefe Kratzspuren zu erkennen.
-    repeatView: Die Verriegelung kann nur von außen bedient werden. Die Kratzspuren innen sind bereits
-      dokumentiert.
-  fragments:
-  - id: f_lock_outside
-    fact: Die alte Tür konnte nur von außen verriegelt werden.
-    assumption: Wer sich im Lagerraum befand, konnte sich nicht selbst einschließen.
-  - id: f_lock_inside_scratches
-    fact: Auf der Innenseite der Tür befinden sich tiefe Kratzspuren.
-    assumption: Eine eingeschlossene Person versuchte, den Lagerraum zu verlassen.
-  onUse:
-  - id: inspect_store_lock
-    enabled: true
-    effects:
-    - discoverFragment: f_lock_outside
-    - discoverFragment: f_lock_inside_scratches
-    - revealElement: clara_imprisonment
-    - addPartOf:
-      - richard_brandt_past
-      - clara_imprisonment
-    - addPartOf:
-      - clara_past
-      - clara_imprisonment
-    - hideElement: question_clara_at_sawmill
-    - setElementState:
-      - store_room_lock_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: inspect_store_lock
-  - id: complete_sawmill_after_lock
-    enabled: true
-    conditions:
-    - stateEquals:
-      - clara_ribbon_present
-      - investigation
-      - complete
-    effects:
-    - setElementState:
-      - old_store_room_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_ruin_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: complete_sawmill_after_lock
-- id: clara_ribbon_present
-  name: Verblasstes Haarband
-  type: object
+    firstView: |-
+      Das Sägewerk war einmal das größte Gebäude im Tal. Jetzt steht nur noch die Halle, die Dachbalken schwarz vor Nässe. Die große Bandsäge ist festgerostet, ihr Blatt hängt in der Luft wie ein erstarrtes Grinsen. Hinter der Halle verläuft ein steinerner Kanal, vollgestopft mit Balken und Steinen.
+
+      Im Seitenflügel liegt ein kleines Büro. Daneben gibt es eine schwere Tür mit einem eisernen Riegel. An der Werkbank liegt noch Werkzeug.
+    repeatView: Die Halle des Sägewerks. Die rostige Säge.
+  image: 'Die Ruine eines Sägewerks: eine lange Halle aus dunklem Holz auf einem Sockel aus grauem Bruchstein,
+    das Dach teilweise eingestürzt, schwarze, nasse Dachbalken, in der Halle eine riesige, festgerostete
+    Bandsäge, ihr Blatt hängt starr in der Luft. Nebel zieht durch die offenen Seiten. Hinter der Halle
+    ist ein steinerner Entlastungskanal, breit wie ein Ruderboot, mit zugesägten Balken und gesetzten
+    Bruchsteinen zugemauert zu sehen. An der Seite ein kleiner Anbau mit einer schweren Holztür mit eisernem
+    Riegel, an einer Wand eine lange Werkbank.'
+- id: path_sawmill_to_square
+  name: Zurück zum Dorfplatz
+  type: door
   physical: true
   layers:
   - present
-  locatedIn: old_store_room_present
-  voice: Standard
+  locatedIn: sawmill_ruin_present
   initialState:
     visible: true
-    investigation: open
   initialPartOf: []
-  presentation:
-    contentText: 'Wenn ich zur Mühle zurückkomme: hinter der dritten Wandbohle neben Vaters Schreibtisch.'
-    firstView: In den Saum sind die Initialen "C. V." eingestickt. Auf der Rückseite befindet sich eine
-      handschriftliche Notiz.
-    repeatView: Das Haarband gehörte Clara. Der Hinweis auf der Rückseite nennt eindeutig das Versteck
-      in der Mühle.
-  fragments:
-  - id: f_ribbon_initials
-    fact: In das Band sind die Initialen "C. V." eingestickt.
-    assumption: Clara war in der Flutnacht in diesem Lagerraum.
-  - id: f_ribbon_wall_marks
-    fact: Auf der Rückseite steht "Wenn ich zur Mühle zurückkomme, hinter der dritten Wandbohle neben
-      Vaters Schreibtisch."
-    assumption: Clara plante, später etwas an einem eindeutig bezeichneten Ort in der Mühle zu verstecken.
   onUse:
-  - id: inspect_ribbon
+  - id: go_path_sawmill_to_square
     enabled: true
     effects:
-    - discoverFragment: f_ribbon_initials
-    - discoverFragment: f_ribbon_wall_marks
-    - addPartOf:
-      - clara_past
-      - clara_imprisonment
-    - revealElement: loose_wall_board_present
-    - setElementState:
-      - mill_ruin_present
-      - neue_spur
-      - true
-    - revealElement: clara_secret_return
-    - revealElement: contradiction_clara_death
-    - addPartOf:
-      - clara_past
-      - contradiction_clara_death
-    - addPartOf:
-      - clara_death_story
-      - contradiction_clara_death
-    - addPartOf:
-      - clara_secret_return
-      - contradiction_clara_death
-    - setElementState:
-      - mill_ruin_present
-      - investigation
-      - open
-    - setElementState:
-      - mill_ruin_present
-      - currentHint
-      - Claras Hinweis nennt ein Versteck in der Mühle hinter der dritten Wandbohle neben Hannes' Schreibtisch.
-        Du kannst die Mühle untersuchen.
-    - setElementState:
-      - sawmill_ruin_present
-      - currentHint
-      - null
-    - setElementState:
-      - clara_ribbon_present
-      - investigation
-      - complete
-    - disableSelfTrigger: inspect_ribbon
-  - id: complete_sawmill_after_ribbon
+    - setCurrentElement: village_square_present
+- id: weg_saegewerk_buero
+  name: Ins Büro
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: sawmill_ruin_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_saegewerk_buero
     enabled: true
-    conditions:
-    - stateEquals:
-      - store_room_lock_present
-      - investigation
-      - complete
     effects:
-    - setElementState:
-      - old_store_room_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_ruin_present
-      - investigation
-      - complete
-    - setElementState:
-      - sawmill_ruin_present
-      - currentHint
-      - null
-    - disableSelfTrigger: complete_sawmill_after_ribbon
+    - setCurrentElement: sawmill_office_present
 - id: blocked_relief_channel_present
   name: Verschlossener Entlastungskanal
   type: place
@@ -1023,50 +1120,30 @@ elements:
   locatedIn: sawmill_ruin_present
   initialState:
     visible: true
-    investigation: open
-  initialPartOf:
-  - history_sawmill
+  initialPartOf: []
   presentation:
-    firstView: Passend zugeschnittene Balken und gesetzte Steine zeigen, dass der Kanal absichtlich und
-      mit erheblichem Aufwand verschlossen wurde.
-    repeatView: Die Blockade ist eindeutig menschengemacht. Weitere Informationen sind hier derzeit nicht
-      zu finden.
+    firstView: |-
+      Der Kanal ist breit genug für ein Ruderboot. Jemand hat ihn mit passend zugesägten Balken und sorgfältig gesetzten Steinen verschlossen, Lage um Lage, wie eine Mauer. Das war keine Notlösung. Das war Arbeit für viele Männer und viele Tage.
+
+      Hinter der Sperre liegt das Kanalbett trocken. Seit vierzig Jahren.
+    repeatView: Der zugemauerte Kanal.
   fragments:
   - id: f_channel_deliberate_block
-    fact: Im Kanal stecken behauene Balken und gesetzte Steine; die Blockade wurde absichtlich gebaut.
-    assumption: Der Entlastungskanal wurde gezielt unbrauchbar gemacht.
+    fact: Der Entlastungskanal wurde mit behauenen Balken und gesetzten Steinen absichtlich verschlossen.
+    assumption: Jemand wollte, dass kein Wasser mehr durch den Kanal fließt.
   onUse:
-  - id: inspect_blocked_channel
+  - id: kanal_gesehen
     enabled: true
     effects:
     - discoverFragment: f_channel_deliberate_block
-    - revealElement: illegal_channel_closure
-    - addPartOf:
-      - blocked_relief_channel_past
-      - illegal_channel_closure
-    - setElementState:
-      - blocked_relief_channel_present
-      - investigation
-      - complete
-    - disableSelfTrigger: inspect_blocked_channel
-- id: path_mill_to_square
-  name: Weg zurück zum Dorfplatz
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: mill_ruin_present
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: leave_mill
-    enabled: true
-    effects:
-    - setCurrentElement: village_square_present
-- id: path_sawmill_to_square
-  name: Weg zurück zum Dorfplatz
-  type: door
+    - disableSelfTrigger: kanal_gesehen
+  image: 'Nahaufnahme: ein steinerner Entlastungskanal, breit wie ein Ruderboot, mit zugesägten Balken
+    und gesetzten Bruchsteinen zugemauert, Lage um Lage sorgfältig aufgeschichtet wie eine Mauer. Hinter
+    der Sperre liegt das Kanalbett trocken und voller Laub. Im Hintergrund die dunkle Holzhalle eines
+    Sägewerks im Nebel.'
+- id: werkbank
+  name: Werkbank
+  type: feature
   physical: true
   layers:
   - present
@@ -1074,522 +1151,34 @@ elements:
   initialState:
     visible: true
   initialPartOf: []
-  onUse:
-  - id: leave_sawmill
-    enabled: true
-    effects:
-    - setCurrentElement: village_square_present
-- id: hannes_past
-  name: Hannes Voss
-  type: person
+  presentation:
+    firstView: Eine lange Werkbank voller Rost und Sägemehl, das zu grauem Brei verklumpt ist. Feilen,
+      Keile, ein zerbrochener Hobel. Und eine schwere Brechstange, quer über die Bank gelegt.
+    repeatView: Die rostige Werkbank.
+  image: Eine lange, alte Werkbank in einer verfallenen Sägewerkshalle, bedeckt mit zu grauem Brei verklumptem
+    Sägemehl, rostigen Feilen, Holzkeilen und einem zerbrochenen Hobel. Quer über der Bank liegt eine
+    schwere, rostige, armlange Brechstange aus Eisen mit gebogenem Ende.
+- id: brecheisen
+  name: Brechstange
+  type: object
   physical: true
-  layers:
-  - flood_night
-  locatedIn: mill_past
-  voice: Standard
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_mill
-  - case_cursed_mill
-  fragments:
-  - id: f_hannes_miller
-    fact: Hannes war der Müller und Claras Vater.
-    assumption: Er trug als Betreiber die Verantwortung für das Wehr.
-- id: clara_past
-  name: Clara Voss
-  type: person
-  physical: true
-  layers:
-  - flood_night
-  - clara_return
-  locatedIn: mill_past
-  voice: Standard
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_mill
-  - case_cursed_mill
-  fragments:
-  - id: f_clara_daughter
-    fact: Clara war Hannes' 16-jährige Tochter.
-    assumption: Nach der öffentlichen Darstellung starb sie bei der Flut.
-- id: richard_brandt_past
-  name: Richard Brandt
-  type: person
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: sawmill_past
-  voice: Standard
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_sawmill
-  - case_cursed_mill
-  fragments:
-  - id: f_brandt_owner
-    fact: Brandt besaß das Sägewerk und hatte großen Einfluss im Dorf.
-    assumption: Seine öffentliche Stellung machte seine Darstellung glaubwürdig.
-- id: sawmill_workers_past
-  name: Arbeiter des Sägewerks
-  type: group
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: sawmill_past
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_sawmill
-- id: mill_past
-  name: Wassermühle vor der Flut
-  type: location
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_mill
-- id: sawmill_past
-  name: Brandts Sägewerk
-  type: location
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_sawmill
-- id: village_past
-  name: Dorf vor der Überschwemmung
-  type: location
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-- id: blocked_relief_channel_past
-  name: Entlastungskanal
-  type: mechanism
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: sawmill_past
-  initialState:
-    visible: false
-    blocked: true
-  initialPartOf:
-  - history_sawmill
-- id: emergency_gate_past
-  name: Notwehr der Mühle
-  type: mechanism
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: mill_past
-  initialState:
-    visible: false
-    open: false
-  initialPartOf:
-  - history_mill
-- id: store_room_past
-  name: Lagerraum des Sägewerks
-  type: location
-  physical: true
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-    lockedFromOutside: true
-  initialPartOf:
-  - history_sawmill
-- id: case_cursed_mill
-  name: Das Geheimnis der verfluchten Mühle
-  type: story
-  physical: false
   layers:
   - present
-  - flood_night
-  - clara_return
-  locatedIn: null
+  locatedIn: werkbank
   initialState:
     visible: true
-    resolved: false
   initialPartOf: []
-- id: history_mill
-  name: Die Geschichte der Mühle
-  type: story
-  physical: false
-  layers:
-  - present
-  - flood_night
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf:
-  - case_cursed_mill
-  - hannes_past
-  - clara_past
-- id: history_sawmill
-  name: Die Geschichte des Sägewerks
-  type: story
-  physical: false
-  layers:
-  - present
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf:
-  - case_cursed_mill
-  - richard_brandt_past
-- id: official_flood_story
-  name: Die offizielle Geschichte der Flut
-  type: story
-  physical: false
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-  fragments:
-  - id: f_official_version
-    fact: Laut Gedenkstein öffnete Hannes das Wehr falsch; Clara starb in der Mühle.
-    assumption: Hannes verursachte aus Fahrlässigkeit die Katastrophe.
-- id: hannes_guilt_rumor
-  name: Der schuldige Müller
-  type: rumor
-  physical: false
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - official_flood_story
-  fragments:
-  - id: f_hannes_rumor
-    fact: Im Dorf wurde erzählt, Hannes sei in der Flutnacht betrunken gewesen.
-    assumption: Hannes habe das Wehr versehentlich geöffnet.
-- id: clara_death_story
-  name: Claras Tod in der Mühle
-  type: story
-  physical: false
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - official_flood_story
-  - ghost_woman_rumor
-  fragments:
-  - id: f_clara_declared_dead
-    fact: Clara wurde nach der Flut für tot erklärt; ihr Körper wurde nie gefunden.
-    assumption: Sie wurde von der Flut fortgerissen.
-- id: ghost_woman_rumor
-  name: Die Frau im Regen
-  type: rumor
-  physical: false
-  layers:
-  - present
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf:
-  - case_cursed_mill
-  - clara_death_story
-  fragments:
-  - id: f_ghost_sighting
-    fact: Zwölf Jahre nach der Flut wurde nachts eine Frau in der verlassenen Mühle gesehen.
-    assumption: Claras Geist kehrte zur Mühle zurück.
-- id: illegal_channel_closure
-  name: Die absichtliche Schließung des Entlastungskanals
-  type: event
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_sawmill
-  - true_flood_cause
-  fragments:
-  - id: f_channel_truth
-    fact: Brandt ließ den Kanal sperren, damit mehr Wasser seine Turbine antrieb.
-    assumption: Brandt nahm die erhöhte Flutgefahr aus wirtschaftlichem Interesse in Kauf.
-- id: true_flood_cause
-  name: Die wahre Ursache der Flutgefahr
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-  fragments:
-  - id: f_true_cause
-    fact: Starkregen traf auf den absichtlich blockierten Entlastungskanal.
-    assumption: Ohne die Blockade hätte das Wasser kontrolliert abfließen können.
-- id: confrontation_at_sawmill
-  name: Claras Konfrontation mit Brandt
-  type: event
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - clara_past
-  - richard_brandt_past
-  - history_sawmill
-- id: clara_imprisonment
-  name: Clara im Lagerraum
-  type: event
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_sawmill
-  fragments:
-  - id: f_imprisonment_truth
-    fact: Brandt sperrte Clara von außen im Lagerraum ein.
-    assumption: Er wollte verhindern, dass sie das Dorf vor dem verschlossenen Kanal warnte.
-- id: emergency_opening
-  name: Die Öffnung des Notwehrs
-  type: event
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - history_mill
-  - true_rescue_story
-  fragments:
-  - id: f_emergency_truth
-    fact: Hannes öffnete das Notwehr vollständig und leitete das Wasser durch seine eigene Mühle.
-    assumption: Er opferte die Mühle bewusst, um das Dorf zu retten.
-- id: true_rescue_story
-  name: Die Rettung des Dorfes
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-  - hannes_past
-- id: rescue_of_clara
-  name: Claras Befreiung aus dem Lagerraum
-  type: event
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - hannes_past
-  - clara_past
-  - history_sawmill
-- id: clara_survived_story
-  name: Clara überlebte die Flut
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-  - clara_past
-- id: protective_silence
-  name: Hannes' schützendes Schweigen
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - hannes_past
-  - clara_past
-  - case_cursed_mill
-  fragments:
-  - id: f_silence_truth
-    fact: Hannes widersprach der öffentlichen Anschuldigung nicht und schickte Clara heimlich zu ihrer
-      Tante.
-    assumption: Er nahm die Schuld auf sich, damit Brandt Clara nicht finden konnte.
-- id: clara_secret_return
-  name: Claras heimliche Rückkehr
-  type: event
-  physical: false
-  layers:
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - clara_past
-  - history_mill
-  - ghost_woman_rumor
-  fragments:
-  - id: f_return_truth
-    fact: Clara kehrte zwölf Jahre später zurück und versteckte ihren Brief in der Mühle.
-    assumption: Die vermeintliche Geistererscheinung war Clara selbst.
-- id: curse_of_place
-  name: Der Fluch des verschwiegenen Geschehens
-  type: story
-  physical: false
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf:
-  - case_cursed_mill
-  - official_flood_story
-  fragments:
-  - id: f_curse_meaning
-    fact: Der Ort hält Besucher fest, solange die falsche öffentliche Geschichte unangetastet bleibt.
-    assumption: Der Weg öffnet sich, wenn die wesentlichen Zusammenhänge erkannt wurden.
-- id: case_resolution
-  name: Die Wahrheit über die Flut
-  type: story
-  physical: false
-  layers:
-  - present
-  - flood_night
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: false
-    complete: false
-  initialPartOf:
-  - case_cursed_mill
+  portable: true
   presentation:
-    heading: Die Wahrheit über die Flut
-    body: Richard Brandt erzeugte durch die absichtliche Blockade des Entlastungskanals die Flutgefahr
-      und sperrte Clara ein. Hannes opferte seine Mühle, rettete das Dorf und befreite seine Tochter.
-      Clara überlebte. Hannes nahm die öffentliche Schuld auf sich, um sie vor Brandt zu schützen. Die
-      vermeintliche Geistererscheinung war Claras heimliche Rückkehr zur Mühle.
-  messages:
-    Auflösungstext: Der Nebel über dem Weg wird dünner. Der Ort hält dich nicht länger fest.
-- id: contradiction_hannes_guilt
-  name: 'Widerspruch: Hannes'' Schuld'
-  type: story
-  physical: false
-  layers:
-  - present
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf: []
-  presentation:
-    style: contradiction
-    heading: 'Neuer Widerspruch: Hannes'' Schuld'
-    body: Das Notwehr wurde vollständig geöffnet. Dadurch floss das Wasser vom Dorf weg und zerstörte
-      Hannes' eigene Mühle. Warum bezeichnet der Gedenkstein dies als schuldhafte Fehlbedienung?
-    openQuestion: Wollte Hannes die Flut verursachen - oder hat er das Dorf geschützt?
-- id: corrected_flood_cause_story
-  name: Brandts Eingriff verursachte die Flutgefahr
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - case_cursed_mill
-  presentation:
-    style: discovery
-    heading: 'Neue Erkenntnis: Die Flutgefahr entstand am Sägewerk'
-    body: Brandt ließ den Entlastungskanal absichtlich verschließen. Dadurch konnte das Wasser bei starkem
-      Regen nicht kontrolliert abfließen. Die offizielle Geschichte nennt diesen Eingriff nicht.
-- id: question_clara_at_sawmill
-  name: 'Offene Frage: Was geschah mit Clara im Sägewerk?'
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - clara_past
-  - confrontation_at_sawmill
-  presentation:
-    style: contradiction
-    heading: 'Neue offene Frage: Claras Verschwinden'
-    body: Clara ging kurz vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen. Danach galt sie
-      als vermisst und später als tot.
-    openQuestion: Was geschah mit Clara im Sägewerk?
-- id: contradiction_clara_death
-  name: 'Widerspruch: Claras Tod'
-  type: story
-  physical: false
-  layers:
-  - present
-  - flood_night
-  - clara_return
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf: []
-  presentation:
-    style: contradiction
-    heading: 'Neuer Widerspruch: Claras Tod'
-    body: Der Gedenkstein nennt Clara als Todesopfer. Auf ihrem Haarband kündigt sie jedoch ausdrücklich
-      eine spätere Rückkehr zur Mühle an.
-    openQuestion: Hat Clara die Überschwemmung überlebt?
-- id: question_hannes_silence
-  name: 'Offene Frage: Warum schwieg Hannes?'
-  type: story
-  physical: false
-  layers:
-  - flood_night
-  locatedIn: null
-  initialState:
-    visible: false
-  initialPartOf:
-  - hannes_past
-  - official_flood_story
-  presentation:
-    style: contradiction
-    heading: 'Neuer Widerspruch: Hannes'' Schweigen'
-    body: Die Stellung des Notwehrs zeigt, dass Hannes das Dorf schützte. Trotzdem nennt ihn die offizielle
-      Geschichte als Verursacher der Flut.
-    openQuestion: Warum widersprach Hannes der Anschuldigung nicht?
-- id: weg_sawmill_ruin_present_sawmill_office_present
-  name: Weg nach Verfallenes Büro
+    firstView: Eine schwere Brechstange, rostig, aber unbeschädigt. Damit ließe sich auch eine festsitzende
+      Tür aufbrechen.
+    repeatView: Die Brechstange.
+    takeText: Du nimmst die Brechstange. Sie ist kalt und schwerer, als sie aussieht.
+    dropText: Du legst die Brechstange ab.
+  image: 'Nahaufnahme: eine schwere, rostige, armlange Brechstange aus Eisen mit gebogenem Ende, quer
+    auf einer alten Werkbank mit verklumptem, grauem Sägemehl.'
+- id: weg_lagerraum
+  name: Tür im Seitenflügel
   type: door
   physical: true
   layers:
@@ -1597,15 +1186,80 @@ elements:
   locatedIn: sawmill_ruin_present
   initialState:
     visible: true
+    aufgebrochen: false
   initialPartOf: []
-  onUse:
-  - id: go_weg_sawmill_ruin_present_sawmill_office_present
-    enabled: true
-    effects:
-    - setCurrentElement: sawmill_office_present
   presentation: {}
-- id: weg_sawmill_office_present_sawmill_ruin_present
-  name: Weg nach Ruine des Sägewerks
+  messages:
+    Klemmt: Die Tür ist von außen mit einem schweren Riegel gesichert. Den Riegel kannst du zurückschieben,
+      aber die Tür selbst gibt nicht nach. Das Holz ist aufgequollen und sitzt fest im Rahmen. Mit bloßen
+      Händen bekommst du sie nicht auf.
+  onUse:
+  - id: tuer_offen
+    enabled: true
+    conditions:
+    - stateEquals:
+      - weg_lagerraum
+      - aufgebrochen
+      - true
+    effects:
+    - setCurrentElement: old_store_room_present
+  - id: tuer_klemmt
+    enabled: true
+    conditions:
+    - stateEquals:
+      - weg_lagerraum
+      - aufgebrochen
+      - false
+    - notInInventory: brecheisen
+    effects:
+    - showTextFrom: weg_lagerraum.messages.Klemmt
+    - setCurrentElement: sawmill_ruin_present
+  - id: tuer_aufbrechen
+    enabled: true
+    conditions:
+    - stateEquals:
+      - weg_lagerraum
+      - aufgebrochen
+      - false
+    - inInventory: brecheisen
+    effects:
+    - setElementState:
+      - weg_lagerraum
+      - aufgebrochen
+      - true
+    - setCurrentElement: old_store_room_present
+  cutscene:
+    onlyOnce: true
+    buttonLabel: Weiter
+    text: |-
+      Du setzt die Brechstange in den Spalt und stemmst dich dagegen. Das Holz ächzt. Einmal, zweimal, dann gibt die Tür mit einem Knall nach, und ein Schwall kalter, abgestandener Luft schlägt dir entgegen.
+
+      Es riecht nach Moder und nach etwas anderem, Älterem. Für einen Moment glaubst du, drinnen hätte jemand Luft geholt.
+    image: Eine schwere, alte Holztür mit zurückgeschobenem eisernem Riegel in einem Anbau einer Sägewerkshalle,
+      gerade aufgebrochen und einen Spalt geöffnet. Im Spalt steckt eine schwere, rostige, armlange Brechstange
+      aus Eisen mit gebogenem Ende, am Rahmen frisch gesplittertes Holz. Hinter dem Spalt ein dämmriger
+      Raum, in den dünne Lichtstreifen fallen. Staub wirbelt in der Luft.
+- id: sawmill_office_present
+  name: Verfallenes Büro
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Ein enger Raum mit einem Stehpult und einem Schrank, dessen Türen herausgerissen sind.
+      Auf dem Pult liegt unter einer gesprungenen Glasplatte ein Blatt Papier, das die Jahre erstaunlich
+      gut überstanden hat. An der Wand hängt ein Schlüsselbrett.
+    repeatView: Das enge Büro mit dem Stehpult.
+  image: 'Ein enges, verfallenes Büro: ein hölzernes Stehpult, darauf unter einer gesprungenen Glasplatte
+    ein Blatt Papier; ein Schrank, dessen Türen herausgerissen sind; an der Wand ein Schlüsselbrett mit
+    leeren Haken und einem einzigen Schlüssel an einem Lederanhänger. Staub, Spinnweben, graues Licht
+    durch ein schmutziges Fenster.'
+- id: weg_buero_saegewerk
+  name: Zurück in die Halle
   type: door
   physical: true
   layers:
@@ -1615,47 +1269,1063 @@ elements:
     visible: true
   initialPartOf: []
   onUse:
-  - id: go_weg_sawmill_office_present_sawmill_ruin_present
+  - id: go_weg_buero_saegewerk
     enabled: true
     effects:
     - setCurrentElement: sawmill_ruin_present
-  presentation: {}
-- id: weg_sawmill_ruin_present_old_store_room_present
-  name: Weg nach Alter Lagerraum
-  type: door
+- id: maintenance_note_present
+  name: Arbeitsanweisung unter Glas
+  type: document
   physical: true
   layers:
   - present
-  locatedIn: sawmill_ruin_present
+  locatedIn: sawmill_office_present
   initialState:
-    visible: false
+    visible: true
   initialPartOf: []
+  exitLabel: Zurück zum Pult
+  contentVoice: male2
+  presentation:
+    firstView: Die Glasplatte hat das Papier vor der Feuchtigkeit geschützt. Es ist eine Arbeitsanweisung
+      mit dem Stempel des Sägewerks. Am Rand hat jemand mit Bleistift etwas hinzugefügt.
+    repeatView: 'Die Arbeitsanweisung:'
+    contentText: |-
+      ARBEITSANWEISUNG
+
+      Den Entlastungskanal dauerhaft mit Balken und Bruchsteinen verschließen. Der gesamte Wasserlauf ist der Turbine zuzuführen.
+
+      Richard Brandt
+
+      Bleistiftnotiz eines Arbeiters am Rand:
+      „Das Mädchen von der Mühle hat uns gesehen. Sie sagt, sie hat alles in Hannes’ Buch geschrieben.“
+  fragments:
+  - id: f_maintenance_order
+    fact: Richard Brandt ordnete schriftlich an, den Entlastungskanal dauerhaft zu verschließen.
+    assumption: Die Blockade war kein Unfall, sondern Brandts Befehl.
+  - id: f_worker_ledger_reference
+    fact: Ein Arbeiter notierte, das Mädchen von der Mühle habe alles in Hannes’ Buch geschrieben.
+    assumption: Im Geschäftsbuch der Mühle steht ein Eintrag des Mädchens.
   onUse:
-  - id: go_weg_sawmill_ruin_present_old_store_room_present
+  - id: anweisung_gelesen
     enabled: true
     effects:
-    - setCurrentElement: old_store_room_present
-  - id: neue_spur_gesehen
-    enabled: true
-    effects:
+    - discoverFragment: f_maintenance_order
+    - discoverFragment: f_worker_ledger_reference
     - setElementState:
-      - sawmill_ruin_present
-      - neue_spur
-      - false
-  presentation: {}
-- id: weg_old_store_room_present_sawmill_ruin_present
-  name: Weg nach Ruine des Sägewerks
+      - ermittlung
+      - kanal
+      - true
+    - revealElement: lb_kanal
+    - revealElement: clara_ledger_entry_present
+    - hideElement: lb_frage_kanal
+    - disableSelfTrigger: anweisung_gelesen
+  image: 'Nahaufnahme eines vergilbten Schriftstücks mit dem Stempel eines Sägewerks unter einer gesprungenen
+    Glasplatte auf einem hölzernen Stehpult. Oben maschinengeschrieben, am Rand eine Bleistiftnotiz in
+    anderer Handschrift. Die Schrift ist lesbar und lautet genau: „ARBEITSANWEISUNG / Den Entlastungskanal
+    dauerhaft mit Balken und Bruchsteinen verschließen. Der gesamte Wasserlauf ist der Turbine zuzuführen.
+    / Richard Brandt / Bleistiftnotiz eines Arbeiters am Rand: / ‚Das Mädchen von der Mühle hat uns gesehen.
+    Sie sagt, sie hat alles in Hannes’ Buch geschrieben.‘“. Wo sie zu klein ist, darf sie unscharf werden.
+    Staub, graues Licht.'
+- id: schluessel
+  name: Schlüssel am Brett
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: sawmill_office_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  portable: true
+  presentation:
+    firstView: 'Ein schwerer Messingschlüssel an einem Lederanhänger. In das Leder ist eingebrannt: „R.
+      B. – Schreibtisch“.'
+    repeatView: Brandts Schreibtischschlüssel.
+    takeText: Du nimmst den Schlüssel vom Brett. Das Messing ist eiskalt.
+    dropText: Du legst den Schlüssel ab.
+  image: 'Nahaufnahme: ein schwerer Messingschlüssel an einem alten Lederanhänger, in das Leder eingebrannt
+    „R. B. – Schreibtisch“, hängt an einem Haken eines hölzernen Schlüsselbretts. Staub, kaltes Licht.'
+- id: old_store_room_present
+  name: Alter Lagerraum
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Ein kleiner, fensterloser Raum. Durch Ritzen im Dach fällt graues Licht in dünnen Streifen. An den Wänden stapeln sich verrottete Säcke. Es ist still hier, stiller als draußen.
+
+      Auf einem Balken zwischen den Säcken liegt ein verblasstes Haarband. Es liegt ordentlich da, fast feierlich, als hätte es jemand mit Absicht hingelegt.
+    repeatView: Der fensterlose Lagerraum.
+  image: Ein kleiner, fensterloser Lagerraum aus dunklem Holz. Durch Ritzen im Dach fallen dünne Streifen
+    grauen Lichts. An den Wänden stapeln sich verrottete Säcke. Auf einem Holzbalken zwischen den Säcken
+    liegt ordentlich ausgebreitet ein schmales Haarband aus ehemals blauem, inzwischen grau verblichenem
+    Stoff, von einem Lichtstreifen getroffen. Die schwere Tür steht offen, ihr Rahmen ist gesplittert.
+- id: weg_lagerraum_halle
+  name: Hinaus in die Halle
   type: door
   physical: true
   layers:
   - present
   locatedIn: old_store_room_present
   initialState:
-    visible: false
+    visible: true
   initialPartOf: []
   onUse:
-  - id: go_weg_old_store_room_present_sawmill_ruin_present
+  - id: go_weg_lagerraum_halle
     enabled: true
     effects:
     - setCurrentElement: sawmill_ruin_present
-  presentation: {}
+- id: store_room_lock_present
+  name: Innenseite der Tür
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: old_store_room_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Auf dieser Seite der Tür gibt es keinen Griff und keinen Riegel. Nur Holz. Und Kratzspuren, tief und dicht nebeneinander, in Brusthöhe. Manche sind dunkel verfärbt.
+
+      Am Rahmen siehst du alte Kerben, älter als deine eigenen. Schon einmal hat jemand diese Tür von außen aufgebrochen.
+    repeatView: Die zerkratzte Innenseite der Tür.
+  fragments:
+  - id: f_lock_outside
+    fact: Die Tür des Lagerraums lässt sich nur von außen verriegeln.
+    assumption: Wer hier drin war, konnte sich nicht selbst einschließen.
+  - id: f_lock_inside_scratches
+    fact: Auf der Innenseite der Tür sind tiefe, dunkel verfärbte Kratzspuren.
+    assumption: Jemand war hier eingesperrt und wollte verzweifelt hinaus.
+  - id: f_lock_pried
+    fact: Am Türrahmen sind alte Kerben, die Tür wurde schon einmal aufgebrochen.
+    assumption: Jemand hat die eingesperrte Person befreit.
+  onUse:
+  - id: tuer_untersucht
+    enabled: true
+    effects:
+    - discoverFragment: f_lock_outside
+    - discoverFragment: f_lock_inside_scratches
+    - discoverFragment: f_lock_pried
+    - setElementState:
+      - ermittlung
+      - eingesperrt
+      - true
+    - hideElement: lb_frage_clara
+    - disableSelfTrigger: tuer_untersucht
+  - id: tuer_eingesperrt
+    enabled: true
+    effects:
+    - revealElement: lb_eingesperrt
+    - disableSelfTrigger: tuer_eingesperrt
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  image: Die Innenseite einer schweren, alten Holztür ohne Griff und ohne Riegel. In Brusthöhe tiefe,
+    dicht nebeneinander liegende Kratzspuren im Holz, einige dunkel verfärbt. Am Türrahmen alte Kerben
+    und gesplittertes Holz von früherem Aufbrechen. Ein dünner Lichtstreifen, Staub.
+- id: clara_ribbon_present
+  name: Verblasstes Haarband
+  type: object
+  physical: true
+  layers:
+  - present
+  locatedIn: old_store_room_present
+  initialState:
+    visible: true
+  initialPartOf: []
+  contentVoice: female1
+  presentation:
+    firstView: Ein Haarband aus blauem Stoff, längst grau geworden. In den Saum sind die Initialen „C.
+      V.“ gestickt. Auf der Rückseite hat jemand mit Tinte eine Zeile geschrieben.
+    repeatView: 'Claras Haarband:'
+    contentText: '„Wenn du das findest: hinter der dritten Wandbohle neben Vaters Schreibtisch.“'
+  fragments:
+  - id: f_ribbon_initials
+    fact: In das Haarband im Lagerraum sind die Initialen „C. V.“ gestickt.
+    assumption: Clara Voss war in diesem Lagerraum.
+  - id: f_ribbon_hint
+    fact: 'Auf dem Haarband steht: „Wenn du das findest: hinter der dritten Wandbohle neben Vaters Schreibtisch.“'
+    assumption: Clara hat in der Mühle etwas versteckt, damit es gefunden wird.
+  onUse:
+  - id: haarband_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_ribbon_initials
+    - discoverFragment: f_ribbon_hint
+    - revealElement: loose_wall_board_present
+    - disableSelfTrigger: haarband_gelesen
+  - id: haarband_versteck
+    enabled: true
+    effects:
+    - revealElement: lb_versteck
+    - disableSelfTrigger: haarband_versteck
+    conditions:
+    - stateEquals:
+      - loose_wall_board_present
+      - geoeffnet
+      - false
+  - id: haarband_widerspruch
+    enabled: true
+    effects:
+    - revealElement: lb_widerspruch_clara
+    - disableSelfTrigger: haarband_widerspruch
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  image: 'Nahaufnahme: ein schmales Haarband aus ehemals blauem, inzwischen grau verblichenem Stoff liegt
+    ordentlich ausgebreitet auf einem Holzbalken. Im Saum gestickt: „C. V.“. Auf dem Stoff mit Tinte geschrieben:
+    „Wenn du das findest: hinter der dritten Wandbohle neben Vaters Schreibtisch.“ Ein dünner Lichtstreifen
+    fällt durch eine Ritze genau darauf, ringsum Dunkelheit und verrottete Säcke.'
+- id: kirchhof
+  name: Kirchhof
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Eine niedrige Bruchsteinmauer umschließt den Kirchhof. Die Grabsteine stehen schief, viele sind umgekippt, die Namen von Flechten zerfressen. Krähen sitzen auf dem Dach der Kapelle und sehen dir zu, ohne einen Laut.
+
+      Nahe dem Tor steht ein kleiner weißer Grabstein, sauberer als alle anderen. Außerhalb der Mauer, wo das Gras hoch und ungemäht steht, ragt ein einfaches Holzkreuz aus dem Boden.
+    repeatView: Der stille Kirchhof. Die Krähen auf der Kapelle.
+  image: 'Ein verwilderter Dorfkirchhof, rundum von einer niedrigen Mauer aus grauem Bruchstein umschlossen.
+    Innerhalb der Mauer stehen alle Grabsteine: schief, teils umgestürzt, von Flechten überwuchert, im
+    hohen Gras. Ebenfalls innerhalb der Mauer, nahe dem Tor, steht ein kleiner weißer Grabstein, sauber
+    und ohne Flechten. Hinter den Gräbern eine kleine Kapelle aus grauem Bruchstein mit einem schmalen
+    Glockentürmchen und Schieferdach, auf deren Dach schwarze Krähen sitzen. Außerhalb der Mauer gibt
+    es keine Grabsteine; dort steht im ungemähten Gras als einziges Grabzeichen ein schiefes Holzkreuz
+    aus zwei grob zusammengenagelten, verwitterten Latten. Dichter Nebel.'
+- id: weg_kirchhof_platz
+  name: Zurück zum Dorfplatz
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: kirchhof
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_kirchhof_platz
+    enabled: true
+    effects:
+    - setCurrentElement: village_square_present
+- id: weg_kirchhof_kapelle
+  name: In die Kapelle
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: kirchhof
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_kirchhof_kapelle
+    enabled: true
+    effects:
+    - setCurrentElement: kapelle
+- id: claras_grab
+  name: Claras Grab
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: kirchhof
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Ein kleiner weißer Stein, sauber wie der Gedenkstein auf dem Platz. „Clara Voss. Sechzehn
+      Jahre. Vom Wasser genommen.“ Die Erde davor ist glatt und fest, als wäre sie nie aufgegraben worden.
+    repeatView: Claras Grabstein. Die Erde davor ist unberührt.
+  fragments:
+  - id: f_empty_grave
+    fact: Die Erde vor Claras Grabstein wurde offenbar nie aufgegraben.
+    assumption: Unter Claras Grabstein liegt niemand.
+  onUse:
+  - id: grab_clara_gesehen
+    enabled: true
+    effects:
+    - discoverFragment: f_empty_grave
+    - disableSelfTrigger: grab_clara_gesehen
+  image: 'Nahaufnahme: ein kleiner weißer Grabstein, sauber und ohne Flechten, innerhalb der Kirchhofsmauer
+    nahe dem Tor, die Bruchsteinmauer im Hintergrund. Die Erde davor ist glatt, fest und unberührt, ohne
+    Grabhügel. Ringsum schiefe, von Flechten überwucherte Grabsteine im Nebel. Auf dem Stein ist eingemeißelt:
+    „Clara Voss / Sechzehn Jahre / Vom Wasser genommen“.'
+- id: hannes_grab
+  name: Holzkreuz vor der Mauer
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: kirchhof
+  initialState:
+    visible: true
+    brief: false
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Das Kreuz ist aus zwei Latten zusammengenagelt und steht schief. Kein Name, nur zwei Buchstaben, mit dem Messer eingeschnitten: „H. V.“
+
+      Darunter, kleiner und von einer anderen Hand: „Ich weiß es, Vater. C.“
+
+      Das Grab liegt außerhalb der Mauer. Nicht in geweihter Erde.
+    repeatView: Das Holzkreuz außerhalb der Mauer. „H. V.“
+  stateTexts:
+  - id: grab_frei
+    conditions:
+    - &id003
+      stateEquals:
+      - hannes_grab
+      - brief
+      - true
+    - *id002
+    firstView: Claras Brief liegt am Fuß des Kreuzes. Über dem Kirchhof ist der Nebel dünn geworden, und
+      die Krähen sind fort.
+    repeatView: Claras Brief am Kreuz. Der Nebel ist dünn.
+  - id: grab_brief
+    conditions:
+    - *id003
+    firstView: Claras Brief liegt am Fuß des Kreuzes. Doch der Nebel hängt noch immer über der Mauer,
+      als warte er auf etwas. Noch ist nicht alles verstanden, was in jener Nacht geschah.
+    repeatView: Claras Brief am Kreuz. Der Nebel wartet.
+  messages:
+    Brief niedergelegt: Du ziehst Claras Brief hervor und legst ihn am Fuß des Kreuzes nieder, beschwert
+      mit einem flachen Stein. Nach all den Jahren sind ihre Worte bei ihrem Vater.
+  fragments:
+  - id: f_grave_carving
+    fact: 'Unter „H. V.“ ist später eingeschnitten: „Ich weiß es, Vater. C.“'
+    assumption: Nach Hannes’ Tod stand jemand an seinem Grab, der ihn Vater nannte.
+  onUse:
+  - id: grab_hannes_gesehen
+    enabled: true
+    effects:
+    - discoverFragment: f_grave_carving
+    - disableSelfTrigger: grab_hannes_gesehen
+  - id: grab_widerspruch
+    enabled: true
+    effects:
+    - revealElement: lb_widerspruch_clara
+    - disableSelfTrigger: grab_widerspruch
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - false
+  - id: brief_niederlegen
+    enabled: true
+    effects:
+    - setElementState:
+      - hannes_grab
+      - brief
+      - true
+    - setLocatedIn:
+      - clara_letter_present
+      - hannes_grab
+    - hideElement: clara_letter_present
+    - showTextFrom: hannes_grab.messages.Brief niedergelegt
+    - hideElement: lb_offen_grab
+    - disableSelfTrigger: brief_niederlegen
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - lebt
+      - true
+  image: 'Nahaufnahme: ein schiefes Holzkreuz aus zwei grob zusammengenagelten, verwitterten Latten, allein
+    im hohen, ungemähten Gras außerhalb einer niedrigen Mauer aus grauem Bruchstein. Die Mauer verläuft
+    zwischen dem Kreuz und dem Kirchhof; alle Grabsteine stehen jenseits der Mauer, im Inneren des Kirchhofs,
+    schemenhaft im Nebel. Auf dem Querholz sind mit dem Messer die Buchstaben „H. V.“ eingeschnitten,
+    darunter, kleiner und von anderer Hand: „Ich weiß es, Vater. C.“'
+  stateImages:
+  - state:
+      brief: true
+    prompt: 'Nahaufnahme: ein schiefes Holzkreuz aus zwei grob zusammengenagelten, verwitterten Latten,
+      allein im hohen, ungemähten Gras außerhalb einer niedrigen Mauer aus grauem Bruchstein. Die Mauer
+      verläuft zwischen dem Kreuz und dem Kirchhof; alle Grabsteine stehen jenseits der Mauer, im Inneren
+      des Kirchhofs, schemenhaft im Nebel. Auf dem Querholz sind die Buchstaben „H. V.“ eingeschnitten,
+      darunter, kleiner und von anderer Hand: „Ich weiß es, Vater. C.“ Am Fuß des Kreuzes liegt ein gefalteter,
+      vergilbter Brief, beschwert mit einem flachen Stein.'
+- id: kapelle
+  name: Kapelle
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Die Kapelle ist kalt und riecht nach Wachs und Mäusen. Die Bänke sind leer, der Altar ist mit einem grauen Tuch verhängt. Über dem Eingang hängt ein Glockenseil. Es bewegt sich leicht, obwohl hier drinnen kein Luftzug geht.
+
+      Auf einem Lesepult neben der Sakristeitür liegt ein dickes Kirchenbuch.
+    repeatView: Die kalte Kapelle. Das Seil bewegt sich leicht.
+  image: 'Das Innere einer kleinen, kalten Dorfkapelle aus grauem Bruchstein: leere Holzbänke, ein mit
+    einem grauen Tuch verhängter Altar, über dem Eingang hängt ein dickes Glockenseil von der Decke. Neben
+    einer schmalen Sakristeitür steht ein hölzernes Lesepult mit einem dicken, aufgeschlagenen Buch. Graues
+    Licht durch schmale Fenster, Staub, alte Kerzenstummel.'
+- id: weg_kapelle_kirchhof
+  name: Hinaus auf den Kirchhof
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: kapelle
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_kapelle_kirchhof
+    enabled: true
+    effects:
+    - setCurrentElement: kirchhof
+- id: glockenseil
+  name: Glockenseil
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: kapelle
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Das Seil ist trocken und fest. Oben im Turm hängt die Glocke, die du bei deiner Ankunft
+      gehört hast. Der Staub auf dem Boden unter dem Seil ist unberührt. Hier hat seit Jahren niemand
+      gestanden.
+    repeatView: Der Staub unter dem Seil ist unberührt.
+  image: Ein dickes, altes Glockenseil hängt in einer dämmrigen Dorfkapelle aus grauem Bruchstein von
+    der Decke herab und endet knapp über dem Boden. Darunter eine dicke, völlig unberührte Staubschicht
+    auf den Steinplatten, keine Fußspuren. Graues Licht.
+- id: kirchenbuch
+  name: Kirchenbuch
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: kapelle
+  initialState:
+    visible: true
+  initialPartOf: []
+  exitLabel: Buch schließen
+  contentVoice: male1
+  presentation:
+    firstView: Das Kirchenbuch ist bei den Sterbefällen aufgeschlagen. Zwei Einträge hat der Pfarrer mit
+      einem Lesezeichen markiert. Neben dem zweiten steht eine Randnotiz.
+    repeatView: 'Die beiden markierten Einträge:'
+    contentText: |-
+      „Clara Voss, 16 Jahre. In der Nacht der großen Flut für tot erklärt. Ein Leichnam wurde nicht gefunden. Gedenkstein auf dem Kirchhof.“
+
+      „Hannes Voss, Müller. Sechs Jahre nach der Flut im Winter tot aufgefunden, allein in der Ruine seiner Mühle. Auf Beschluss des Gemeinderats, Vorsitz Richard Brandt, außerhalb der Mauer begraben.“
+
+      Randnotiz:
+      „In der Nacht nach seinem Begräbnis kam der Nebel ins Tal. Er ist nicht wieder gegangen. Gott vergebe uns, was wir ihm angetan haben. Pfr. A. Lenz“
+  fragments:
+  - id: f_register_clara
+    fact: Clara wurde für tot erklärt, ihr Leichnam aber nie gefunden.
+    assumption: Clara wurde von der Flut fortgerissen.
+  - id: f_register_hannes
+    fact: Hannes starb sechs Jahre nach der Flut allein in der Mühlenruine und wurde auf Brandts Beschluss
+      außerhalb der Mauer begraben.
+    assumption: Das Dorf hat Hannes bis über den Tod hinaus verstoßen.
+  - id: f_fog_origin
+    fact: Laut Pfarrer kam der Nebel in der Nacht nach Hannes’ Begräbnis und ging nie wieder.
+    assumption: Der Nebel hat mit dem Unrecht an Hannes zu tun.
+  onUse:
+  - id: kirchenbuch_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_register_clara
+    - discoverFragment: f_register_hannes
+    - discoverFragment: f_fog_origin
+    - revealElement: lb_fluch
+    - disableSelfTrigger: kirchenbuch_gelesen
+  - id: kirchenbuch_frage
+    enabled: true
+    effects:
+    - revealElement: lb_frage_brandt
+    - disableSelfTrigger: kirchenbuch_frage
+    conditions:
+    - stateEquals:
+      - ermittlung
+      - stein
+      - false
+  image: 'Nahaufnahme eines dicken, aufgeschlagenen alten Kirchenbuchs auf einem hölzernen Lesepult, Einträge
+    in sauberer Tintenschrift, am Rand eine kleinere handschriftliche Notiz, ein verblichenes Lesezeichenband.
+    Die Schrift ist lesbar und lautet genau: „‚Clara Voss, 16 Jahre. In der Nacht der großen Flut für
+    tot erklärt. Ein Leichnam wurde nicht gefunden. Gedenkstein auf dem Kirchhof.‘ / ‚Hannes Voss, Müller.
+    Sechs Jahre nach der Flut im Winter tot aufgefunden, allein in der Ruine seiner Mühle. Auf Beschluss
+    des Gemeinderats, Vorsitz Richard Brandt, außerhalb der Mauer begraben.‘ / Randnotiz: / ‚In der Nacht
+    nach seinem Begräbnis kam der Nebel ins Tal. Er ist nicht wieder gegangen. Gott vergebe uns, was wir
+    ihm angetan haben. Pfr. A. Lenz‘“. Wo sie zu klein ist, darf sie unscharf werden. Kaltes Licht, Staub.'
+- id: brandt_haus
+  name: Haus am Hang
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Das Haus ist das größte im Dorf, zwei Stockwerke aus Stein, mit Säulen am Eingang, die hier niemand gebraucht hätte. Die Haustür ist nicht verschlossen. In der Eingangshalle hängt ein großes Ölgemälde. Der Teppich ist schwarz vor Schimmel.
+
+      Eine Tür führt in ein Arbeitszimmer.
+    repeatView: Die modrige Eingangshalle. Das Gemälde an der Wand.
+  image: 'Die Eingangshalle eines verlassenen Herrenhauses aus grauem Stein: dunkle Holzvertäfelung, ein
+    schimmelschwarzer Teppich auf dem Boden, an der Wand ein großes, dunkles Ölporträt in einem schweren
+    Goldrahmen. Eine Tür steht zu einem Nebenzimmer offen. Fahles Licht durch hohe, schmutzige Fenster,
+    draußen Nebel.'
+- id: weg_haus_platz
+  name: Hinunter zum Dorfplatz
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: brandt_haus
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_haus_platz
+    enabled: true
+    effects:
+    - setCurrentElement: village_square_present
+- id: weg_haus_arbeitszimmer
+  name: Ins Arbeitszimmer
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: brandt_haus
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_haus_arbeitszimmer
+    enabled: true
+    effects:
+    - setCurrentElement: arbeitszimmer
+- id: portraet
+  name: Ölgemälde
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: brandt_haus
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Ein Mann in dunklem Anzug, die Hand auf einem Stapel Papiere. Breite Schultern, schmale Lippen. Auf dem Rahmen ein Messingschild: „Richard Brandt, Sägewerksbesitzer und Vorsitzender des Gemeinderats“.
+
+      Der Maler hat sich Mühe gegeben, ihn würdevoll aussehen zu lassen. Nur die Augen sind ihm nicht gelungen. Sie sehen an dir vorbei zur Tür, als würde Brandt auf jemanden warten.
+    repeatView: Richard Brandt sieht zur Tür.
+  fragments:
+  - id: f_brandt_portrait
+    fact: Richard Brandt besaß das Sägewerk und war Vorsitzender des Gemeinderats.
+    assumption: Brandt hatte im Dorf die Macht zu bestimmen, welche Geschichte erzählt wird.
+  onUse:
+  - id: portraet_gesehen
+    enabled: true
+    effects:
+    - discoverFragment: f_brandt_portrait
+    - disableSelfTrigger: portraet_gesehen
+  image: 'Ein großes, gemaltes Ölporträt in einem schweren, angelaufenen Goldrahmen an einer dunklen Holzvertäfelung.
+    Ausdrücklich verlangt: ein gemalter Mann um die fünfzig in dunklem Anzug, breite Schultern, schmale
+    Lippen, eine Hand auf einem Stapel Papiere. Seine Augen blicken nicht den Betrachter an, sondern an
+    ihm vorbei zur Seite. Die Farbe ist rissig, am Rand Schimmelflecken. Am Rahmen ein kleines Messingschild
+    mit der Gravur: „Richard Brandt / Sägewerksbesitzer und Vorsitzender des Gemeinderats“.'
+- id: arbeitszimmer
+  name: Brandts Arbeitszimmer
+  type: location
+  physical: true
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: |-
+      Bücherregale bis zur Decke, die Bücher aufgequollen und verklebt. Am Fenster steht ein schwerer Schreibtisch aus Eiche. Über dem Sessel davor liegt ein Mantel, als hätte ihn jemand eben erst abgelegt. Die Luft ist kalt und abgestanden.
+
+      Der Schreibtisch hat eine einzige Schublade mit einem Messingschloss.
+    repeatView: Das kalte Arbeitszimmer. Der Mantel auf dem Sessel.
+  image: 'Ein verlassenes Arbeitszimmer: Bücherregale bis zur Decke voller aufgequollener, verklebter
+    Bücher; am Fenster ein schwerer Schreibtisch aus dunkler Eiche mit einer einzigen Schublade mit Messingschloss;
+    davor ein Ledersessel, über dessen Lehne ein dunkler Wollmantel liegt, als wäre er eben erst abgelegt
+    worden. Vor dem Fenster Nebel, kaltes Licht, Staub.'
+- id: weg_arbeitszimmer_halle
+  name: Zurück in die Halle
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: arbeitszimmer
+  initialState:
+    visible: true
+  initialPartOf: []
+  onUse:
+  - id: go_weg_arbeitszimmer_halle
+    enabled: true
+    effects:
+    - setCurrentElement: brandt_haus
+- id: schublade
+  name: Schreibtischschublade
+  type: container
+  physical: true
+  layers:
+  - present
+  locatedIn: arbeitszimmer
+  initialState:
+    visible: true
+    offen: false
+  initialPartOf: []
+  exitLabel: Schublade schließen
+  presentation:
+    firstView: Die Schublade ist verschlossen. Das Messingschloss ist blank, das einzige Metall in diesem
+      Haus, das nicht angelaufen ist. Ohne den passenden Schlüssel bekommst du sie nicht auf.
+    repeatView: Verschlossen.
+  stateTexts:
+  - id: schublade_offen
+    conditions:
+    - stateEquals:
+      - schublade
+      - offen
+      - true
+    firstView: 'Der Schlüssel passt. Das Schloss springt mit einem trockenen Klicken auf. In der Schublade
+      liegen nur zwei Dinge: eine sorgfältig gefaltete Rechnung und ein Brief ohne Umschlag.'
+    repeatView: Die offene Schublade.
+  onUse:
+  - id: schublade_oeffnen
+    enabled: true
+    effects:
+    - setElementState:
+      - schublade
+      - offen
+      - true
+    - revealElement: rechnung_steinmetz
+    - revealElement: brandts_brief
+    - disableSelfTrigger: schublade_oeffnen
+    conditions:
+    - inInventory: schluessel
+    - stateEquals:
+      - schublade
+      - offen
+      - false
+  image: Nahaufnahme der einzigen, geschlossenen Schublade eines schweren Schreibtischs aus dunkler Eiche
+    mit einem blanken, glänzenden Messingschloss, dem einzigen Metall im Bild, das nicht angelaufen ist.
+    Ringsum Staub und Schimmelflecken auf dem Holz.
+  stateImages:
+  - state:
+      offen: true
+    prompt: Nahaufnahme einer geöffneten Schublade eines schweren Schreibtischs aus dunkler Eiche mit
+      einem blanken Messingschloss. In der Schublade liegen nur eine sorgfältig gefaltete Rechnung und
+      ein Briefbogen ohne Umschlag. Staub und Schimmelflecken auf dem Holz.
+- id: rechnung_steinmetz
+  name: Rechnung des Steinmetzes
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: schublade
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    firstView: Eine Rechnung auf gutem Papier, mit dem Briefkopf eines Steinmetzbetriebs aus der Stadt.
+    repeatView: 'Die Rechnung des Steinmetzes:'
+    contentText: |-
+      „Für Herrn Richard Brandt, Mühlbach.
+
+      Ein Gedenkstein, grauer Granit, mit Sockel.
+      Inschrift nach Ihrem persönlichen Diktat.
+      Stifterzeile auf dem Sockel.
+
+      Betrag dankend erhalten.“
+  fragments:
+  - id: f_invoice
+    fact: Brandt bestellte den Gedenkstein und diktierte die Inschrift persönlich.
+    assumption: Die offizielle Geschichte der Flut stammt von Richard Brandt.
+  onUse:
+  - id: rechnung_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_invoice
+    - setElementState:
+      - ermittlung
+      - stein
+      - true
+    - hideElement: lb_frage_brandt
+    - revealElement: lb_stein
+    - disableSelfTrigger: rechnung_gelesen
+  image: 'Nahaufnahme einer sorgfältig gefalteten, halb aufgeklappten Rechnung auf gutem, leicht vergilbtem
+    Papier mit dem gedruckten Briefkopf eines Steinmetzbetriebs, in einer offenen Schublade aus dunkler
+    Eiche. Die Schrift ist lesbar und lautet genau: „‚Für Herrn Richard Brandt, Mühlbach. / Ein Gedenkstein,
+    grauer Granit, mit Sockel. / Inschrift nach Ihrem persönlichen Diktat. / Stifterzeile auf dem Sockel.
+    / Betrag dankend erhalten.‘“. Wo sie zu klein ist, darf sie unscharf werden.'
+- id: brandts_brief
+  name: Brief ohne Umschlag
+  type: document
+  physical: true
+  layers:
+  - present
+  locatedIn: schublade
+  initialState:
+    visible: false
+  initialPartOf: []
+  contentVoice: male2
+  presentation:
+    firstView: Ein Brief ohne Umschlag. Die Handschrift ist groß und herrisch, aber gegen Ende zittert
+      sie.
+    repeatView: 'Brandts Brief:'
+    contentText: |-
+      „Hannes,
+
+      ich schreibe dir, obwohl du tot bist. Es gibt sonst niemanden mehr, dem ich es schreiben könnte.
+
+      Ich habe sie gesehen. Vor ein paar Tagen, im Regen, an der Mühle. Eine Frau mit deinen Augen. Die Leute sagen, es war ein Geist. Ich weiß, dass es keiner war. Du hast sie gerettet und dafür die Schuld getragen, die meine war.
+
+      Ich habe den Kanal schließen lassen. Ich habe das Mädchen eingesperrt. Ich habe den Stein bestellt und jedes Wort darauf gewählt.
+
+      Die anderen gehen fort, einer nach dem anderen. Mich hält der Nebel fest. Ich glaube, er wartet darauf, dass ich es jemandem sage. Aber ich kann es nicht.
+
+      R. B.“
+  fragments:
+  - id: f_brandt_confession
+    fact: Brandt gestand in einem Brief an den toten Hannes, den Kanal schließen zu lassen, Clara eingesperrt
+      und die Inschrift des Steins gewählt zu haben.
+    assumption: Brandt wusste, dass Clara lebte, und schwieg aus Angst vor der Wahrheit.
+  onUse:
+  - id: brandt_brief_gelesen
+    enabled: true
+    effects:
+    - discoverFragment: f_brandt_confession
+    - setElementState:
+      - ermittlung
+      - stein
+      - true
+    - setElementState:
+      - ermittlung
+      - kanal
+      - true
+    - setElementState:
+      - ermittlung
+      - eingesperrt
+      - true
+    - hideElement: lb_frage_brandt
+    - hideElement: lb_frage_clara
+    - hideElement: lb_frau_im_regen
+    - revealElement: lb_stein
+    - revealElement: lb_kanal
+    - revealElement: lb_brandt
+    - hideElement: lb_frage_kanal
+    - disableSelfTrigger: brandt_brief_gelesen
+  image: 'Nahaufnahme eines Briefbogens ohne Umschlag auf dunklem Eichenholz, große, herrische Handschrift,
+    die gegen Ende zittrig und unregelmäßig wird. Die Schrift ist lesbar und lautet genau: „‚Hannes, /
+    ich schreibe dir, obwohl du tot bist. Es gibt sonst niemanden mehr, dem ich es schreiben könnte. /
+    Ich habe sie gesehen. Vor ein paar Tagen, im Regen, an der Mühle. Eine Frau mit deinen Augen. Die
+    Leute sagen, es war ein Geist. Ich weiß, dass es keiner war. Du hast sie gerettet und dafür die Schuld
+    getragen, die meine war. / Ich habe den Kanal schließen lassen. Ich habe das Mädchen eingesperrt.
+    Ich habe den Stein bestellt und jedes Wort darauf gewählt. / Die anderen gehen fort, einer nach dem
+    anderen. Mich hält der Nebel fest. Ich glaube, er wartet darauf, dass ich es jemandem sage. Aber ich
+    kann es nicht. / R. B.‘“. Wo sie zu klein ist, darf sie unscharf werden. Kaltes Licht, Staub.'
+- id: lb_nebel
+  name: Der Nebel
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    body: Ein dichter Nebel liegt über Mühlbach. Jeder Weg aus dem Dorf führt zurück auf den Dorfplatz.
+    style: discovery
+- id: lb_offiziell
+  name: Die offizielle Geschichte der Flut
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Laut Gedenkstein starb Clara Voss in der großen Flut. Schuld daran soll ihr Vater Hannes gewesen
+      sein, der das Mühlenwehr falsch bediente.
+    style: discovery
+- id: lb_frage_wehr
+  name: Das Mühlenwehr
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Laut Gedenkstein verursachte Hannes Voss die Flut, weil er das Mühlenwehr falsch bediente. Die
+      Mechanik des Notwehrs liegt in der dunklen Radkammer unter der Mühle.
+    style: contradiction
+    openQuestion: Wie stand das Wehr in der Nacht der Flut?
+- id: lb_widerspruch_hannes
+  name: Der schuldige Müller
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Der Gedenkstein nennt Hannes Voss schuldig. Doch das Notwehr wurde voll geöffnet und leitete
+      die Flut vom Dorf weg, mitten durch seine eigene Mühle.
+    style: contradiction
+    openQuestion: Warum ließ Hannes sich die Schuld geben?
+- id: lb_notwehr
+  name: Die Öffnung des Notwehrs
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Hannes Voss öffnete das Notwehr vollständig und leitete die Flut durch seine eigene Mühle. So
+      rettete er das Dorf.
+    style: discovery
+- id: lb_kanal
+  name: Der verschlossene Kanal
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Richard Brandt ließ den Entlastungskanal zumauern, damit das ganze Wasser seine Turbine antrieb.
+      Bei Starkregen konnte das Wasser so nicht mehr abfließen.
+    style: discovery
+- id: lb_frage_clara
+  name: Claras Weg zum Sägewerk
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Clara ging kurz vor dem Unwetter zum Sägewerk, um Brandt zur Rede zu stellen. Danach galt sie
+      als ertrunken.
+    style: contradiction
+    openQuestion: Was geschah mit Clara im Sägewerk?
+- id: lb_eingesperrt
+  name: Der Lagerraum
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Im Lagerraum des Sägewerks war jemand eingesperrt und kratzte verzweifelt an der Tür. Später
+      wurde die Tür von außen aufgebrochen.
+    style: discovery
+- id: lb_widerspruch_clara
+  name: Claras Tod
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Der Gedenkstein nennt Clara Voss als Todesopfer der Flut. Doch es gibt Spuren mit ihren Initialen,
+      die erst lange nach der Flut entstanden sein können.
+    style: contradiction
+    openQuestion: Hat Clara die Flut überlebt?
+- id: lb_versteck
+  name: Ein Versteck in der Mühle
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: 'Claras Haarband nennt ein Versteck: hinter der dritten Wandbohle neben dem Schreibtisch in
+      der Mühle.'
+    style: discovery
+- id: lb_frau_im_regen
+  name: Die Frau im Regen
+  type: rumor
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Vor achtundzwanzig Jahren übernachtete eine Fremde namens C. Hartmann im Gasthaus. Sie fragte
+      nach der Mühle und dem Grab des Müllers und verschwand im Regen. Die Leute hielten sie für einen
+      Geist.
+    style: contradiction
+    openQuestion: Wer war die Frau im Regen?
+- id: lb_frage_brandt
+  name: Richard Brandt
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Richard Brandt stiftete den Gedenkstein. Als Vorsitzender des Gemeinderats ließ er Hannes ächten
+      und außerhalb der Kirchhofsmauer begraben. Sein Haus steht am Hang über dem Dorf.
+    style: contradiction
+    openQuestion: Was hatte Richard Brandt mit der Flut zu tun?
+- id: lb_fluch
+  name: Der Ursprung des Nebels
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Der Nebel kam in der Nacht nach Hannes’ Begräbnis außerhalb der Kirchhofsmauer ins Tal und ist
+      seitdem geblieben.
+    style: discovery
+- id: lb_stein
+  name: Die Lüge im Stein
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Richard Brandt bestellte den Gedenkstein und diktierte die Inschrift selbst, die Hannes die
+      Schuld an der Flut gibt.
+    style: discovery
+- id: lb_brandt
+  name: Brandts Geständnis
+  type: event
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: In einem Brief an den toten Hannes gestand Brandt alles. Er erkannte Clara, als sie zurückkehrte,
+      und schwieg. Der Nebel hielt ihn fest, bis zuletzt.
+    style: discovery
+- id: lb_clara_lebt
+  name: Clara lebte
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Clara überlebte die Flut. Hannes befreite sie aus Brandts Lagerraum und brachte sie zu ihrer
+      Tante Martha Hartmann. Er ließ alle glauben, sie sei ertrunken, und trug die Schuld, damit Brandt
+      sie nicht fand. Zwölf Jahre später kehrte Clara heimlich zurück. Sie war die Frau im Regen.
+    style: discovery
+- id: lb_offen_grab
+  name: Claras Bitte
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: 'Clara bittet: „Bitte erzähl es ihm.“ Ihr Brief gehört zu ihrem Vater. Hannes liegt außerhalb
+      der Kirchhofsmauer begraben, unter dem Holzkreuz mit den Buchstaben H. V. Dort kannst du den Brief
+      niederlegen.'
+    style: discovery
+- id: lb_wahrheit
+  name: Die Wahrheit über die Flut
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    body: Richard Brandt ließ den Entlastungskanal verschließen und sperrte Clara ein, als sie ihn zur
+      Rede stellte. Hannes Voss öffnete das Notwehr, opferte seine Mühle und rettete das Dorf. Dann befreite
+      er seine Tochter. Um sie vor Brandt zu schützen, ließ er alle glauben, sie sei tot, und trug die
+      Schuld, die Brandt in Stein meißeln ließ. Jetzt kennt jemand die Wahrheit, und sie liegt an seinem
+      Grab.
+    style: discovery
+- id: lb_frage_kanal
+  name: Was Clara vor dem Unwetter sah
+  type: story
+  physical: false
+  layers:
+  - present
+  locatedIn: null
+  initialState:
+    visible: false
+  initialPartOf: []
+  presentation:
+    style: contradiction
+    body: Clara schreibt, was sie vor dem Unwetter gesehen hat, stehe auf einer der letzten Seiten im
+      Geschäftsbuch ihres Vaters, im Schreibtisch der Mühle.
+    openQuestion: Was sah Clara vor dem Unwetter?

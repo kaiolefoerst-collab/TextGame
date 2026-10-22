@@ -3,7 +3,7 @@ header:
   title: Space Trace
   author: Kai Foerst
   version: 1
-  teaser: 'Ein verzweifelter Raumschiffpilot macht eine Enddeckung im All '
+  teaser: 'Ein verzweifelter Raumschiffpilot macht eine Entdeckung im All '
   partOf: null
   chapterIndex: null
   startElement: start_point
@@ -54,7 +54,7 @@ elements:
   image: 'Ein Bild mit einem Weltall Hintergrund. Beeindruckend mit Sternen und Nebeln. Darüber der Schriftzug
     als Titelbeschriebung "Space Trace" '
 - id: cockpit_glover_iv
-  name: Cockpit Glover IV
+  name: Cockpit Glover
   type: location
   physical: true
   layers:
@@ -71,12 +71,7 @@ elements:
       Ich sitze hier in meinem Cockpit und starre auf die Anzeigen.
 
       Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil, Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre, die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig hin. Als würde sich dadurch etwas ändern.
-    repeatView: Die Anzeigen zeigen immer das Gleiche. Geschwindigkeit konstant, der KI-Assistent schweigt
-      sich aus und ich habe keine Lust, ihn was zu fragen. Lebenserhaltungssysteme OK, Richtung stabil,
-      Kurs stimmt. Alles könnte gut sein, wenn da nicht das kleine Problem in der Anzeige oben links wäre,
-      die mich darauf hinweist, dass ich kaum noch Treibstoff habe. Ein kleiner roter Balken, der seit
-      Tagen unverändert auf dem Display steht. Nicht besonders auffällig, aber ich schaue trotzdem ständig
-      hin. Als würde sich dadurch etwas ändern.
+    repeatView: Alles unverändert. Nur der rote Treibstoffbalken.
   onUse:
   - id: reaktion_1
     enabled: true
@@ -96,13 +91,12 @@ elements:
       - hangar
     - inInventory: raumanzug
     firstView: |-
-      Die Glover IV steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
+      Die Glover steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
 
-      Der Tank ist leer. Mit der Glover IV komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
+      Der Tank ist leer. Mit der Glover komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
 
       Ich trage meinen Raumanzug. Die Schleuse im Laderaum führt hinaus in den Hangar.
-    repeatView: Die Glover IV steht im dunklen Hangar des fremden Schiffes. Ich trage meinen Raumanzug,
-      durch die Schleuse im Laderaum komme ich hinaus.
+    repeatView: Die Glover steht im Hangar. Hinaus geht es durch die Schleuse im Laderaum.
   - id: zt_hangar
     conditions:
     - stateEquals:
@@ -110,13 +104,12 @@ elements:
       - location
       - hangar
     firstView: |-
-      Die Glover IV steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
+      Die Glover steht still auf der Landeplattform. Vor dem Cockpitfenster liegt der Hangar im roten Notlicht, so weit, dass sich seine Wände im Dunkel verlieren. Die Außensensoren melden: kein Luftdruck, minus 140 Grad.
 
-      Der Tank ist leer. Mit der Glover IV komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
+      Der Tank ist leer. Mit der Glover komme ich nirgendwo mehr hin. Wenn ich hier rauswill, dann nur durch dieses Schiff.
 
-      Ohne Raumanzug verlasse ich die Glover IV allerdings nicht. Den Raumanzug bewahre ich im Laderaum neben den Medikamenten auf.
-    repeatView: Die Glover IV steht im dunklen Hangar des fremden Schiffes. Draußen herrscht Vakuum. Ohne
-      Raumanzug kann ich nicht hinaus.
+      Ohne Raumanzug verlasse ich die Glover allerdings nicht. Den Raumanzug bewahre ich im Laderaum neben den Medikamenten auf.
+    repeatView: Die Glover steht im Hangar. Ohne Raumanzug komme ich nicht hinaus.
   - id: zt_anflug
     conditions:
     - stateEquals:
@@ -127,8 +120,7 @@ elements:
       Die Nabe des fremden Schiffes liegt direkt vor mir. An ihrer Stirnseite gähnt die offene Hangarbucht, ein rechteckiges Loch in der Panzerung, aus dem trübes Licht fällt. Davor ragt eine Landeplattform ins All. Ihre Leitlichter blinken in einem gleichmäßigen Takt, als hätten sie seit Jahren auf genau diesen Moment gewartet.
 
       Irgendetwas an Bord hat noch Energie. Die Frage ist nur, was.
-    repeatView: Vor dem Cockpitfenster liegt die offene Hangarbucht des fremden Schiffes. Die Leitlichter
-      der Landeplattform blinken gleichmäßig.
+    repeatView: Vor mir die offene Hangarbucht.
   - id: zt_neue_spur
     conditions:
     - stateEquals:
@@ -136,16 +128,16 @@ elements:
       - location
       - byHope
     firstView: |-
-      Inzwischen kann ich es auch durch das Cockpitfenster erkennen. Ein gewaltiges Raumschiff, das langsam vor mir im Dunkel des Weltraums auftaucht. Je näher ich komme, desto deutlicher werden seine Umrisse. Zwei riesige Ringe, mit einer  gemeinsame Achse drehen. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
+      Inzwischen kann ich es auch durch das Cockpitfenster erkennen. Ein gewaltiges Raumschiff, das langsam vor mir im Dunkel des Weltraums auftaucht. Je näher ich komme, desto deutlicher werden seine Umrisse. Zwei riesige Ringe mit einer gemeinsamen Achse. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
 
       Die Ringe bewegen sich nicht und das Schiff scheint einfach nur im Raum zu treiben. Ob dort überhaupt noch jemand lebt?
 
 
-      Was zum Teufel macht so ein Ding hier draußen und was ist mit Ihm passiert?
+      Was zum Teufel macht so ein Ding hier draußen und was ist mit ihm passiert?
 
 
       Ich lehne mich zurück und betrachte das gewaltige Gebilde vor mir. Einerseits bin ich unglaublich erleichtert, endlich auf etwas gestoßen zu sein. Andererseits habe ich ein verdammt ungutes Gefühl bei der Sache.
-    repeatView: Ich sitze wieder in meinem Cockpit und betrachte das riesige Raumschiff aus dem Cockpitfenster
+    repeatView: Draußen treibt das riesige Schiff.
   stateImages:
   - state:
       location: byHope
@@ -269,7 +261,7 @@ elements:
     firstView: Die manuelle Steuerung sollte ich besser nicht benutzen. Die Steuerdüsen verbrauchen Treibstoff,
       und davon habe ich kaum noch etwas übrig. Vielleicht ergibt sich ja noch eine Gelegenheit, die letzten
       Reserven sinnvoller einzusetzen, als hier draußen im All eine kleine Spazierfahrt zu unternehmen.
-    repeatView: Die manuelle Steuerung ist hier leider völlig nutzlos.
+    repeatView: Zu wenig Treibstoff für eine Spazierfahrt.
   image: Nahaufnahme der manuellen Flugsteuerung eines Raumschiffs. Ein ergonomischer Steuerjoystick mit
     mehreren Tasten und Schaltern, fest eingebaut in die Cockpitkonsole. Daneben einige zusätzliche Bedienelemente
     und kleine Statusanzeigen. Der Joystick steht deutlich im Mittelpunkt. Keine Hände oder Personen im
@@ -282,8 +274,8 @@ elements:
       - location
       - hangar
     firstView: Die Steuerdüsen sind verstummt. Die Treibstoffanzeige steht auf null. Mit der manuellen
-      Steuerung komme ich nirgendwo mehr hin. Die Glover IV bleibt in diesem Hangar.
-    repeatView: Der Tank ist leer. Die Glover IV fliegt nirgendwo mehr hin.
+      Steuerung komme ich nirgendwo mehr hin. Die Glover bleibt in diesem Hangar.
+    repeatView: Der Tank ist leer.
   - id: ms_anflug
     conditions:
     - stateEquals:
@@ -292,7 +284,7 @@ elements:
       - approach
     firstView: Die Landeplattform liegt genau vor mir, keine zweihundert Meter entfernt. Die Treibstoffanzeige
       blinkt. Es reicht für einen einzigen Landeanflug. Einen zweiten Versuch wird es nicht geben.
-    repeatView: Die Landeplattform liegt direkt vor mir. Der Treibstoff reicht für genau einen Landeanflug.
+    repeatView: Treibstoff für genau einen Landeanflug.
   - id: ms_hope
     conditions:
     - stateEquals:
@@ -303,8 +295,7 @@ elements:
       Der Autopilot hat mich bis auf etwa zwanzig Kilometer an das fremde Schiff herangebracht und dann abgeschaltet. Für ein Anflugmanöver an ein unbekanntes Objekt fehlen ihm die Daten. Den Rest muss ich selbst fliegen.
 
       Dafür sind die letzten Treibstoffreserven da. Eine bessere Gelegenheit, sie einzusetzen, wird es nicht geben.
-    repeatView: Mit der manuellen Steuerung kann ich näher an das fremde Schiff heranfliegen. Der Treibstoff
-      reicht dafür gerade noch.
+    repeatView: Genug Treibstoff, um näher heranzufliegen.
 - id: kommunikationsanlage_2
   name: Kommunikationskonsole
   type: feature
@@ -319,7 +310,7 @@ elements:
     firstView: Die Kommunikation ist tot. Der Sender ist seit dem Defekt ausgefallen, nur die Antenne
       meldet noch Bereitschaft. Eine Antenne ohne Sender nützt mir allerdings herzlich wenig. Ein funktionierender
       Funk würde so viele Probleme lösen.
-    repeatView: Der Sender ist ausgefallen. Nur die Antenne funktioniert noch.
+    repeatView: Sender tot. Nur die Antenne funktioniert.
   image: Technische Nahaufnahme einer Kommunikationskonsole, die seitlich im Cockpit eines kleinen Ein-Mann-Raumschiffs
     eingebaut ist. Im Mittelpunkt steht die Konsole mit einem kompakten Display, mehreren Bedientasten,
     Drehreglern, Statusleuchten und einem integrierten Lautsprecher. Die Anlage dient der Sprachkommunikation
@@ -338,13 +329,12 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Das Navigationssystem meiner Glover IV zeigt mir Objekte in der Umgebung des Schiffes als kleine Punkte an. Normalerweise bleibt der Bildschirm leer. Erkannte Objekte kann ich auswählen, nähere Informationen abrufen und als Ziel festlegen. Der Autopilot berechnet dann den Kurs und steuert das Schiff dorthin.
+      Das Navigationssystem meiner Glover zeigt mir Objekte in der Umgebung des Schiffes als kleine Punkte an. Normalerweise bleibt der Bildschirm leer. Erkannte Objekte kann ich auswählen, nähere Informationen abrufen und als Ziel festlegen. Der Autopilot berechnet dann den Kurs und steuert das Schiff dorthin.
 
       Moment mal! Was war das? Da hat doch gerade etwas auf dem Bildschirm aufgeleuchtet! Ich beuge mich vor und schaue genauer hin. Tatsächlich! Ein winziger weißer Punkt. Irgendetwas befindet sich da draußen, mitten in der endlosen Leere! Ein Asteroid, Weltraumschrott oder etwas ganz anderes?
 
       Ich kann meinen Blick kaum von der Anzeige lösen. Zum ersten Mal seit Wochen spüre ich wieder echte Aufregung. Was auch immer sich hinter diesem Punkt verbirgt, ich muss es herausfinden!
-    repeatView: 'Auf dem Navigationsdisplay ist ein winziger leuchtender Punkt aufgetaucht. Ich sollte
-      der Sache nachgehen. '
+    repeatView: Ein winziger leuchtender Punkt. Ich sollte nachsehen.
   image: Nahaufnahme des Bildschirm und Tastenfeld eines Navigationssystems eines kleinen Raumschiffs.
     Auf der dunklen Anzeige, auf der ein einzelner kleiner, weiß leuchtender Punkt zu erkennen ist. Die
     Darstellung erinnert an ein Radar, jedoch ohne kreisenden Suchstrahl oder rotierenden Sensor. Rund
@@ -359,8 +349,8 @@ elements:
       - location
       - hangar
     firstView: Die Anzeige ist voller Störungen. Die Wände des Hangars schirmen die Sensoren ab. Ich sehe
-      nur noch die Glover IV selbst, einen kleinen Punkt in einem großen, dunklen Nichts.
-    repeatView: Im Hangar sind die Sensoren blind. Die Anzeige zeigt nur Störungen.
+      nur noch die Glover selbst, einen kleinen Punkt in einem großen, dunklen Nichts.
+    repeatView: Nur Störungen.
   - id: nav_anflug
     conditions:
     - stateEquals:
@@ -370,7 +360,7 @@ elements:
     firstView: Das fremde Schiff füllt die gesamte Anzeige aus. Die Landeplattform an der Nabe ist als
       blinkendes Rechteck markiert. Eine Kennung sendet das Schiff nicht, und auf meine Rufe antwortet
       niemand.
-    repeatView: Die Landeplattform ist als blinkendes Rechteck markiert. Das Schiff sendet keine Kennung.
+    repeatView: Die Landeplattform blinkt auf der Anzeige.
   - id: nav_hope
     conditions:
     - stateEquals:
@@ -380,7 +370,7 @@ elements:
     firstView: Aus dem weißen Punkt ist ein Schiff geworden. Über zwei Kilometer lang, keine Kennung,
       kein Funkverkehr. Der Autopilot hält respektvollen Abstand. Für den letzten Anflug müsste ich die
       manuelle Steuerung benutzen.
-    repeatView: Das fremde Schiff sendet keine Kennung. Näher heran komme ich nur mit der manuellen Steuerung.
+    repeatView: Näher heran nur mit der manuellen Steuerung.
 - id: flug_zum_unbekanntem_objekt
   name: Flug zu unbekanntem Objekt
   type: door
@@ -447,7 +437,7 @@ elements:
   cutscene:
     onlyOnce: true
     text: |-
-      Ich schalte den Autopiloten ab und lege die Hand an den Steuerknüppel. Ein kurzer Schub, dann noch einer. Die Glover IV gleitet auf das fremde Schiff zu.
+      Ich schalte den Autopiloten ab und lege die Hand an den Steuerknüppel. Ein kurzer Schub, dann noch einer. Die Glover gleitet auf das fremde Schiff zu.
 
       Mit jedem Kilometer wächst es weiter an, bis es das gesamte Cockpitfenster ausfüllt. Die Ringe sind übersät mit Narben von Mikrometeoriten. Nirgendwo brennt ein Fenster.
 
@@ -486,7 +476,7 @@ elements:
   cutscene:
     onlyOnce: true
     text: |-
-      Ich nehme Fahrt raus und richte die Glover IV an den Leitlichtern aus. Die Treibstoffanzeige springt auf Rot und dann auf null, genau in dem Moment, in dem die Landestützen aufsetzen. Ein dumpfer Schlag geht durch den Rumpf. Magnetklammern rasten ein.
+      Ich nehme Fahrt raus und richte die Glover an den Leitlichtern aus. Die Treibstoffanzeige springt auf Rot und dann auf null, genau in dem Moment, in dem die Landestützen aufsetzen. Ein dumpfer Schlag geht durch den Rumpf. Magnetklammern rasten ein.
 
       Hinter mir setzt sich das Hangartor in Bewegung. Lautlos schiebt es sich vor die Sterne, bis nur noch das rote Notlicht des Hangars bleibt.
 
@@ -510,7 +500,7 @@ elements:
   presentation:
     firstView: Mein Raumanzug. Ein robustes Standardmodell mit Magnetstiefeln, Helmlampe und Sauerstoff
       für sechs Stunden. Seit dem Start von Titan habe ich ihn nicht gebraucht.
-    repeatView: 'Mein Raumanzug: Magnetstiefel, Helmlampe, Sauerstoff für sechs Stunden.'
+    repeatView: Mein Raumanzug.
     takeText: 'Ich steige in den Raumanzug, schließe die Dichtungen und setze den Helm auf. Mit einem
       leisen Klicken rastet er ein. Sauerstoff: sechs Stunden.'
     dropText: Ich nehme den Helm ab und steige aus dem Raumanzug.
@@ -520,10 +510,11 @@ elements:
     - inInventory: raumanzug
     firstView: Ich trage meinen Raumanzug. Der Helm ist geschlossen, die Anzeige im Visier meldet Sauerstoff
       für knapp sechs Stunden. Die Magnetstiefel sind aktiviert.
-    repeatView: Ich trage meinen Raumanzug. Sauerstoff für knapp sechs Stunden.
-  image: Ein robuster, abgenutzter, leerer Raumanzug hängt in einer Wandhalterung im kleinen Frachtraum
-    eines Raumschiffs, der Helm an einem Haken daneben. Daneben verzurrte Transportbehälter mit kleinen
-    grünen Kontrollleuchten. Niemand trägt den Anzug.
+    repeatView: Ich trage meinen Raumanzug.
+  image: 'Ausdrücklich verlangt: ein leerer Raumanzug als Ausrüstungsgegenstand, ohne Person darin. Der
+    robuste, abgenutzte Anzug hängt schlaff und flach in einer Wandhalterung im kleinen Frachtraum eines
+    Raumschiffs, die Ärmel hängen leer herab. Der Helm hängt separat an einem Haken daneben, das Visier
+    ist leer und dunkel. Daneben verzurrte Transportbehälter mit kleinen grünen Kontrollleuchten.'
 - id: schleuse_glover
   name: Schleuse
   type: door
@@ -596,11 +587,10 @@ elements:
     firstView: |-
       Der Hangar ist größer, als es von außen den Anschein hatte. Das rote Notlicht reicht nur ein paar Dutzend Meter weit, dahinter beginnt die Dunkelheit. An den Streben und Kanten hängt Eis.
 
-      Die Glover IV steht klein und verloren auf der Landeplattform. Andere Schiffe sehe ich nicht, die Andockplätze ringsum sind leer.
+      Die Glover steht klein und verloren auf der Landeplattform. Andere Schiffe sehe ich nicht, die Andockplätze ringsum sind leer.
 
       Am hinteren Ende des Hangars leuchtet ein einzelnes Bedienfeld neben einer Schleuse. Grün.
-    repeatView: Der Hangar liegt still im roten Notlicht. Die Glover IV steht auf der Landeplattform,
-      am hinteren Ende leuchtet das Bedienfeld der Schleuse grün.
+    repeatView: Der Hangar im roten Notlicht.
   image: Ein riesiger, dunkler Hangar im Inneren eines gigantischen Raumschiffs, nur von rotem Notlicht
     beleuchtet, das sich nach wenigen Dutzend Metern im Dunkel verliert. In der Mitte steht ein winziges
     Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit, dahinter ein fensterloser Frachtraum)
@@ -620,12 +610,12 @@ elements:
     firstView: |-
       Auf dem Boden der Plattform sind Buchstaben aufgemalt, groß genug, um sie aus dem Cockpit eines anfliegenden Schiffes zu lesen. Die Farbe ist verblasst und an vielen Stellen abgeplatzt:
 
-      HOPE · ANDOCKBUCHT 3
+      HOFFNUNG · ANDOCKBUCHT 3
 
-      Hope. So heißt dieses Schiff also. Ein Name, der hier draußen fast wie Spott klingt.
-    repeatView: 'Auf der Plattform steht in verblassten Buchstaben: HOPE · ANDOCKBUCHT 3.'
+      Hoffnung. So heißt dieses Schiff also. Ein Name, der hier draußen fast wie Spott klingt.
+    repeatView: HOFFNUNG · ANDOCKBUCHT 3.
   image: 'Blick von oben auf den Boden einer Landeplattform in einem dunklen Hangar. Große, verblasste,
-    an vielen Stellen abgeplatzte Schablonenbuchstaben: „HOPE · ANDOCKBUCHT 3“. Rotes Notlicht, grüne
+    an vielen Stellen abgeplatzte Schablonenbuchstaben: „HOFFNUNG · ANDOCKBUCHT 3“. Rotes Notlicht, grüne
     Leitlichter am Rand der Plattform, Eis und Staub auf dem Metall.'
 - id: hangartor
   name: Hangartor
@@ -639,15 +629,15 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Das Hangartor ist geschlossen. Eine Wand aus Stahl, gut fünfzig Meter breit, mit gelb-schwarzen Warnstreifen. Ein Bedienfeld gibt es auf dieser Seite nicht. Jemand oder etwas hat das Tor hinter mir geschlossen, nachdem die Glover IV gelandet war.
+      Das Hangartor ist geschlossen. Eine Wand aus Stahl, gut fünfzig Meter breit, mit gelb-schwarzen Warnstreifen. Ein Bedienfeld gibt es auf dieser Seite nicht. Jemand oder etwas hat das Tor hinter mir geschlossen, nachdem die Glover gelandet war.
 
       Automatik, sage ich mir. Bestimmt nur die Automatik.
-    repeatView: Das Hangartor ist geschlossen. Von hier aus lässt es sich nicht öffnen.
+    repeatView: Geschlossen.
   image: Ein gewaltiges, geschlossenes Hangartor aus Stahl, von innen gesehen, etwa fünfzig Meter breit,
     mit gelb-schwarzen Warnstreifen und Eiskristallen in den Fugen. Rotes Notlicht wirft lange Schatten.
     Kein Bedienfeld. Menschenleer.
 - id: weg_hangar_glover
-  name: An Bord der Glover IV gehen
+  name: An Bord der Glover gehen
   type: door
   physical: true
   layers:
@@ -708,8 +698,7 @@ elements:
       „Hallo?“ Meine Stimme klingt dünn in der kalten Luft. Niemand antwortet.
 
       Schilder an den Wänden zeigen den Weg: Brücke, Maschinenraum, Speiche B zum Schlafring.
-    repeatView: Der Korridor führt tief ins Innere der Nabe. In der Luft treiben vergessene Gegenstände.
-      Schilder zeigen den Weg zur Brücke, zum Maschinenraum und durch die Speiche zum Schlafring.
+    repeatView: Der Korridor in der Nabe.
   image: Ein langer, gerader Korridor im Inneren eines alten, gigantischen Raumschiffs, der sich in der
     Ferne im Dunkel verliert. Flackernde Deckenleuchten, Metallwände mit Gebrauchsspuren, Frost. In der
     Schwerelosigkeit schweben eine Kaffeetasse, ein Stift und ein einzelner Handschuh. Menschenleer, kalt,
@@ -742,15 +731,15 @@ elements:
   presentation:
     firstView: Neben der Schleuse ist eine Metallplakette in die Wand eingelassen. Sie glänzt, als hätte
       jemand sie über Jahre immer wieder mit dem Ärmel blank gerieben.
-    repeatView: Die blank geriebene Plakette neben der Schleuse.
+    repeatView: 'Die Plakette:'
     contentText: |-
-      KOLONIESCHIFF HOPE
+      KOLONIESCHIFF HOFFNUNG
       Kronos-Werft, Titan
       340 Kolonisten · 8 Besatzungsmitglieder
       „Wir tragen sie alle.“
   messages:
     Erinnerung: |-
-      Die Hope. Natürlich. Jedes Kind auf Titan kennt diesen Namen. Ich war noch klein, als sie aufbrach, und ich weiß noch, wie die halbe Stadt am Raumhafen stand und zum Himmel schaute. Fünf Jahre später brach der Kontakt ab. Reaktorunfall, hieß es. Keine Überlebenden. Es gab eine Gedenkfeier, und irgendwann sprach niemand mehr darüber.
+      Die Hoffnung. Natürlich. Jedes Kind auf Titan kennt diesen Namen. Ich war noch klein, als sie aufbrach, und ich weiß noch, wie die halbe Stadt am Raumhafen stand und zum Himmel schaute. Fünf Jahre später brach der Kontakt ab. Reaktorunfall, hieß es. Keine Überlebenden. Es gab eine Gedenkfeier, und irgendwann sprach niemand mehr darüber.
 
       Aber dieses Schiff ist nicht zerstört. Es hat Energie. Und es hat mich hereingelassen.
   onUse:
@@ -771,7 +760,7 @@ elements:
       - gelesen
       - false
   image: 'Eine blank polierte Metallplakette in der Wand eines alten Raumschiffkorridors, eingravierte
-    Schrift: „KOLONIESCHIFF HOPE · Kronos-Werft, Titan · 340 Kolonisten · 8 Besatzungsmitglieder · Wir
+    Schrift: „KOLONIESCHIFF HOFFNUNG · Kronos-Werft, Titan · 340 Kolonisten · 8 Besatzungsmitglieder · Wir
     tragen sie alle.“ Ringsum Metall mit Gebrauchsspuren und Frost, kaltes Licht der Deckenleuchten. Menschenleer.'
 - id: weg_korridor_bruecke
   name: Zur Brücke
@@ -829,7 +818,7 @@ elements:
       am Ende des Schachts ein schwaches grünes Leuchten. Menschenleer.
     buttonLabel: Weiter
 - id: bruecke
-  name: Brücke der Hope
+  name: Brücke der Hoffnung
   type: location
   physical: true
   layers:
@@ -840,10 +829,10 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Die Brücke der Hope ist ein halbrunder Raum mit acht Sitzen. Alle leer. Lose Gurte treiben in der Luft wie Seetang. Durch das große Sichtfenster sieht man die Sterne und die gewaltigen Ringe, die sich nicht mehr drehen.
+      Die Brücke der Hoffnung ist ein halbrunder Raum mit acht Sitzen. Alle leer. Lose Gurte treiben in der Luft wie Seetang. Durch das große Sichtfenster sieht man die Sterne und die gewaltigen Ringe, die sich nicht mehr drehen.
 
       Die meisten Konsolen sind dunkel. Nur die Statusübersicht und der Langstreckensender haben noch Strom. Am Platz des Kapitäns klemmt ein Tablet in seiner Halterung.
-    repeatView: Die Brücke liegt still. Acht leere Sitze, treibende Gurte, draußen die reglosen Ringe.
+    repeatView: Die stille Brücke. Acht leere Sitze.
   image: 'Die Brücke eines alten, gigantischen Kolonieraumschiffs: ein halbrunder Raum mit acht leeren
     Pilotensitzen, lose Gurte schweben in der Schwerelosigkeit. Die meisten Konsolen sind dunkel, nur
     zwei leuchten. Durch ein großes Sichtfenster sieht man Sterne und einen Teil eines riesigen, stillstehenden
@@ -876,7 +865,7 @@ elements:
   presentation:
     firstView: Auf dem einzigen hellen Bildschirm der Brücke läuft eine Statusübersicht. Die meisten Zeilen
       sind rot.
-    repeatView: 'Die Statusübersicht der Hope:'
+    repeatView: 'Die Statusübersicht:'
     contentText: |-
       HAUPTREAKTOR: abgeschaltet
       NOTREAKTOR: in Betrieb · Brennstoff 2 %
@@ -912,14 +901,14 @@ elements:
   contentVoice: male3
   presentation:
     firstView: Das Tablet klemmt in der Halterung am Platz des Kapitäns. Der Akku hat durchgehalten. Geöffnet
-      ist der letzte Eintrag im Logbuch der Hope.
-    repeatView: 'Der letzte Eintrag im Logbuch der Hope:'
+      ist der letzte Eintrag im Logbuch der Hoffnung.
+    repeatView: 'Der letzte Logbucheintrag:'
     contentText: |-
-      Logbuch der Hope. Kapitän Ruben Thal.
+      Logbuch der Hoffnung. Kapitän Ruben Thal.
 
       Der Hauptreaktor ist verloren. Mara sagt, der Notreaktor hält die Kapseln am Leben, wenn niemand sonst ihm Energie abzieht. Acht wache Menschen ziehen Energie ab. Wärme, Luft, Licht.
 
-      Wir haben abgestimmt. Wir nehmen beide Shuttles und verlassen die Hope noch heute. Die 340 bleiben in ihren Kapseln.
+      Wir haben abgestimmt. Wir nehmen beide Shuttles und verlassen die Hoffnung noch heute. Die 340 bleiben in ihren Kapseln.
 
       Möge man uns eines Tages verzeihen.
   onUse:
@@ -947,9 +936,9 @@ elements:
     visible: true
   initialPartOf: []
   presentation:
-    firstView: 'Der Langstreckensender der Hope ist betriebsbereit. Auf seinem Display blinkt eine einzige
-      Meldung: KEINE ANTENNE VERBUNDEN. Ohne Antenne reicht sein Signal nicht einmal bis zum Hangartor.'
-    repeatView: 'Der Sender ist betriebsbereit. Auf dem Display blinkt: KEINE ANTENNE VERBUNDEN.'
+    firstView: 'Der Langstreckensender der Hoffnung ist betriebsbereit. Auf seinem Display blinkt eine
+      einzige Meldung: KEINE ANTENNE VERBUNDEN. Ohne Antenne reicht sein Signal nicht einmal bis zum Hangartor.'
+    repeatView: KEINE ANTENNE VERBUNDEN.
   stateTexts:
   - id: sender_verbunden
     conditions:
@@ -957,10 +946,10 @@ elements:
       - datenkupplung
       - verbunden
       - true
-    firstView: 'Auf dem Display des Senders steht eine neue Meldung: ANTENNE VERBUNDEN · GLOVER IV · ANDOCKBUCHT
-      3. Die kleine Antenne meines Schiffes ist jetzt die Stimme der Hope. Ein Notruf würde die Forschungsstation
+    firstView: 'Auf dem Display des Senders steht eine neue Meldung: ANTENNE VERBUNDEN · GLOVER · ANDOCKBUCHT
+      3. Die kleine Antenne meines Schiffes ist jetzt die Stimme der Hoffnung. Ein Notruf würde die Forschungsstation
       erreichen, zu der ich eigentlich unterwegs war.'
-    repeatView: ANTENNE VERBUNDEN · GLOVER IV. Der Sender ist bereit für einen Notruf.
+    repeatView: ANTENNE VERBUNDEN · GLOVER. Bereit für einen Notruf.
   image: Nahaufnahme einer großen, alten Funkanlage auf der Brücke eines Raumschiffs, mit Reglern, Schaltern
     und einem Mikrofon an einem Spiralkabel. Auf dem Display blinkt eine rote Meldung. Gebrauchsspuren,
     Staub, kaltes Licht. Menschenleer.
@@ -977,7 +966,7 @@ elements:
   presentation: {}
   messages:
     Antwort: |-
-      „Glover IV, hier Forschungsstation Kuiper Sieben. Wir empfangen Sie klar und deutlich. Wir haben die Hope auf unseren Schirmen. Ein Rettungsschiff mit Brennstoff für Ihren Notreaktor und einem Ärzteteam an Bord startet noch in dieser Stunde. Ankunft in sechs Tagen. Halten Sie durch.“
+      „Glover, hier Forschungsstation Kuiper Sieben. Wir empfangen Sie klar und deutlich. Wir haben die Hoffnung auf unseren Schirmen. Ein Rettungsschiff mit Brennstoff für Ihren Notreaktor und einem Ärzteteam an Bord startet noch in dieser Stunde. Ankunft in sechs Tagen. Halten Sie durch.“
 
       Sechs Tage. Der Notreaktor hat neun.
 
@@ -985,7 +974,7 @@ elements:
 
       Noch vor Kurzem habe ich im Cockpit gesessen und auf mein Ende gewartet, mit leerem Tank und einer Ladung Medikamente für eine Station am Rand des Sonnensystems. Jetzt werden 329 Menschen wieder aufwachen. Und ein Ärzteteam wird sich über ein paar Kisten Medikamente freuen.
 
-      Die Hope hat ihren Namen am Ende doch verdient.
+      Die Hoffnung hat ihren Namen am Ende doch verdient.
   onUse:
   - id: notruf
     enabled: true
@@ -995,9 +984,9 @@ elements:
   cutscene:
     onlyOnce: true
     text: |-
-      Ich nehme das Mikrofon und spreche langsam, damit jedes Wort ankommt. Mein Name, die Glover IV, meine Position. Dann die Hope. 340 Menschen im Kälteschlaf, zwölf davon schon verloren. Neun Tage.
+      Ich nehme das Mikrofon und spreche langsam, damit jedes Wort ankommt. Mein Name, die Glover, meine Position. Dann die Hoffnung. 340 Menschen im Kälteschlaf, zwölf davon schon verloren. Neun Tage.
 
-      Danach heißt es warten. Ich schwebe vor dem Sender, starre auf das Display und zähle die Minuten, wie ich es schon im Cockpit der Glover IV getan habe. Nur dass ich diesmal nicht auf mein Ende warte.
+      Danach heißt es warten. Ich schwebe vor dem Sender, starre auf das Display und zähle die Minuten, wie ich es schon im Cockpit der Glover getan habe. Nur dass ich diesmal nicht auf mein Ende warte.
 
       Nach elf Stunden knackt es im Lautsprecher.
     image: 'Weltraumszene: Ein gigantisches, dunkles Kolonieraumschiff aus zwei riesigen Ringen auf einer
@@ -1017,11 +1006,10 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Im Maschinenraum ist es warm. Zum ersten Mal, seit ich die Glover IV verlassen habe, beschlägt mein Visier nicht vor Kälte. Der Notreaktor brummt leise in seiner Verkleidung. Überall hängen Kabel, mit Klebeband an Rohren befestigt, provisorisch und doch sorgfältig.
+      Im Maschinenraum ist es warm. Zum ersten Mal, seit ich die Glover verlassen habe, beschlägt mein Visier nicht vor Kälte. Der Notreaktor brummt leise in seiner Verkleidung. Überall hängen Kabel, mit Klebeband an Rohren befestigt, provisorisch und doch sorgfältig.
 
       An einer Wand ist ein Schlafsack festgeschnallt, daneben steht eine Werkbank. Hier hat jemand gewohnt. Lange.
-    repeatView: Der warme Maschinenraum. Der Notreaktor brummt, an der Wand hängt der festgeschnallte
-      Schlafsack neben der Werkbank.
+    repeatView: Der warme Maschinenraum.
   image: Ein warmer, enger Maschinenraum in einem alten Raumschiff. In der Mitte die Verkleidung eines
     kompakten Reaktors mit orangefarbenen Kontrollleuchten. Überall provisorisch mit Klebeband befestigte
     Kabel. An der Wand ein festgeschnallter Schlafsack und eine Werkbank mit Werkzeug. Warmes Licht im
@@ -1056,8 +1044,7 @@ elements:
       Der Notreaktor ist kaum größer als ein Kühlschrank. Seine Brennstoffanzeige steht auf zwei Prozent.
 
       Auf die Verkleidung hat jemand mit Filzstift Striche gemalt. Hunderte, in Fünfergruppen, Reihe um Reihe. Ein Kalender. Die ersten Reihen sind gerade und sauber. Die letzten Striche zittern.
-    repeatView: 'Der Notreaktor brummt. Brennstoff: zwei Prozent. Auf der Verkleidung die Reihen von Strichen,
-      die letzten zittrig.'
+    repeatView: 'Brennstoff: zwei Prozent.'
   image: Nahaufnahme der Verkleidung eines kompakten Reaktors in einem Raumschiff. Auf das Metall sind
     mit schwarzem Filzstift Hunderte Zählstriche in Fünfergruppen gemalt, die oberen Reihen ordentlich,
     die unteren zittrig. Daneben eine Brennstoffanzeige mit einem fast leeren Balken. Orangefarbene Kontrollleuchten.
@@ -1078,13 +1065,13 @@ elements:
     firstView: 'An der Werkbank ist ein Notizbuch mit Klebeband befestigt, damit es nicht davontreibt.
       Ein echtes Notizbuch aus Papier. Auf dem Umschlag steht: M. Ilves, Technik. Die letzte Seite ist
       an jemanden gerichtet, den die Schreiberin nie getroffen hat.'
-    repeatView: 'Mara Ilves’ Notizbuch, die letzte Seite:'
+    repeatView: 'Maras Notizbuch:'
     contentText: |-
-      An wen auch immer, der das hier liest.
+      An dich, wer auch immer du bist.
 
-      Wenn du hier bist, hat die Hope dich hereingelotst. Ich habe ihr beigebracht, jedem Schiff die Bucht 3 zu öffnen und das Tor hinter ihm zu schließen. Entschuldige den Schreck. Ich wollte nur sicher sein, dass du nicht wieder wegfliegst, bevor du das hier gelesen hast.
+      Wenn du hier bist, hat die Hoffnung dich hereingelotst. Ich habe ihr beigebracht, jedem Schiff die Bucht 3 zu öffnen und das Tor hinter ihm zu schließen. Entschuldige den Schreck. Ich wollte nur sicher sein, dass du nicht wieder wegfliegst, bevor du das hier gelesen hast.
 
-      Ich bin Mara Ilves, Ingenieurin der Hope. Nach dem Unfall reichte die Energie nicht mehr für alle. Nicht für 340 Schlafende und acht Wache. Ruben und die anderen haben die Hope mit den Shuttles verlassen, damit die Kapseln ihre Energie bekommen. Sie wollten Hilfe holen. Niemand hat je geantwortet. Ich glaube nicht, dass sie angekommen sind.
+      Ich bin Mara Ilves, Ingenieurin der Hoffnung. Nach dem Unfall reichte die Energie nicht mehr für alle. Nicht für 340 Schlafende und acht Wache. Ruben und die anderen haben die Hoffnung mit den Shuttles verlassen, damit die Kapseln ihre Energie bekommen. Sie wollten Hilfe holen. Niemand hat je geantwortet. Ich glaube nicht, dass sie angekommen sind.
 
       Ich bin geblieben. Irgendjemand musste den Notreaktor am Laufen halten.
 
@@ -1133,7 +1120,7 @@ elements:
       Es ist bitterkalt. Außer dem leisen Summen der Kühlaggregate ist nichts zu hören.
 
       Am Eingang des Rings steht die Kälteschlafkonsole.
-    repeatView: Die langen Reihen der Kälteschlafkapseln, die meisten Lichter grün. Am Eingang die Kälteschlafkonsole.
+    repeatView: Die Kapselreihen im kalten Licht.
   image: Das Innere eines riesigen, ringförmigen Raumschiffsegments, der Boden krümmt sich in der Ferne
     nach oben. In langen Reihen liegen Hunderte Kälteschlafkapseln mit vereisten Sichtfenstern, an jeder
     ein kleines grünes Licht, einzelne Lichter rot. Bitterkalte Atmosphäre, Frost, feiner Nebel über dem
@@ -1165,7 +1152,7 @@ elements:
   initialPartOf: []
   presentation:
     firstView: Die Konsole am Eingang des Rings zeigt den Zustand aller Kapseln.
-    repeatView: 'Die Kälteschlafkonsole:'
+    repeatView: 'Die Konsole:'
     contentText: |-
       RING B · KÄLTESCHLAF
       Kolonistenkapseln: 340 · davon ausgefallen: 12
@@ -1209,7 +1196,7 @@ elements:
       An jeder Kapsel klebt ein Namensschild. Okonkwo. Lindqvist. Haddad. Drei Kapseln mit dem Namen Varga, zwei davon kaum länger als ein Kind.
 
       Bei zwölf Kapseln leuchtet das Licht rot. Ihre Sichtfenster sind dunkel. Ich schaue nicht hinein.
-    repeatView: Reihe um Reihe Kälteschlafkapseln mit Namensschildern. Zwölf Lichter leuchten rot.
+    repeatView: Zwölf rote Lichter.
   image: Eine lange Reihe von Kälteschlafkapseln in einem kalten Raumschiff, vereiste Sichtfenster, an
     jeder Kapsel ein kleines Namensschild und ein grünes Statuslicht. Eine einzelne Kapsel in der Reihe
     hat ein rotes Licht und ein dunkles Fenster. Frost, kaltes blaues Licht, keine Gesichter sichtbar.
@@ -1229,7 +1216,7 @@ elements:
       Die Reservekapsel liegt etwas abseits am Ende der Reihe, direkt neben einem Wartungsschacht. Ihr Sichtfenster ist von innen vereist. Ich kann ein Gesicht erahnen, mehr nicht. Auf einem Streifen Klebeband am Rand der Kapsel steht in krakeliger Handschrift: M. Ilves.
 
       Die Lebenszeichen sind schwach. Aber sie sind da.
-    repeatView: In der Reservekapsel R-1 schläft Mara Ilves. Ihre Lebenszeichen sind schwach, aber stabil.
+    repeatView: Mara Ilves schläft. Schwach, aber stabil.
   onUse:
   - id: r1_entdeckt
     enabled: true
@@ -1258,13 +1245,10 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
+      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
 
-      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
-    repeatView: |-
-      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
-
-      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
+      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER · VERBUNDEN.
+    repeatView: 'Die Anzeige leuchtet grün: VERBUNDEN.'
   stateTexts:
   - id: kupplung_verbunden
     conditions:
@@ -1273,11 +1257,10 @@ elements:
       - verbunden
       - true
     firstView: |-
-      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover IV hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
+      Am Rand der Landeplattform ragt ein armdicker Anschluss aus dem Boden. Daneben liegt ein Kabel mit Kupplung, ordentlich aufgerollt, als hätte es jemand bereitgelegt. Ich ziehe es zur Glover hinüber und stecke die Kupplung in die Antennenbuchse unter dem Cockpit. Sie rastet mit einem Ruck ein.
 
-      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER IV · VERBUNDEN.
-    repeatView: 'Das Kabel führt von der Datenkupplung zur Glover IV. Die Anzeige leuchtet grün: ANTENNE
-      GLOVER IV · VERBUNDEN.'
+      Auf dem kleinen Display am Anschluss springt die Anzeige von Rot auf Grün: ANTENNE GLOVER · VERBUNDEN.
+    repeatView: 'Die Anzeige leuchtet grün: VERBUNDEN.'
   onUse:
   - id: kupplung_verbinden
     enabled: true
@@ -1299,7 +1282,7 @@ elements:
     Ein dickes Kabel führt von dort zur Unterseite eines kleinen Raumschiffs. Auf einem kleinen Display
     am Anschluss leuchtet eine grüne Anzeige. Rotes Notlicht, Eis auf dem Metall. Menschenleer.
 - id: lb_offiziell
-  name: Die offizielle Geschichte der Hope
+  name: Die offizielle Geschichte der Hoffnung
   type: story
   physical: false
   layers:
@@ -1309,10 +1292,10 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Auf Titan gilt die Hope seit einundzwanzig Jahren als verloren. Reaktorunfall, keine Überlebenden.
+    body: Auf Titan gilt die Hoffnung seit einundzwanzig Jahren als verloren. Reaktorunfall, keine Überlebenden.
     style: discovery
 - id: lb_widerspruch_intakt
-  name: Die zerstörte Hope
+  name: Die zerstörte Hoffnung
   type: rumor
   physical: false
   layers:
@@ -1322,10 +1305,10 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Die Hope soll bei einem Reaktorunfall zerstört worden sein. Doch das Schiff ist intakt, hat
-      Energie und hat die Glover IV in seinen Hangar gelotst.
+    body: Die Hoffnung soll bei einem Reaktorunfall zerstört worden sein. Doch das Schiff ist intakt,
+      hat Energie und hat die Glover in seinen Hangar gelotst.
     style: contradiction
-    openQuestion: Was ist an Bord der Hope wirklich geschehen?
+    openQuestion: Was ist an Bord der Hoffnung wirklich geschehen?
 - id: lb_lage
   name: Neun Tage
   type: event
@@ -1337,7 +1320,7 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Der Notreaktor der Hope hält den Kälteschlafring noch neun Tage am Leben. Der Langstreckensender
+    body: Der Notreaktor der Hoffnung hält den Kälteschlafring noch neun Tage am Leben. Der Langstreckensender
       auf der Brücke ist betriebsbereit, aber die Hauptantenne ist zerstört.
     style: discovery
 - id: lb_geruecht_flucht
@@ -1351,8 +1334,8 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Laut Logbuch des Kapitäns hat die Besatzung die Hope mit beiden Shuttles verlassen. Die 340
-      Kolonisten blieben in ihren Kapseln zurück.
+    body: Laut Logbuch des Kapitäns hat die Besatzung die Hoffnung mit beiden Shuttles verlassen. Die
+      340 Kolonisten blieben in ihren Kapseln zurück.
     style: contradiction
     openQuestion: Hat die Besatzung die Schlafenden im Stich gelassen?
 - id: lb_widerspruch_r1
@@ -1366,12 +1349,12 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Die Hope trug 340 Kolonisten. Im Schlafring ist aber auch die Reservekapsel R-1 belegt, seit
-      über sieben Jahren.
+    body: Die Hoffnung trug 340 Kolonisten. Im Schlafring ist aber auch die Reservekapsel R-1 belegt,
+      seit über sieben Jahren.
     style: contradiction
     openQuestion: Wer liegt in der Reservekapsel R-1?
 - id: lb_wahrheit
-  name: Was auf der Hope geschah
+  name: Was auf der Hoffnung geschah
   type: story
   physical: false
   layers:
@@ -1381,7 +1364,7 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Nach dem Reaktorunfall verließ die Besatzung die Hope mit beiden Shuttles, damit der Notreaktor
+    body: Nach dem Reaktorunfall verließ die Besatzung die Hoffnung mit beiden Shuttles, damit der Notreaktor
       genug Energie für die Schlafenden hat, und um Hilfe zu holen. Sie kam nie an. Nur die Ingenieurin
       Mara Ilves blieb an Bord und hielt den Reaktor vierzehn Jahre lang am Laufen.
     style: discovery
@@ -1396,11 +1379,11 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Mara Ilves, die Ingenieurin der Hope, liegt krank in der Reservekapsel R-1 im Schlafring, im
-      Kälteschlaf.
+    body: Mara Ilves, die Ingenieurin der Hoffnung, liegt krank in der Reservekapsel R-1 im Schlafring,
+      im Kälteschlaf.
     style: discovery
 - id: lb_kupplung
-  name: Die Antenne der Glover IV
+  name: Die Antenne der Glover
   type: event
   physical: false
   layers:
@@ -1410,11 +1393,11 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Über die Datenkupplung an der Landeplattform im Hangar lässt sich die Antenne der Glover IV
-      mit dem Sender auf der Brücke der Hope verbinden.
+    body: Über die Datenkupplung an der Landeplattform im Hangar lässt sich die Antenne der Glover mit
+      dem Sender auf der Brücke der Hoffnung verbinden.
     style: discovery
 - id: lb_verbunden
-  name: Eine Stimme für die Hope
+  name: Eine Stimme für die Hoffnung
   type: event
   physical: false
   layers:
@@ -1424,6 +1407,6 @@ elements:
     visible: false
   initialPartOf: []
   presentation:
-    body: Die Antenne der Glover IV ist mit dem Sender der Hope verbunden. Vom Langstreckensender auf
+    body: Die Antenne der Glover ist mit dem Sender der Hoffnung verbunden. Vom Langstreckensender auf
       der Brücke kann ich einen Notruf absetzen.
     style: discovery

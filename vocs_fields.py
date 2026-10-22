@@ -14,6 +14,9 @@ Textmodell (Aenderung 2, 2026-10-21) je Element:
   messages: {Name: Text}                frei benannte Meldungen, eingeblendet per Reaktion
                                         ("showTextFrom": "<elementId>.messages.<Name>")
   presentation.body / openQuestion / style   Logbuch (wird nicht gesprochen)
+  presentation.takeText / dropText      Meldung beim Aufnehmen / Ablegen (Schluessel takeText/dropText)
+  onUse[].effects[].showText            frei geschriebener Kurztext einer Reaktion
+                                        (Schluessel "showText:<Reaktions-ID>:<n>", n = Zaehler je Reaktion)
   cutscene.text                         Text der Zwischensequenz eines Weges (Schluessel "cutscene")
 """
 
@@ -49,10 +52,11 @@ def sample_key(element_id: str, field: str) -> str:
 #    Nicht fuer Wege (type door) und nicht fuer Elemente, die beim Klick sofort woanders
 #    hinfuehren - deren Fenster sieht der Spieler nie. Nicht fuer nicht-physische Elemente
 #    (Wissen/Logbuch - das Logbuch wird nicht gesprochen).
-# 2. Zwischensequenzen von Wegen (cutscene.text) - die einzigen gesprochenen Texte eines Weges.
-# 3. Erzaehlende Meldungen: Meldungsfelder, die eine Reaktion oder die Loesung per
-#    showTextFrom einblendet - egal an welchem Element sie stehen. NICHT: frei geschriebene
-#    "Zeige Kurztext"-Texte (showText) und Aufnehmen/Ablegen-Meldungen (takeText/dropText).
+# 2. Zwischensequenzen von Wegen (cutscene.text).
+# 3. Alle Meldungen: Meldungsfelder, die eine Reaktion oder die Loesung per showTextFrom
+#    einblendet (egal an welchem Element sie stehen), frei geschriebene Kurztexte (showText)
+#    in Reaktionen eines Elements und die Meldungen beim Aufnehmen/Ablegen (takeText/dropText).
+#    Nicht: showText in der globalen Loesung (resolution) - sie gehoert zu keinem Element.
 
 
 def leads_elsewhere(element: dict) -> bool:
@@ -87,6 +91,19 @@ def message_refs(story: dict) -> list[tuple[str, str, str]]:
     return found
 
 
+def show_texts(element: dict) -> list[tuple[str, str]]:
+    """(schluessel, text) aller showText-Effekte in den Reaktionen eines Elements. Dieselbe
+    Zaehlung nutzt game.js (showTextSampleKey)."""
+    found: list[tuple[str, str]] = []
+    for trigger in element.get("onUse") or []:
+        n = 0
+        for effect in trigger.get("effects") or []:
+            if isinstance(effect, dict) and "showText" in effect:
+                found.append((f"showText:{trigger.get('id')}:{n}", effect["showText"]))
+                n += 1
+    return found
+
+
 def narrated_texts(story: dict) -> list[tuple[dict, str, str, str | None]]:
     """Alle zu sprechenden Texte einer Geschichte als (element, schluessel, text, sprecher),
     in stabiler Reihenfolge. sprecher ist None, wenn die Erzaehlstimme gelten soll."""
@@ -111,6 +128,11 @@ def narrated_texts(story: dict) -> list[tuple[dict, str, str, str | None]]:
         cutscene = el.get("cutscene")
         if el.get("type") == "door" and isinstance(cutscene, dict):
             add(el, "cutscene", cutscene.get("text"), voice)
+        if el.get("portable"):
+            add(el, "takeText", presentation.get("takeText"), voice)
+            add(el, "dropText", presentation.get("dropText"), voice)
+        for key, text in show_texts(el):
+            add(el, key, text, voice)
         for eid, area, name in refs:
             if eid != el.get("id"):
                 continue

@@ -130,6 +130,15 @@ def wav_to_mp3(wav_bytes, out_path):
         raise RuntimeError(f"ffmpeg fehlgeschlagen: {result.stderr.decode(errors='replace')}")
 
 
+def audio_from_response(response):
+    """PCM-Daten aus der Gemini-Antwort, oder None, wenn die Antwort kein Audio enthaelt."""
+    for candidate in response.candidates or []:
+        for part in (candidate.content.parts or []) if candidate.content else []:
+            if part.inline_data and part.inline_data.data:
+                return part.inline_data.data
+    return None
+
+
 def synthesize(client, model, voice, text):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -145,7 +154,16 @@ def synthesize(client, model, voice, text):
                     ),
                 ),
             )
-            return response.candidates[0].content.parts[0].inline_data.data
+            audio = audio_from_response(response)
+            if audio is not None:
+                return audio
+            # Das TTS-Modell liefert bei sehr kurzen Texten gelegentlich eine Antwort ohne Audio
+            # (Kandidat ohne content). Ein neuer Versuch klappt meist.
+            reason = response.candidates[0].finish_reason if response.candidates else "keine Kandidaten"
+            if attempt == MAX_RETRIES:
+                raise RuntimeError(f"Gemini lieferte kein Audio (finish_reason={reason}), {MAX_RETRIES} Versuche")
+            print(f"  Kein Audio erhalten ({reason}), Versuch {attempt}/{MAX_RETRIES}, versuche es erneut...", file=sys.stderr)
+            time.sleep(RETRY_BASE_DELAY_SECONDS)
         except genai_errors.APIError as exc:
             code = getattr(exc, "code", None)
             if code not in RETRYABLE_STATUS_CODES or attempt == MAX_RETRIES:

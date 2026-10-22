@@ -1,7 +1,7 @@
 """Exportiert die zu sprechenden Texte einer Geschichte nach Stories/<Name>/samples_input.txt.
 
-Welche Texte gesprochen werden, entscheidet vocs_fields.narrated_texts (keine Wege, kein
-Logbuch, nur erzaehlende Meldungen). Jeder Text bekommt eine stabile, dauerhafte Nummer in
+Welche Texte gesprochen werden, entscheidet vocs_fields.narrated_texts (keine Wege ausser
+Zwischensequenzen, kein Logbuch, alle Meldungen). Jeder Text bekommt eine stabile, dauerhafte Nummer in
 Stories/<Name>/samples_index.json: Bekannte Texte behalten ihre Nummer (damit erzeugte
 samples/sample_NNNNN.mp3 weiter passen), neue bekommen die naechste freie. Verschwindet ein
 Text, wird seine Nummer nie wiederverwendet.

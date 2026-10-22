@@ -241,6 +241,28 @@ function conditionsPass(conditions) {
 
 let navigationTarget = null;
 
+// Sample einer Meldung vormerken - gespielt wird es nach dem Fenstertext (render).
+function queueMessageSample(elementId, field) {
+  const el = elementId ? engine.elementsById[elementId] : null;
+  const number = el && el._samples && field ? el._samples[field] : null;
+  if (number != null) engine.pendingSamples.push(number);
+}
+
+// Schluessel eines showText-Kurztexts: "showText:<Reaktions-ID>:<n>", n zaehlt die showText-
+// Effekte innerhalb der Reaktion (gleiche Zaehlung wie vocs_fields.show_texts).
+function showTextSampleKey(elementId, effect) {
+  const el = elementId ? engine.elementsById[elementId] : null;
+  for (const trig of (el && el.onUse) || []) {
+    let n = 0;
+    for (const e of trig.effects || []) {
+      if (!Object.prototype.hasOwnProperty.call(e, 'showText')) continue;
+      if (e === effect) return `showText:${trig.id}:${n}`;
+      n++;
+    }
+  }
+  return null;
+}
+
 function applyEffect(effect, ctxElementId) {
   const key = Object.keys(effect)[0];
   const val = effect[key];
@@ -278,18 +300,15 @@ function applyEffect(effect, ctxElementId) {
       break;
     case 'showText':
       engine.pendingMessages.push(val);
+      queueMessageSample(ctxElementId, showTextSampleKey(ctxElementId, effect));
       break;
     case 'showTextFrom': {
       const text = resolveTextPath(val);
       if (text) engine.pendingMessages.push(text);
-      // Erzaehlende Meldung: wird vorgelesen, falls ein Sample existiert. Frei geschriebene
-      // showText-Meldungen und Aufnehmen/Ablegen werden bewusst NICHT vorgelesen.
+      // Alle Meldungen werden vorgelesen, falls ein Sample existiert (Regel: vocs_fields.py).
       const [msgElId, msgArea, ...rest] = String(val).split('.');
       const msgName = rest.join('.');
-      const msgKey = msgArea === 'messages' ? `message:${msgName}` : msgName;
-      const msgEl = engine.elementsById[msgElId];
-      const msgSample = msgEl && msgEl._samples ? msgEl._samples[msgKey] : null;
-      if (msgSample != null) engine.pendingSamples.push(msgSample);
+      queueMessageSample(msgElId, msgArea === 'messages' ? `message:${msgName}` : msgName);
       break;
     }
     case 'disableSelfTrigger':
@@ -490,7 +509,7 @@ function takeItem(itemId) {
   const el = engine.elementsById[itemId];
   engine.runtime[itemId].locatedIn = PLAYER_ID;
   closeWindowsFrom(itemId);
-  finishInventoryAction((el.presentation && el.presentation.takeText) || `Du nimmst „${el.name}“ an dich.`);
+  finishInventoryAction((el.presentation && el.presentation.takeText) || `Du nimmst „${el.name}“ an dich.`, itemId, 'takeText');
 }
 
 function dropItem(itemId) {
@@ -499,7 +518,7 @@ function dropItem(itemId) {
   engine.runtime[itemId].locatedIn = targetId;
   closeWindowsFrom(itemId);
   const targetName = engine.elementsById[targetId].name;
-  finishInventoryAction((el.presentation && el.presentation.dropText) || `Du legst „${el.name}“ hier ab (${targetName}).`);
+  finishInventoryAction((el.presentation && el.presentation.dropText) || `Du legst „${el.name}“ hier ab (${targetName}).`, itemId, 'dropText');
 }
 
 // Das Fenster des Gegenstands (und alles darueber) schliessen - er liegt jetzt woanders.
@@ -508,11 +527,14 @@ function closeWindowsFrom(itemId) {
   if (index > 0) engine.stack = engine.stack.slice(0, index);
 }
 
-function finishInventoryAction(message) {
+// sampleField: takeText/dropText - vorgelesen nur der eigene Text des Gegenstands (die
+// Vorgabe „Du nimmst … an dich.“ hat kein Sample).
+function finishInventoryAction(message, itemId, sampleField) {
   engine.actionCount++;
   // Aufnehmen/Ablegen kann eine Loesungsbedingung erfuellen (z.B. inInventory: schluessel).
   engine.pendingMessages = [];
   engine.pendingSamples = [];
+  queueMessageSample(itemId, sampleField);
   checkResolution();
   if (engine.gameFinished) {
     showEndScreen();

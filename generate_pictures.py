@@ -20,10 +20,12 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
 from google import genai
+from google.genai import errors as genai_errors
 from google.genai import types
 
 from story_files import load_story, story_folders
@@ -37,6 +39,9 @@ MANIFEST_FILENAME = ".manifest.json"
 # darum schneidet image_to_jpeg zusaetzlich mittig exakt auf 16:9 zu. Das Format geht in den
 # Aenderungs-Hash ein: Bilder in einem anderen Format werden beim naechsten Lauf neu erzeugt.
 ASPECT_RATIO = "16:9"
+MAX_ATTEMPTS = 3                       # Versuche pro Bild (NO_IMAGE, leere Antwort, Serverfehler)
+RETRY_DELAY_SECONDS = 3
+RETRYABLE_STATUS_CODES = {429, 500, 503}
 CROP_16_9 = (
     "crop='if(gt(iw/ih,16/9),trunc(ih*16/9/2)*2,trunc(iw/2)*2)'"
     ":'if(gt(iw/ih,16/9),trunc(ih/2)*2,trunc(iw*9/16/2)*2)'"
@@ -93,7 +98,8 @@ def image_to_jpeg(image_bytes, out_path):
         raise RuntimeError(f"ffmpeg fehlgeschlagen: {result.stderr.decode(errors='replace')}")
 
 
-def synthesize(client, model, prompt, extra):
+def request_image(client, model, prompt, extra):
+    """Ein einzelner Aufruf. Liefert die Bilddaten oder wirft RuntimeError (z.B. NO_IMAGE)."""
     response = client.models.generate_content(
         model=model,
         contents=prompt,
@@ -103,13 +109,30 @@ def synthesize(client, model, prompt, extra):
             image_config=types.ImageConfig(aspect_ratio=ASPECT_RATIO),
         ),
     )
+    if not response.candidates:
+        raise RuntimeError("Keine Antwort erhalten (keine Kandidaten).")
     candidate = response.candidates[0]
     if candidate.content is None:
         raise RuntimeError(f"Keine Antwort erhalten (finish_reason={candidate.finish_reason}).")
-    for part in candidate.content.parts:
+    for part in candidate.content.parts or []:
         if part.inline_data is not None:
             return part.inline_data.data
     raise RuntimeError(f"Antwort enthielt kein Bild (finish_reason={candidate.finish_reason}).")
+
+
+def synthesize(client, model, prompt, extra):
+    """Bis zu MAX_ATTEMPTS Versuche: Das Bildmodell liefert gelegentlich ohne erkennbaren Grund
+    kein Bild (NO_IMAGE) oder antwortet mit einem Serverfehler; ein neuer Versuch klappt oft."""
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            return request_image(client, model, prompt, extra)
+        except (RuntimeError, genai_errors.APIError) as exc:
+            if isinstance(exc, genai_errors.APIError) and getattr(exc, "code", None) not in RETRYABLE_STATUS_CODES:
+                raise
+            if attempt == MAX_ATTEMPTS:
+                raise RuntimeError(f"{exc} Aufgegeben nach {MAX_ATTEMPTS} Versuchen.") from exc
+            print(f"  {exc} Versuch {attempt}/{MAX_ATTEMPTS}, versuche es erneut...", file=sys.stderr)
+            time.sleep(RETRY_DELAY_SECONDS)
 
 
 def is_up_to_date(manifest, output_dir, number, prompt, extra, model):
