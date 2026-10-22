@@ -14,6 +14,7 @@ Textmodell (Aenderung 2, 2026-10-21) je Element:
   messages: {Name: Text}                frei benannte Meldungen, eingeblendet per Reaktion
                                         ("showTextFrom": "<elementId>.messages.<Name>")
   presentation.body / openQuestion / style   Logbuch (wird nicht gesprochen)
+  cutscene.text                         Text der Zwischensequenz eines Weges (Schluessel "cutscene")
 """
 
 # Sprecher, die Autoren im Editor waehlen koennen: (Kuerzel, Anzeigename, Gemini-Stimme).
@@ -48,7 +49,8 @@ def sample_key(element_id: str, field: str) -> str:
 #    Nicht fuer Wege (type door) und nicht fuer Elemente, die beim Klick sofort woanders
 #    hinfuehren - deren Fenster sieht der Spieler nie. Nicht fuer nicht-physische Elemente
 #    (Wissen/Logbuch - das Logbuch wird nicht gesprochen).
-# 2. Erzaehlende Meldungen: Meldungsfelder, die eine Reaktion oder die Loesung per
+# 2. Zwischensequenzen von Wegen (cutscene.text) - die einzigen gesprochenen Texte eines Weges.
+# 3. Erzaehlende Meldungen: Meldungsfelder, die eine Reaktion oder die Loesung per
 #    showTextFrom einblendet - egal an welchem Element sie stehen. NICHT: frei geschriebene
 #    "Zeige Kurztext"-Texte (showText) und Aufnehmen/Ablegen-Meldungen (takeText/dropText).
 
@@ -106,6 +108,9 @@ def narrated_texts(story: dict) -> list[tuple[dict, str, str, str | None]]:
                     for field in VIEW_FIELDS:
                         add(el, f"stateText:{st['id']}:{field}", st.get(field), voice)
             add(el, "contentText", presentation.get("contentText"), el.get("contentVoice") or voice)
+        cutscene = el.get("cutscene")
+        if el.get("type") == "door" and isinstance(cutscene, dict):
+            add(el, "cutscene", cutscene.get("text"), voice)
         for eid, area, name in refs:
             if eid != el.get("id"):
                 continue

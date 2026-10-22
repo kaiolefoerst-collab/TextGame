@@ -164,20 +164,6 @@ elements:
   presentation:
     firstView: |
       Ich schaue aus meinem Cockpitfenster und sehe die Sterne im dunklen Raum. Eigentlich ein beeindruckender Anblick. Millionen kleiner Lichtpunkte auf einem vollkommen schwarzen Hintergrund. Kein Flimmern, keine Atmosphäre, die das Licht verzerrt. Alles gestochen scharf. Nur leider wird auch der schönste Sternenhimmel irgendwann langweilig, wenn man ihn den ganzen Tag vor der Nase hat. Ab und zu versuche ich, bekannte Sternbilder zu erkennen. Funktioniert nur bedingt. Von hier draußen sieht eben manches anders aus.
-- id: kommunikationsanlage
-  name: Kommunikation
-  type: location
-  physical: true
-  layers:
-  - present
-  locatedIn: null
-  initialState:
-    visible: true
-  initialPartOf: []
-  presentation:
-    firstView: |
-      Kommunikation auch tot. Die würde viele Probleme lösen. Wäre zwar teuer, mich abschleppen zu lassen, aber immerhin würde ich überleben. Da muss man Prioritäten setzen. Ich frage mich gelegentlich, wie hoch wohl die Rechnung für einen solchen Einsatz wäre. Vermutlich mehr, als ich mit diesem Transport verdiene. Aber das ist im Moment wirklich mein kleinstes Problem.
-  image: 'Ein Detailbild von einer Raumschiff-Kommunikationsanlage aus Sicht des Piloten. '
 - id: laderaum
   name: Laderaum
   type: location
@@ -297,6 +283,8 @@ elements:
 
       Erkannte Objekte erscheinen als kleine Punkte. Je nach Entfernung und Bewegungsrichtung verändern sie langsam ihre Position auf der Anzeige.
 
+      Moment mal, was ist das? Auf dem Navigationsdisplay ist ein winziger leuchtender Punkt aufgetaucht. Ich schaue genauer hin. Tatsächlich, da ist etwas! Irgendein Objekt, weit draußen im All. Was es ist, kann ich aus dieser Entfernung nicht erkennen. Vielleicht ein Asteroid, vielleicht aber auch etwas ganz anderes. Zum ersten Mal seit einer gefühlten Ewigkeit gibt es etwas anderes zu sehen als die endlose Leere. Ich spüre, wie meine Neugier erwacht. Und plötzlich ist da ein Gedanke, den ich schon fast aufgegeben hatte: Vielleicht komme ich hier doch noch lebend raus.
+
       Ich kann jeden dieser Punkte auswählen und mir nähere Informationen anzeigen lassen. Außerdem kann ich das Objekt als Ziel markieren und den Autopiloten einen passenden Kurs berechnen lassen.
 
       Und jetzt ist da tatsächlich ein kleiner weißer Punkt. Mitten im Nirgendwo. Ich habe keine Ahnung, was sich dahinter verbirgt. Vielleicht ist es nur ein nutzloses Stück Weltraumschrott.
@@ -308,6 +296,9 @@ elements:
     conditions: []
     effects:
     - disableSelfTrigger: reaktion_1
+  image: Heir sieht man den Bildschirm einer Navigationssystems eines kleinen Raumschiffes. Konkret sieht
+    man hier gerade einen weissen Punkt. Das ganze sieht ungefähr aus wie ein Radar, aber ohne einen kreisenden
+    Sensor.Im weiteren gibt es verschiedene kleine tasten , wo einer mit "Autopilot" bezeichnet ist.
 - id: weg_cockpit_glover_iv_navigationssystem
   name: Navigationssystem
   type: door
@@ -340,38 +331,20 @@ elements:
     - setCurrentElement: cockpit_glover_iv
     conditions: []
   presentation: {}
-- id: weg_kommunikationsanlage_cockpit_glover_iv
-  name: Weg nach Cockpit Glover IV
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: kommunikationsanlage
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: go_weg_kommunikationsanlage_cockpit_glover_iv
-    enabled: true
-    effects:
-    - setCurrentElement: cockpit_glover_iv
-- id: weg_cockpit_glover_iv_kommunikationsanlage
-  name: Weg nach Kommunikationsanlage
-  type: door
-  physical: true
-  layers:
-  - present
-  locatedIn: cockpit_glover_iv
-  initialState:
-    visible: true
-  initialPartOf: []
-  onUse:
-  - id: go_weg_cockpit_glover_iv_kommunikationsanlage
-    enabled: true
-    effects:
-    - setCurrentElement: kommunikationsanlage
+  cutscene:
+    conditions:
+    - stateEquals:
+      - cockpit_glover_iv
+      - location
+      - byHope
+    text: Du hast den Kurs korrigiert und fliegst nun durch das All auf den leuchtenden Punkt auf dem
+      Display zu. Gespannt fragst du dich, was dich dort wohl erwarten mag.
+    image: 'Zeigt ein kleines Einpersonenraumschiff von aussen wie es durch das All fliegt. Das Raumschiff
+      is ca. 30 Meter lang und 10m breit. Hat vorne ein Cockpit und dahinter ist ein fensterloser Laderaum. '
+    buttonLabel: Weiter
+    onlyOnce: true
 - id: autopilot_taste
-  name: Auto-Pilot Taste drücken
+  name: Auto-Pilot aktivieren
   type: object
   physical: true
   layers:
@@ -399,3 +372,58 @@ elements:
       - cockpit_glover_iv
       - location
       - byHope
+- id: manuelle_steuerung
+  name: Manuelle Steuerung
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: cockpit_glover_iv
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: Die manuelle Steuerung sollte ich besser nicht benutzen. Die Steuerdüsen verbrauchen Treibstoff,
+      und davon habe ich kaum noch etwas übrig. Vielleicht ergibt sich ja noch eine Gelegenheit, die letzten
+      Reserven sinnvoller einzusetzen, als hier draußen im All eine kleine Spazierfahrt zu unternehmen.
+    repeatView: Die manuelle Steuerung ist hier leider völlig nutzlos.
+  image: Nahaufnahme der manuellen Flugsteuerung eines Raumschiffs. Ein ergonomischer Steuerjoystick mit
+    mehreren Tasten und Schaltern, fest eingebaut in die Cockpitkonsole. Daneben einige zusätzliche Bedienelemente
+    und kleine Statusanzeigen. Der Joystick steht deutlich im Mittelpunkt. Keine Hände oder Personen im
+    Bild.
+  onUse: []
+- id: kommunikationsanlage_2
+  name: Kommunikationsanlage
+  type: feature
+  physical: true
+  layers:
+  - present
+  locatedIn: cockpit_glover_iv
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation:
+    firstView: 'Kommunikation ist auch tot. Die würde viele Probleme lösen. '
+    repeatView: Funktioniert leider nicht.
+  image: Eine Kommunikatonsablage welche seitlich im Cockpit eines kleinen , eim Mann, Raumschiffes eingebaut
+    ist. Der Fokus liegt auf der technischen Einheit, Keine Personen im Bild.
+- id: autopilot_aktivieren_und_zu_dem_objekt_fliegen
+  name: Autopilot Aktivieren und zu dem Objekt fliegen
+  type: door
+  physical: true
+  layers:
+  - present
+  locatedIn: autopilot_taste
+  initialState:
+    visible: true
+  initialPartOf: []
+  presentation: {}
+  onUse:
+  - id: go_autopilot_aktivieren_und_zu_dem_objekt_fliegen
+    enabled: true
+    effects:
+    - setCurrentElement: cockpit_glover_iv
+    conditions: []
+  cutscene:
+    onlyOnce: true
+    text: Du fliegst zu dem Zielpunkt

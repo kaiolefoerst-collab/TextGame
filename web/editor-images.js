@@ -35,6 +35,7 @@ function hideImageNumbers(el) {
   };
   hide(el);
   for (const entry of el.stateImages || []) hide(entry);
+  hide(el.cutscene);
 }
 
 function imagePreview(number) {
@@ -276,4 +277,127 @@ function renderStateImageCard(el, entry, index) {
   card.appendChild(body);
   card.appendChild(sceneButton(el, area));
   return card;
+}
+
+// ---------------------------------------------------------------------
+// Zwischensequenz eines Weges (`cutscene`): Text, Bild und eine einzige Taste. Sie trennt
+// Handlungsabschnitte. Aktiv nur mit Text oder Bild-Prompt - sonst bleibt der Weg wie bisher.
+// Spiel: showCutscene in game.js. Ein Film ist spaeter geplant (noch nicht).
+// ---------------------------------------------------------------------
+
+const CUTSCENE_TIPS = {
+  section: 'Zwischensequenz: Ein eigener Schirm mit Bild, Text und nur einer Taste („Weiter“), '
+    + 'bevor der Spieler am Zielort ankommt. Damit trennst du Handlungsabschnitte.\n'
+    + 'Sie erscheint nur, wenn der Weg wirklich woanders hinführt (oder das Spiel beendet) – '
+    + 'ein versperrter Weg zeigt nur seine Meldung.\n'
+    + 'Mit „Wenn“ legst du fest, in welchem Zustand sie erscheint.\n'
+    + 'Ohne Text und ohne Bild-Prompt gibt es keine Zwischensequenz.',
+  text: 'Text der Zwischensequenz. Wird vorgelesen (mit dem Sprecher dieses Weges), '
+    + 'nachdem die Sprachdateien erzeugt wurden: python generate_samples.py',
+  image: 'Bild der Zwischensequenz: Was soll zu sehen sein? Der Masterprompt der Geschichte wird mitgegeben.\n'
+    + 'Erzeugen: Speichern, dann python generate_pictures.py.\nLeer = kein Bild.',
+  button: 'Beschriftung der einzigen Taste. Leer = „Weiter“.',
+  conditions: 'Wenn: Die Zwischensequenz erscheint nur, wenn alle Bedingungen erfüllt sind (UND) – '
+    + 'z.B. ein Zustand eines anderen Elements. Geprüft wird im Moment des Klicks, bevor die Reaktionen des Weges laufen.\n'
+    + 'Ohne Bedingung erscheint sie immer.',
+  onlyOnce: 'Angehakt: Die Zwischensequenz erscheint nur beim ersten Mal, wenn der Spieler diesen Weg geht. '
+    + 'Danach führt der Weg direkt zum Ziel.\nNicht angehakt: bei jedem Gang über den Weg.',
+};
+
+function renderCutsceneSection(el) {
+  const frag = document.createDocumentFragment();
+  frag.appendChild(renderSection('Zwischensequenz', CUTSCENE_TIPS.section));
+  const c = el.cutscene || { onlyOnce: true };
+  if (Array.isArray(c.conditions) && c.conditions.length === 0) delete c.conditions;
+  // Der Block steht nur in der Datei, solange etwas drinsteht (onlyOnce allein zaehlt nicht).
+  const sync = () => {
+    const filled = ['text', 'image', 'buttonLabel'].some((k) => typeof c[k] === 'string' && c[k].trim())
+      || (c.conditions || []).length > 0;
+    if (filled) el.cutscene = c;
+    else delete el.cutscene;
+  };
+
+  frag.appendChild(ruleBlockTitle('Wenn', CUTSCENE_TIPS.conditions));
+  const conditions = c.conditions || [];
+  if (conditions.length === 0) {
+    const none = document.createElement('div');
+    none.className = 'rule-always';
+    none.textContent = 'keine Bedingung – die Zwischensequenz erscheint immer';
+    frag.appendChild(none);
+  }
+  conditions.forEach((_c, i) => frag.appendChild(renderRuleRow(el, c, conditions, i, CONDITION_DEFS, 'Bedingung')));
+  frag.appendChild(ruleAddButton('+ Bedingung', 'Bedingung hinzufügen. Alle müssen erfüllt sein.', () => {
+    const key = 'stateEquals';
+    c.conditions = c.conditions || [];
+    c.conditions.push({ [key]: buildRuleValue(CONDITION_DEFS[key], CONDITION_DEFS[key].defaults(el)) });
+    sync();
+  }));
+
+  frag.appendChild(ruleBlockTitle('Dann zeige', 'Text, Bild und Taste der Zwischensequenz.'));
+
+  const textRow = textAreaRow(c, 'text', 'Text', CUTSCENE_TIPS.text,
+    'z.B. Drei Tage später. Der Nebel hat sich gelichtet, und die Mühle liegt still im Morgenlicht.');
+  textRow.querySelector('textarea').addEventListener('input', sync);
+  frag.appendChild(textRow);
+
+  const imgRow = document.createElement('div');
+  imgRow.className = 'field-row';
+  const imgLabel = document.createElement('span');
+  imgLabel.className = 'field-label';
+  imgLabel.textContent = 'Bild';
+  imgLabel.appendChild(infoIcon(CUTSCENE_TIPS.image));
+  imgRow.appendChild(imgLabel);
+  const imgBody = document.createElement('div');
+  imgBody.className = 'image-row';
+  imgBody.appendChild(promptTextarea(c.image, 'leer = kein Bild. z.B. Ein Pfad durch den Nebel, im Hintergrund die Umrisse der Mühle.',
+    CUTSCENE_TIPS.image, (v) => {
+      if (v.trim()) c.image = v;
+      else delete c.image;
+      sync();
+    }));
+  const preview = imagePreview(c._image);
+  if (preview) imgBody.appendChild(preview);
+  imgRow.appendChild(imgBody);
+  frag.appendChild(imgRow);
+
+  const grid = document.createElement('div');
+  grid.className = 'field-grid';
+
+  const btnRow = makeRow('Taste', CUTSCENE_TIPS.button);
+  const btnInput = document.createElement('input');
+  btnInput.value = c.buttonLabel || '';
+  btnInput.placeholder = 'Weiter';
+  setTip(btnInput, CUTSCENE_TIPS.button);
+  btnInput.addEventListener('input', () => {
+    if (btnInput.value.trim()) c.buttonLabel = btnInput.value;
+    else delete c.buttonLabel;
+    sync();
+    markDirty();
+  });
+  btnRow.appendChild(btnInput);
+  grid.appendChild(btnRow);
+
+  const onceRow = document.createElement('label');
+  onceRow.className = 'field-row field-row-inline';
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !!c.onlyOnce;
+  cb.addEventListener('change', () => {
+    if (cb.checked) c.onlyOnce = true;
+    else delete c.onlyOnce;
+    sync();
+    markDirty();
+  });
+  onceRow.appendChild(cb);
+  const onceLabel = document.createElement('span');
+  onceLabel.className = 'field-label';
+  onceLabel.textContent = 'Nur beim ersten Mal';
+  onceLabel.appendChild(infoIcon(CUTSCENE_TIPS.onlyOnce));
+  onceRow.appendChild(onceLabel);
+  setTip(onceRow, CUTSCENE_TIPS.onlyOnce);
+  grid.appendChild(onceRow);
+
+  grid.appendChild(renderVoiceRow(el));
+  frag.appendChild(grid);
+  return frag;
 }

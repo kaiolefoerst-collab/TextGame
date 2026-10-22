@@ -42,7 +42,7 @@ const engine = {
   story: null,
   elementsById: {},
   fragmentsById: {},   // fragmentId -> { fact, assumption, ownerId, ownerName }
-  runtime: {},          // elementId -> { visible, locatedIn, partOf, triggers, usedBefore, revealedDuringPlay, ...customState }
+  runtime: {},          // elementId -> { visible, locatedIn, partOf, triggers, usedBefore, revealedDuringPlay, cutsceneSeen, ...customState }
   discoveredOrder: [],  // fragment ids in discovery order
   discoveredSet: new Set(),
   stack: [],             // Fenster-Stapel; stack[0] = Weltebene
@@ -318,6 +318,9 @@ function use(elementId) {
   if (!el) return;
 
   navigationTarget = elementId; // Default: das benutzte Element wird selbst fokussiert
+  const fromLocation = engine.stack[0];
+  // Bedingungen der Zwischensequenz gelten fuer den Moment des Klicks - vor den Reaktionen.
+  const cutsceneAllowed = cutsceneDue(elementId);
   engine.actionCount++;
   engine.pendingMessages = [];
   engine.pendingSamples = [];
@@ -334,13 +337,85 @@ function use(elementId) {
   focusElement(navigationTarget);
   checkResolution();
 
+  // Zwischensequenz eines Weges: nur, wenn er wirklich woanders hinfuehrt (Ortswechsel
+  // oder Spielende) - ein versperrter Weg zeigt nur seine Meldung.
+  const movedOn = engine.gameFinished || engine.stack[0] !== fromLocation;
+  if (movedOn && cutsceneAllowed) {
+    showCutscene(elementId, finishUse);
+    return;
+  }
+  finishUse();
+}
+
+function finishUse() {
   if (engine.gameFinished) {
     showEndScreen();
     return;
   }
-
   engine.shownMessages = engine.pendingMessages.slice();
   render();
+}
+
+// ---------------------------------------------------------------------
+// Zwischensequenz eines Weges (cutscene: text, image, buttonLabel, onlyOnce, conditions)
+// ---------------------------------------------------------------------
+
+// Aktiv nur mit Text oder Bild-Prompt - sonst verhaelt sich der Weg wie immer.
+function hasCutscene(el) {
+  const c = el.type === 'door' ? el.cutscene : null;
+  if (!c || typeof c !== 'object') return false;
+  const filled = (v) => typeof v === 'string' && v.trim() !== '';
+  return filled(c.text) || filled(c.image);
+}
+
+function cutsceneDue(id) {
+  const el = engine.elementsById[id];
+  if (!hasCutscene(el)) return false;
+  if (el.cutscene.onlyOnce && engine.runtime[id].cutsceneSeen) return false;
+  // Ohne Bedingung immer, sonst nur, wenn alle erfuellt sind (wie bei Reaktionen).
+  return conditionsPass(el.cutscene.conditions);
+}
+
+// Eigener Vollbild-Schirm: Bild, Text und nur die Taste "Weiter". Danach geht es mit
+// `onContinue` weiter (Zielort bzw. Endbildschirm). Meldungen der Aktion (z.B. ein
+// Abschiedstext) erscheinen erst dort und werden auch erst dort vorgelesen.
+function showCutscene(id, onContinue) {
+  const el = engine.elementsById[id];
+  const c = el.cutscene;
+  engine.runtime[id].cutsceneSeen = true;
+
+  const imgBox = document.getElementById('cutscene-image');
+  imgBox.innerHTML = '';
+  imgBox.className = 'cutscene-image';
+  imgBox.hidden = !(typeof c.image === 'string' && c.image.trim());
+  if (!imgBox.hidden) {
+    if (c._image != null) {
+      const img = document.createElement('img');
+      img.src = storyMediaUrl('pictures', `pic_${String(c._image).padStart(5, '0')}.jpg`);
+      img.alt = el.name;
+      imgBox.appendChild(img);
+    } else {
+      imgBox.classList.add('is-pending');
+      imgBox.textContent = '[Bild noch nicht erzeugt]';
+    }
+  }
+  const textBox = document.getElementById('cutscene-text');
+  textBox.textContent = c.text || '';
+  textBox.hidden = !textBox.textContent.trim();
+
+  const btn = document.getElementById('btn-cutscene-next');
+  btn.textContent = (c.buttonLabel || '').trim() || 'Weiter';
+  btn.onclick = () => {
+    stopNarration();
+    showScreen('screen-game');
+    onContinue();
+  };
+
+  stopNarration();
+  const sample = el._samples ? el._samples.cutscene : null;
+  if (narrationEnabled && sample != null) playSamples([sample]);
+  showScreen('screen-cutscene');
+  btn.focus();
 }
 
 function checkResolution() {
@@ -870,7 +945,7 @@ function showScreen(id) {
 // Fortschritt geht nur verloren, wenn man mitten in einer Geschichte ist (Spiel oder
 // Logbuch offen, nicht beendet) und schon mindestens eine Aktion gemacht hat.
 function hasUnsavedProgress() {
-  const inStory = !document.getElementById('screen-game').hidden || !document.getElementById('screen-log').hidden;
+  const inStory = ['screen-game', 'screen-log', 'screen-cutscene'].some((id) => !document.getElementById(id).hidden);
   return inStory && !engine.gameFinished && engine.actionCount > 0;
 }
 

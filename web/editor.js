@@ -1048,8 +1048,10 @@ function renderEditorWindow(id, isTop, isFirstInStack) {
     note.className = 'door-note';
     note.textContent = 'Ein Weg braucht keine Betrachtungstexte: Der Name ist die Beschriftung des Knopfs, '
       + 'und beim Klicken landet der Spieler direkt am Zielort und liest dort dessen Text. '
+      + 'Soll vorher ein Handlungsabschnitt enden, lege unten eine Zwischensequenz an. '
       + 'Soll der Weg versperrt sein, lege unten eine Meldung und eine Reaktion mit Bedingung an.';
     body.appendChild(note);
+    body.appendChild(renderCutsceneSection(el));
     body.appendChild(renderMessagesSection(el));
     body.appendChild(renderReactionsSection(el));
     div.appendChild(body);

@@ -372,6 +372,90 @@ h1 {
   cursor: pointer;
 }
 
+/* ---------- Zwischensequenz eines Weges ---------- */
+
+/* Wie das Spielfenster: kein Scrollen. Text und Taste haben ihre natuerliche Hoehe,
+   das Bild (16:9) fuellt den Rest; nur ein sehr langer Text scrollt in sich. */
+#screen-cutscene {
+  overflow: hidden;
+}
+
+.cutscene {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.cutscene-image {
+  flex: 1 1 0;
+  min-height: 7rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.cutscene-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.cutscene-image.is-pending {
+  flex: 0 0 auto;
+  min-height: 0;
+  width: auto;
+  padding: 0.8rem;
+  background: var(--panel-alt);
+  border-radius: 6px;
+}
+
+.cutscene-text {
+  flex: 0 1 auto;
+  max-width: 42rem;
+  overflow-y: auto;
+  line-height: 1.6;
+  white-space: pre-line;
+  text-align: center;
+}
+
+/* Ohne Bild steht der Text mittig auf dem Schirm. */
+.cutscene-image[hidden] + .cutscene-text {
+  margin-top: auto;
+}
+
+.cutscene-image[hidden],
+.cutscene-text[hidden] {
+  display: none;
+}
+
+.cutscene-next {
+  flex: 0 0 auto;
+  margin-bottom: auto;
+  background: var(--accent);
+  color: #14150f;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.6rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Mit Bild steht die Taste unten. */
+.cutscene-image:not([hidden]) ~ .cutscene-next {
+  margin-bottom: 0;
+}
+
 /* ---------- Toast ---------- */
 
 .toast {

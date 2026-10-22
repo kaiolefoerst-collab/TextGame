@@ -23,7 +23,7 @@ from urllib.parse import unquote, urlparse
 
 import yaml
 
-from pics_fields import image_entries, image_key
+from pics_fields import image_entries
 from story_files import STORIES_DIR, StoryFolder, load_index, load_story, save_index, story_folders
 from vocs_fields import DEFAULT_SPEAKER, SPEAKERS, narrated_texts, sample_key
 
@@ -98,13 +98,13 @@ def enrich_with_samples(story: dict, folder: StoryFolder) -> dict:
 
 def enrich_with_images(story: dict, folder: StoryFolder) -> dict:
     """Haengt `_image` (Bildnummer) an das Element (Standardbild) bzw. an den passenden
-    stateImages-Eintrag - nur, wenn pictures/pic_NNNNN.jpg tatsaechlich existiert.
+    stateImages- oder cutscene-Eintrag - nur, wenn pictures/pic_NNNNN.jpg tatsaechlich existiert.
     Welches Bild gerade gilt (Zustand), entscheidet der Browser zur Laufzeit.
     Erwartet eine bereits kopierte Story (wird in-place ergaenzt)."""
     index = load_index(folder.pictures_index)
     for el in story.get("elements", []):
-        for state, _prompt, target in image_entries(el):
-            number = index.get(image_key(el["id"], state))
+        for key, _prompt, target in image_entries(el):
+            number = index.get(key)
             if number is not None and (folder.pictures_dir / f"pic_{number:05d}.jpg").is_file():
                 target["_image"] = number
     return story

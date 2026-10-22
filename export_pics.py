@@ -18,7 +18,7 @@ import argparse
 import re
 import sys
 
-from pics_fields import image_entries, image_key
+from pics_fields import image_entries
 from story_files import StoryFolder, assign_numbers, load_index, load_story, save_index, story_folders
 
 
@@ -33,9 +33,9 @@ def collect_entries(story: dict) -> list[tuple[str, str, str]]:
     master = story["header"].get("imageMasterPrompt") or ""
     master = collapse_prompt(master) if isinstance(master, str) else ""
     return [
-        (image_key(el["id"], state), collapse_prompt(prompt), master)
+        (key, collapse_prompt(prompt), master)
         for el in story.get("elements", [])
-        for state, prompt, _target in image_entries(el)
+        for key, prompt, _target in image_entries(el)
     ]
 
 

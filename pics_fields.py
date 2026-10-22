@@ -11,6 +11,7 @@ Story-Felder:
   element.stateImages       Liste [{state: {name: wert, ...}, prompt: "..."}] - Bild fuer einen
                             bestimmten Zustand des Elements. Das erste passende gewinnt, sonst
                             gilt das Standardbild.
+  element.cutscene.image    Bild der Zwischensequenz eines Weges (Schluessel <id>:cutscene).
 
 Der Schluessel eines Zustandsbilds haengt am Zustand, nicht an der Listenposition: Umsortieren
 behaelt die Nummern (und damit die schon erzeugten Bilder), eine geaenderte Zustandsbedingung
@@ -39,19 +40,25 @@ def image_key(element_id: str, state: dict | None = None) -> str:
     return f"{base}@{state_signature(state)}" if state else base
 
 
-def image_entries(element: dict) -> list[tuple[dict | None, str, dict]]:
-    """Liefert (zustand_oder_None, prompt, ziel_dict) fuer alle Bilder eines Elements.
+def image_entries(element: dict) -> list[tuple[str, str, dict]]:
+    """Liefert (schluessel, prompt, ziel_dict) fuer alle Bilder eines Elements.
     ziel_dict ist das Dict, an das game.py die Bildnummer als `_image` haengt
-    (das Element selbst fuer das Standardbild, sonst der stateImages-Eintrag)."""
-    entries: list[tuple[dict | None, str, dict]] = []
+    (das Element selbst fuer das Standardbild, sonst der stateImages- bzw. cutscene-Eintrag)."""
+    entries: list[tuple[str, str, dict]] = []
+    element_id = element["id"]
     prompt = element.get("image")
     if isinstance(prompt, str) and prompt.strip():
-        entries.append((None, prompt, element))
+        entries.append((image_key(element_id), prompt, element))
     for entry in element.get("stateImages") or []:
         if not isinstance(entry, dict):
             continue
         state = entry.get("state")
         prompt = entry.get("prompt")
         if isinstance(state, dict) and state and isinstance(prompt, str) and prompt.strip():
-            entries.append((state, prompt, entry))
+            entries.append((image_key(element_id, state), prompt, entry))
+    cutscene = element.get("cutscene")
+    if isinstance(cutscene, dict):
+        prompt = cutscene.get("image")
+        if isinstance(prompt, str) and prompt.strip():
+            entries.append((f"{element_id}:cutscene", prompt, cutscene))
     return entries

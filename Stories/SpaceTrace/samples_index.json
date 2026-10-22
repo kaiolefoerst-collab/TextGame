@@ -1,4 +1,5 @@
 {
+  "autopilot_aktivieren_und_zu_dem_objekt_fliegen:cutscene": 88,
   "autopilot_taste:firstView": 81,
   "cockpit_glover_iv:firstView": 72,
   "cockpit_glover_iv:repeatView": 73,
@@ -9,11 +10,16 @@
   "end_point:firstView": 67,
   "end_point:repeatView": 68,
   "kommunikationsanlage:firstView": 75,
+  "kommunikationsanlage_2:firstView": 86,
+  "kommunikationsanlage_2:repeatView": 87,
   "laderaum:firstView": 76,
+  "manuelle_steuerung:firstView": 84,
+  "manuelle_steuerung:repeatView": 85,
   "medikamente:firstView": 77,
   "navigationssystem:firstView": 80,
   "player:firstView": 78,
   "start_point:firstView": 66,
   "tuer_ztum_startpunkt:firstUse": 71,
-  "tuer_ztum_startpunkt:firstView": 70
+  "tuer_ztum_startpunkt:firstView": 70,
+  "weg_navigationssystem_cockpit_glover_iv:cutscene": 83
 }
