@@ -78,10 +78,7 @@ elements:
     conditions: []
     effects:
     - disableSelfTrigger: reaktion_1
-  image: Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine
-    Person. Der Fokus liegt auf dem Fenster und der Aussenansicht, vom Cockpit selber ist kaum was zu
-    sehen. Die Hände des Piloten sieht man nicht. Aus dem Fenster sieht man  Weltall. Das Bild soll ein
-    Gefühl der EInsamkeit und Leere vermitteln. Keine Planeten oder sonstige auffälligen Himmelskörper.
+  image: Gib Vorlage 1 unverändert wieder.
   stateTexts:
   - id: zt_hangar_mit_anzug
     conditions:
@@ -141,22 +138,36 @@ elements:
   stateImages:
   - state:
       location: byHope
-    prompt: |+
-      Das Cockpit eines Raumschiffes aus Sicht es Piloten. Es ist ein sehr kleines Raumschiff für eine Person. Der Fokus liegt auf dem Fenster und der Aussenansicht, vom Cockpit selber ist kaum was zu sehen. Aus dem Fenster sieht man  Weltall und einer  Ein gewaltiges Raumschiff bestehend aus zwei riesige Ringe, mit einer  gemeinsame Achse drehen. Dazwischen unzählige Streben und Verbindungselemente und im Zentrum eine Antriebseinheit.
-
+    prompt: 'Übernimm das Cockpit von Vorlage 1 vollständig und unverändert: derselbe Bildausschnitt,
+      dieselbe Kameraposition, dieselbe Scheibe, derselbe Rahmen, dieselbe Wandverkleidung, dieselbe Konsolenkante,
+      dasselbe Licht. Der Vordergrund bleibt identisch. Ändere nur, was durch die Scheibe zu sehen ist:
+      In der Ferne treibt das Raumschiff von Vorlage 2, genau so wie auf Vorlage 2, und füllt etwa ein
+      Drittel der Scheibe.'
+    refs:
+    - glover_cockpit.jpg
+    - hoffnung_aussen.jpg
   - state:
       location: approach
-    prompt: Das Cockpit eines sehr kleinen Ein-Personen-Raumschiffs aus Sicht des Piloten, vom Cockpit
-      selbst ist kaum etwas zu sehen. Keine Hände, keine Personen. Durch das Fenster blickt man aus nächster
-      Nähe auf die Stirnseite der Nabe eines gigantischen Raumschiffs. Darin eine offene, rechteckige
-      Hangarbucht, aus der trübes Licht fällt. Davor ragt eine Landeplattform ins All, gesäumt von kleinen,
-      blinkenden Leitlichtern. Die Panzerung ist zerkratzt und von Mikrometeoriten gezeichnet.
+    prompt: 'Übernimm das Cockpit von Vorlage 1 vollständig und unverändert: derselbe Bildausschnitt,
+      dieselbe Kameraposition, dieselbe Scheibe, derselbe Rahmen, dieselbe Wandverkleidung, dieselbe Konsolenkante,
+      dasselbe Licht. Der Vordergrund bleibt identisch. Ändere nur, was durch die Scheibe zu sehen ist:
+      Aus nächster Nähe die Stirnseite der Nabe des Raumschiffs von Vorlage 2. In ihrer Mitte die offene,
+      rechteckige Hangarbucht, aus der trübes rotes Licht fällt, davor eine ins All ragende Landeplattform
+      mit schwach blinkenden grünen Leitlichtern.'
+    refs:
+    - glover_cockpit.jpg
+    - hoffnung_aussen.jpg
   - state:
       location: hangar
-    prompt: Das Cockpit eines sehr kleinen Ein-Personen-Raumschiffs aus Sicht des Piloten, vom Cockpit
-      selbst ist kaum etwas zu sehen. Keine Hände, keine Personen. Durch das Fenster blickt man in einen
-      riesigen, dunklen Hangar im roten Notlicht. Die Wände verlieren sich im Schatten, an Streben und
-      Kanten glitzern Eiskristalle. Auf dem Boden eine Reihe grüner Leitlichter.
+    prompt: 'Übernimm das Cockpit von Vorlage 1 vollständig und unverändert: derselbe Bildausschnitt,
+      dieselbe Kameraposition, dieselbe Scheibe, derselbe Rahmen, dieselbe Wandverkleidung, dieselbe Konsolenkante,
+      dasselbe Licht. Der Vordergrund bleibt identisch. Ändere nur, was durch die Scheibe zu sehen ist:
+      Ein riesiger, dunkler Hangar im roten Notlicht. Die Wände verlieren sich im Schatten, auf dem Boden
+      eine Reihe grüner Leitlichter.'
+    refs:
+    - glover_cockpit.jpg
+  imageRefs:
+  - glover_cockpit.jpg
 - id: weg_start_point_cockpit_glover_iv
   name: Die Geschichte beginnt.....
   type: door
@@ -408,10 +419,13 @@ elements:
       Ich starre wieder auf den kleinen weißen Punkt. Vor ein paar Minuten war ich noch überzeugt, dass meine Reise hier draußen enden würde. Jetzt habe ich plötzlich wieder ein Ziel.
 
       Verdammt, vielleicht komme ich hier doch noch lebend raus!
-    image: 'Bild eines kleinen Ein Mann Raumschiffes von aussen wie es durch das weltall fliegt. Vorne
-      eine Cockpit, dahinter ein Fensterloser Frachrraum. Das Raumschiff ist ca. 30 Meter Lang und 10
-      Meter Breit. '
+    image: 'Weltraumszene: die Glover, genau das Raumschiff auf Vorlage 1 mit derselben Form, denselben
+      Farben, Markierungen und demselben Schriftzug, fliegt allein durch das leere, tiefschwarze Weltall
+      mit Sternen. Aus ihren kleinen Steuerdüsen kommt ein kurzer, bläulicher Schub, die Haupttriebwerke
+      sind aus. Weite, Leere, Einsamkeit.'
     buttonLabel: Weiter
+    imageRefs:
+    - glover_aussen.jpg
 - id: anflug_hope
   name: Mit der manuellen Steuerung heranfliegen
   type: door
@@ -442,12 +456,17 @@ elements:
       Mit jedem Kilometer wächst es weiter an, bis es das gesamte Cockpitfenster ausfüllt. Die Ringe sind übersät mit Narben von Mikrometeoriten. Nirgendwo brennt ein Fenster.
 
       Ich folge der Achse bis zur Nabe. Und dort, an ihrer Stirnseite, entdecke ich etwas, womit ich nicht gerechnet habe: eine offene Hangarbucht. Davor eine Landeplattform, gesäumt von schwach blinkenden Leitlichtern.
-    image: 'Weltraumszene: ein winziges Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit,
-      dahinter ein fensterloser Frachtraum) nähert sich von hinten einem gigantischen, dunklen Raumschiff
-      aus zwei riesigen Ringen auf einer gemeinsamen Achse, verbunden durch unzählige Streben, im Zentrum
-      eine Antriebseinheit. Das kleine Schiff wirkt winzig vor dem Koloss, aus seinen Steuerdüsen kommt
-      ein kurzer bläulicher Schub. In den Fenstern des großen Schiffes brennt kein Licht.'
+    image: 'Weltraumszene: die Glover, das kleine Raumschiff auf Vorlage 1, nähert sich der Hoffnung,
+      dem gigantischen Raumschiff auf Vorlage 2. Beide Schiffe sehen genau so aus wie auf ihren Vorlagen.
+      Die Glover ist im Vordergrund klein von schräg hinten zu sehen, aus ihren Steuerdüsen kommt ein
+      kurzer, bläulicher Schub. Die Hoffnung füllt den Hintergrund: das stillstehende Rad mit äußerem
+      und innerem Ring, den Speichen und der Nabe, an deren Stirnseite die offene Hangarbucht schwach
+      rötlich leuchtet. Neben der Hoffnung wirkt die Glover winzig. Der Antrieb der Hoffnung ist aus,
+      in ihren Fenstern brennt kein Licht, die Ringe sind von Mikrometeoriten vernarbt.'
     buttonLabel: Weiter
+    imageRefs:
+    - glover_aussen.jpg
+    - hoffnung_aussen.jpg
 - id: landung_hope
   name: Auf der Landeplattform landen
   type: door
@@ -481,11 +500,14 @@ elements:
       Hinter mir setzt sich das Hangartor in Bewegung. Lautlos schiebt es sich vor die Sterne, bis nur noch das rote Notlicht des Hangars bleibt.
 
       Ich habe es geschafft. Ich weiß nur nicht, wohin.
-    image: Ein winziges Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit, dahinter ein fensterloser
-      Frachtraum) ist auf einer Landeplattform im Inneren eines riesigen, dunklen Hangars gelandet. Rotes
-      Notlicht und eine Reihe grüner Leitlichter auf dem Boden. Im Hintergrund schließt sich ein gewaltiges
-      Hangartor und verdeckt die letzten Sterne. Eiskristalle an den Wänden, tiefe Schatten.
+    image: Die Glover, genau das Raumschiff auf Vorlage 1, ist auf einer Landeplattform im Inneren eines
+      riesigen, dunklen Hangars gelandet, die Landestützen ausgefahren, ausgerichtet an einer Reihe grüner
+      Leitlichter auf dem Boden. Rotes Notlicht. Im Hintergrund schließt sich ein gewaltiges Hangartor
+      mit gelb-schwarzen Warnstreifen und verdeckt die letzten Sterne. Tiefe Schatten. Die Glover wirkt
+      klein im riesigen Raum.
     buttonLabel: Weiter
+    imageRefs:
+    - glover_aussen.jpg
 - id: raumanzug
   name: Raumanzug
   type: object
@@ -571,7 +593,7 @@ elements:
       Vor mir liegt der Hangar. Kalt, still, riesig. In der Schwerelosigkeit treibt Staub durch das Licht meiner Helmlampe. Ich setze den ersten Schritt auf die Plattform, und die Magnetstiefel greifen mit einem dumpfen Ruck.
     image: Blick aus der geöffneten Außenluke einer kleinen Raumschiffschleuse hinaus in einen riesigen,
       dunklen Hangar. Im Lichtkegel einer Helmlampe schweben Staubpartikel. Rotes Notlicht, grüne Leitlichter
-      auf der Landeplattform, Eiskristalle an den Wänden. Keine Personen sichtbar.
+      auf der Landeplattform. Keine Personen sichtbar.
     buttonLabel: Weiter
 - id: hangar
   name: Hangar
@@ -585,17 +607,19 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Der Hangar ist größer, als es von außen den Anschein hatte. Das rote Notlicht reicht nur ein paar Dutzend Meter weit, dahinter beginnt die Dunkelheit. An den Streben und Kanten hängt Eis.
+      Der Hangar ist größer, als es von außen den Anschein hatte. Das rote Notlicht reicht nur ein paar Dutzend Meter weit, dahinter beginnt die Dunkelheit.
 
       Die Glover steht klein und verloren auf der Landeplattform. Andere Schiffe sehe ich nicht, die Andockplätze ringsum sind leer.
 
       Am hinteren Ende des Hangars leuchtet ein einzelnes Bedienfeld neben einer Schleuse. Grün.
     repeatView: Der Hangar im roten Notlicht.
   image: Ein riesiger, dunkler Hangar im Inneren eines gigantischen Raumschiffs, nur von rotem Notlicht
-    beleuchtet, das sich nach wenigen Dutzend Metern im Dunkel verliert. In der Mitte steht ein winziges
-    Ein-Personen-Raumschiff (etwa 30 Meter lang, vorne ein Cockpit, dahinter ein fensterloser Frachtraum)
-    auf einer Landeplattform mit grünen Leitlichtern. Leere Andockplätze ringsum, Eis an Streben und Kanten.
-    Am hinteren Ende leuchtet ein einzelnes grünes Bedienfeld neben einer schweren Schleusentür. Menschenleer.
+    beleuchtet, das sich nach wenigen Dutzend Metern im Dunkel verliert. In der Mitte steht die Glover,
+    genau das Raumschiff auf Vorlage 1, klein und verloren auf einer Landeplattform mit grünen Leitlichtern,
+    die Landestützen ausgefahren. Leere Andockplätze ringsum. Am hinteren Ende leuchtet ein einzelnes
+    grünes Bedienfeld neben einer schweren Schleusentür. Menschenleer.
+  imageRefs:
+  - glover_aussen.jpg
 - id: landeplattform
   name: Landeplattform
   type: feature
@@ -616,7 +640,7 @@ elements:
     repeatView: HOFFNUNG · ANDOCKBUCHT 3.
   image: 'Blick von oben auf den Boden einer Landeplattform in einem dunklen Hangar. Große, verblasste,
     an vielen Stellen abgeplatzte Schablonenbuchstaben: „HOFFNUNG · ANDOCKBUCHT 3“. Rotes Notlicht, grüne
-    Leitlichter am Rand der Plattform, Eis und Staub auf dem Metall.'
+    Leitlichter am Rand der Plattform, Staub auf dem Metall.'
 - id: hangartor
   name: Hangartor
   type: feature
@@ -634,8 +658,7 @@ elements:
       Automatik, sage ich mir. Bestimmt nur die Automatik.
     repeatView: Geschlossen.
   image: Ein gewaltiges, geschlossenes Hangartor aus Stahl, von innen gesehen, etwa fünfzig Meter breit,
-    mit gelb-schwarzen Warnstreifen und Eiskristallen in den Fugen. Rotes Notlicht wirft lange Schatten.
-    Kein Bedienfeld. Menschenleer.
+    mit gelb-schwarzen Warnstreifen. Rotes Notlicht wirft lange Schatten. Kein Bedienfeld. Menschenleer.
 - id: weg_hangar_glover
   name: An Bord der Glover gehen
   type: door
@@ -676,8 +699,7 @@ elements:
 
       Das Licht über der inneren Tür springt von Rot auf Grün.
     image: Das Innere einer engen Schleusenkammer in einem alten Raumschiff. Metallwände mit Gebrauchsspuren,
-      Frost an den Kanten, feiner Nebel aus einströmender Luft. Über der inneren Tür leuchtet eine Signalleuchte
-      grün. Menschenleer.
+      feiner Nebel aus einströmender Luft. Über der inneren Tür leuchtet eine Signalleuchte grün. Menschenleer.
     buttonLabel: Weiter
 - id: hope_korridor
   name: Korridor hinter der Schleuse
@@ -693,16 +715,13 @@ elements:
     firstView: |-
       Hinter der Schleuse beginnt ein langer, gerader Korridor, der tief ins Innere der Nabe führt und sich im Dunkel verliert. Die Deckenleuchten flackern und gehen an, eine nach der anderen, als würde das Schiff mir den Weg zeigen.
 
-      Ohne Schwerkraft treiben Dinge durch die Luft: eine Kaffeetasse, ein Stift, ein einzelner Handschuh. Alles, was niemand festgemacht hat.
-
       „Hallo?“ Meine Stimme klingt dünn in der kalten Luft. Niemand antwortet.
 
       Schilder an den Wänden zeigen den Weg: Brücke, Maschinenraum, Speiche B zum Schlafring.
     repeatView: Der Korridor in der Nabe.
   image: Ein langer, gerader Korridor im Inneren eines alten, gigantischen Raumschiffs, der sich in der
-    Ferne im Dunkel verliert. Flackernde Deckenleuchten, Metallwände mit Gebrauchsspuren, Frost. In der
-    Schwerelosigkeit schweben eine Kaffeetasse, ein Stift und ein einzelner Handschuh. Menschenleer, kalt,
-    still.
+    Ferne im Dunkel verliert. Flackernde Deckenleuchten, Metallwände mit Gebrauchsspuren. Menschenleer,
+    kalt, still.
 - id: weg_hope_hangar
   name: Schleuse zum Hangar
   type: door
@@ -760,8 +779,8 @@ elements:
       - gelesen
       - false
   image: 'Eine blank polierte Metallplakette in der Wand eines alten Raumschiffkorridors, eingravierte
-    Schrift: „KOLONIESCHIFF HOFFNUNG · Kronos-Werft, Titan · 340 Kolonisten · 8 Besatzungsmitglieder · Wir
-    tragen sie alle.“ Ringsum Metall mit Gebrauchsspuren und Frost, kaltes Licht der Deckenleuchten. Menschenleer.'
+    Schrift: „KOLONIESCHIFF HOFFNUNG · Kronos-Werft, Titan · 340 Kolonisten · 8 Besatzungsmitglieder ·
+    Wir tragen sie alle.“ Ringsum Metall mit Gebrauchsspuren, kaltes Licht der Deckenleuchten. Menschenleer.'
 - id: weg_korridor_bruecke
   name: Zur Brücke
   type: door
@@ -812,10 +831,10 @@ elements:
     text: |-
       Die Speiche ist ein enger Schacht, dreihundert Meter lang, mit einer Leiter an der Wand. Ohne Schwerkraft gibt es kein Oben und kein Unten, also ziehe ich mich Sprosse für Sprosse voran. Das Licht meiner Helmlampe tanzt über Rohre und Kabelbündel.
 
-      Je weiter ich komme, desto kälter wird es. Auf den Sprossen liegt Raureif. Dann öffnet sich der Schacht, und ich schwebe hinein in den Schlafring.
+      Je weiter ich komme, desto kälter wird es. Dann öffnet sich der Schacht, und ich schwebe hinein in den Schlafring.
     image: Blick durch einen engen, runden Schacht in einem Raumschiff, eine Leiter an der Wand, Rohre
-      und Kabelbündel, Raureif auf den Sprossen. Der Lichtkegel einer Helmlampe verliert sich in der Tiefe,
-      am Ende des Schachts ein schwaches grünes Leuchten. Menschenleer.
+      und Kabelbündel. Der Lichtkegel einer Helmlampe verliert sich in der Tiefe, am Ende des Schachts
+      ein schwaches grünes Leuchten. Menschenleer.
     buttonLabel: Weiter
 - id: bruecke
   name: Brücke der Hoffnung
@@ -829,14 +848,15 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Die Brücke der Hoffnung ist ein halbrunder Raum mit acht Sitzen. Alle leer. Lose Gurte treiben in der Luft wie Seetang. Durch das große Sichtfenster sieht man die Sterne und die gewaltigen Ringe, die sich nicht mehr drehen.
+      Die Brücke der Hoffnung ist ein halbrunder Raum mit acht Sitzen. Alle leer. Lose Gurte treiben in der Luft wie Seetang. Durch das große Sichtfenster sieht man nur Sterne und die schwarze Leere des Alls.
 
       Die meisten Konsolen sind dunkel. Nur die Statusübersicht und der Langstreckensender haben noch Strom. Am Platz des Kapitäns klemmt ein Tablet in seiner Halterung.
     repeatView: Die stille Brücke. Acht leere Sitze.
   image: 'Die Brücke eines alten, gigantischen Kolonieraumschiffs: ein halbrunder Raum mit acht leeren
-    Pilotensitzen, lose Gurte schweben in der Schwerelosigkeit. Die meisten Konsolen sind dunkel, nur
-    zwei leuchten. Durch ein großes Sichtfenster sieht man Sterne und einen Teil eines riesigen, stillstehenden
-    Rings. Menschenleer.'
+    Pilotensitzen, die alle zu den Konsolen hin ausgerichtet sind, mit den Rückenlehnen zum Betrachter;
+    lose Gurte schweben in der Schwerelosigkeit. Die meisten Konsolen sind dunkel, nur zwei leuchten.
+    Durch ein großes Sichtfenster sieht man nur das leere, tiefschwarze Weltall mit Sternen, keine Planeten,
+    keine Himmelskörper und keine Teile eines Raumschiffs. Menschenleer.'
 - id: weg_bruecke_korridor
   name: In den Korridor
   type: door
@@ -970,7 +990,7 @@ elements:
 
       Sechs Tage. Der Notreaktor hat neun.
 
-      Ich schwebe zurück in den Schlafring, an den langen Reihen grüner Lichter vorbei, bis zur Reservekapsel R-1. Hinter dem vereisten Glas ist ein Gesicht zu erahnen. „Sie kommen, Mara“, sage ich. „Du hast lange genug gewartet.“
+      Ich schwebe zurück in den Schlafring, an den langen Reihen grüner Lichter vorbei, bis zur Reservekapsel R-1. Hinter dem beschlagenen Glas ist ein Gesicht zu erahnen. „Sie kommen, Mara“, sage ich. „Du hast lange genug gewartet.“
 
       Noch vor Kurzem habe ich im Cockpit gesessen und auf mein Ende gewartet, mit leerem Tank und einer Ladung Medikamente für eine Station am Rand des Sonnensystems. Jetzt werden 329 Menschen wieder aufwachen. Und ein Ärzteteam wird sich über ein paar Kisten Medikamente freuen.
 
@@ -989,11 +1009,13 @@ elements:
       Danach heißt es warten. Ich schwebe vor dem Sender, starre auf das Display und zähle die Minuten, wie ich es schon im Cockpit der Glover getan habe. Nur dass ich diesmal nicht auf mein Ende warte.
 
       Nach elf Stunden knackt es im Lautsprecher.
-    image: 'Weltraumszene: Ein gigantisches, dunkles Kolonieraumschiff aus zwei riesigen Ringen auf einer
-      gemeinsamen Achse treibt durch das All. Von einem winzigen Raumschiff, das in der Nabe angedockt
-      ist, geht ein feiner, kaum sichtbarer Lichtstrahl in die Weite des Alls hinaus. In der Ferne ein
-      einzelner, schwach leuchtender Punkt.'
+    image: 'Weltraumszene: die Hoffnung, genau das Raumschiff auf Vorlage 1, treibt still im tiefschwarzen
+      All. Das Rad steht still, der Antrieb ist aus, in den Fenstern brennt kein Licht. Von der Nabe geht
+      ein feiner, kaum sichtbarer Funkstrahl in die Weite des Alls hinaus. In der Ferne ein einzelner,
+      schwach leuchtender Punkt. Kein anderes Raumschiff ist zu sehen.'
     buttonLabel: Weiter
+    imageRefs:
+    - hoffnung_aussen.jpg
 - id: maschinenraum
   name: Maschinenraum
   type: location
@@ -1122,8 +1144,8 @@ elements:
       Am Eingang des Rings steht die Kälteschlafkonsole.
     repeatView: Die Kapselreihen im kalten Licht.
   image: Das Innere eines riesigen, ringförmigen Raumschiffsegments, der Boden krümmt sich in der Ferne
-    nach oben. In langen Reihen liegen Hunderte Kälteschlafkapseln mit vereisten Sichtfenstern, an jeder
-    ein kleines grünes Licht, einzelne Lichter rot. Bitterkalte Atmosphäre, Frost, feiner Nebel über dem
+    nach oben. In langen Reihen liegen Hunderte Kälteschlafkapseln mit beschlagenen Sichtfenstern, an
+    jeder ein kleines grünes Licht, einzelne Lichter rot. Bitterkalte Atmosphäre, feiner Nebel über dem
     Boden, kaltes blaues Licht. Keine Personen sichtbar.
 - id: weg_schlafring_korridor
   name: Durch die Speiche zur Nabe
@@ -1179,8 +1201,8 @@ elements:
     - revealElement: kapsel_r1
     - disableSelfTrigger: konsole_r1
   image: Nahaufnahme einer Kälteschlafkonsole in einem kalten Raumschiffring, ein Bildschirm mit Statuszeilen
-    in Grün und Rot, Frost an den Rändern der Konsole. Im unscharfen Hintergrund Reihen von Kälteschlafkapseln
-    mit kleinen grünen Lichtern. Menschenleer.
+    in Grün und Rot. Im unscharfen Hintergrund Reihen von Kälteschlafkapseln mit kleinen grünen Lichtern.
+    Menschenleer.
 - id: kapselreihen
   name: Kapselreihen
   type: feature
@@ -1197,9 +1219,9 @@ elements:
 
       Bei zwölf Kapseln leuchtet das Licht rot. Ihre Sichtfenster sind dunkel. Ich schaue nicht hinein.
     repeatView: Zwölf rote Lichter.
-  image: Eine lange Reihe von Kälteschlafkapseln in einem kalten Raumschiff, vereiste Sichtfenster, an
-    jeder Kapsel ein kleines Namensschild und ein grünes Statuslicht. Eine einzelne Kapsel in der Reihe
-    hat ein rotes Licht und ein dunkles Fenster. Frost, kaltes blaues Licht, keine Gesichter sichtbar.
+  image: Eine lange Reihe von Kälteschlafkapseln in einem kalten Raumschiff, beschlagene Sichtfenster,
+    an jeder Kapsel ein kleines Namensschild und ein grünes Statuslicht. Eine einzelne Kapsel in der Reihe
+    hat ein rotes Licht und ein dunkles Fenster. kaltes blaues Licht, keine Gesichter sichtbar.
 - id: kapsel_r1
   name: Reservekapsel R-1
   type: object
@@ -1213,7 +1235,7 @@ elements:
   initialPartOf: []
   presentation:
     firstView: |-
-      Die Reservekapsel liegt etwas abseits am Ende der Reihe, direkt neben einem Wartungsschacht. Ihr Sichtfenster ist von innen vereist. Ich kann ein Gesicht erahnen, mehr nicht. Auf einem Streifen Klebeband am Rand der Kapsel steht in krakeliger Handschrift: M. Ilves.
+      Die Reservekapsel liegt etwas abseits am Ende der Reihe, direkt neben einem Wartungsschacht. Ihr Sichtfenster ist von innen beschlagen. Ich kann ein Gesicht erahnen, mehr nicht. Auf einem Streifen Klebeband am Rand der Kapsel steht in krakeliger Handschrift: M. Ilves.
 
       Die Lebenszeichen sind schwach. Aber sie sind da.
     repeatView: Mara Ilves schläft. Schwach, aber stabil.
@@ -1229,8 +1251,8 @@ elements:
     - revealElement: lb_mara
     - disableSelfTrigger: r1_entdeckt
   image: Eine einzelne Kälteschlafkapsel am Ende einer Reihe neben einem Wartungsschacht. Hinter dem von
-    innen vereisten Sichtfenster ist schemenhaft ein schlafendes Frauengesicht zu erahnen. Am Rand der
-    Kapsel ein Streifen Klebeband mit der Handschrift „M. Ilves“. Ein schwaches grünes Licht, Frost, kaltes
+    innen beschlagenen Sichtfenster ist schemenhaft ein schlafendes Frauengesicht zu erahnen. Am Rand
+    der Kapsel ein Streifen Klebeband mit der Handschrift „M. Ilves“. Ein schwaches grünes Licht, kaltes
     blaues Licht.
 - id: datenkupplung
   name: Datenkupplung
@@ -1279,8 +1301,12 @@ elements:
       - verbunden
       - false
   image: Ein armdicker Anschluss ragt am Rand einer Landeplattform aus dem Boden eines dunklen Hangars.
-    Ein dickes Kabel führt von dort zur Unterseite eines kleinen Raumschiffs. Auf einem kleinen Display
-    am Anschluss leuchtet eine grüne Anzeige. Rotes Notlicht, Eis auf dem Metall. Menschenleer.
+    Ein dickes Kabel führt von dort zu einer kleinen runden Buchse an der Unterseite des Cockpits der
+    Glover, des Raumschiffs auf Vorlage 1, das daneben auf seinen Landestützen steht; im Bild ist nur
+    der vordere Teil mit der Cockpitkanzel zu sehen. Auf einem kleinen Display am Anschluss leuchtet eine
+    grüne Anzeige. Rotes Notlicht. Menschenleer.
+  imageRefs:
+  - glover_aussen.jpg
 - id: lb_offiziell
   name: Die offizielle Geschichte der Hoffnung
   type: story

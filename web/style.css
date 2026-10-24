@@ -1304,6 +1304,48 @@ h1 {
   display: block;
 }
 
+/* Vorlagebilder unter einem Bild-Prompt */
+.ref-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.ref-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.5rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.ref-chip img {
+  width: 64px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+
+.ref-chip .ref-num {
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.ref-chip.is-missing {
+  border-color: var(--contradiction);
+}
+
+.ref-note {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
 .image-master-note {
   color: var(--text-dim);
   font-size: 0.8rem;

@@ -12,6 +12,8 @@ Alles, was zu einer Geschichte gehoert, liegt darin:
         samples_input.txt      Exportliste fuer generate_samples.py
         pictures_input.txt     Exportliste fuer generate_pictures.py
         editor_layout.json     Positionen der Orte im Editor (nur Editor, vom Spiel ignoriert)
+        Schiffe.md             optional: Prompt-Bausteine fuer wiederkehrende Motive
+        vorlagen/              optional: Vorlagebilder (+ .manifest.json, vorlagen_prompts.txt)
 
 Eine Geschichte existiert genau dann, wenn ihr Ordner mit der gleichnamigen YAML-Datei
 existiert. Der Ordnername ist ihre Kennung; eine abweichende header.id wird mit Warnung
@@ -71,6 +73,16 @@ class StoryFolder:
     def editor_layout(self) -> Path:
         """Positionen der Ellipsen im Editor-Ortsgraph (elementId -> {x, y}); vom Spiel ignoriert."""
         return self.dir / "editor_layout.json"
+
+    @property
+    def ships_doc(self) -> Path:
+        """Verbindliche Beschreibung wiederkehrender Motive (Prompt-Bausteine), z.B. die Raumschiffe."""
+        return self.dir / "Schiffe.md"
+
+    @property
+    def references_dir(self) -> Path:
+        """Vorlagebilder (Referenzen fuer einheitliches Aussehen) + Prompts, erzeugt von generate_picprompt.py."""
+        return self.dir / "vorlagen"
 
 
 def story_folders(stories_dir: Path = STORIES_DIR) -> list[StoryFolder]:

@@ -186,6 +186,7 @@ const ed = {
   graph: null,     // DOM-Ebenen des Ortsgraphs (canvas, svg, overlay)
   selection: new Set(), // ausgewaehlte Orte (gemeinsam verschiebbar)
   openContents: null,   // Ort, dessen Inhaltsliste an der Ellipse aufgeklappt ist
+  references: [],       // Dateinamen der Vorlagebilder (Stories/<Name>/vorlagen/), vom Server
 };
 
 function isLocation(el) {
@@ -260,6 +261,9 @@ async function loadEditorStory(storyId) {
   // Positionen kommen aus Stories/<Name>/editor_layout.json (separat von der YAML-Datei).
   ed.layout = story._editorLayout || {};
   delete story._editorLayout;
+  // Vorlagebilder fuer die Bild-Prompts (nur zur Auswahl, nicht Teil der YAML).
+  ed.references = Array.isArray(story._references) ? story._references : [];
+  delete story._references;
   ensurePositions(true);
   ed.selection = new Set();
   ed.dirty = false;

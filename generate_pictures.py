@@ -10,7 +10,11 @@ API-Aufrufen wird nachgefragt.
     python generate_pictures.py --story alle --yes   # alles, ohne jede Rueckfrage
     python generate_pictures.py --dry-run            # nur anzeigen, was erzeugt wuerde
 
-Klassisch: --input datei.txt --output-dir ordner  liest Zeilen im Format  Nummer "Prompt";"Zusatzinfo".
+Klassisch: --input datei.txt --output-dir ordner  liest Zeilen im Format  Nummer "Prompt";"Zusatzinfo";"Vorlagen".
+
+Vorlagebilder: Ein Bild darf bis zu 3 Vorlagen haben (Story-Felder imageRefs/refs, siehe pics_fields.py).
+Sie werden zusammen mit dem Prompt geschickt und darin als "Vorlage 1", "Vorlage 2", "Vorlage 3"
+bezeichnet - der Prompt kann sich so darauf beziehen. Aendert sich eine Vorlage, entsteht das Bild neu.
 """
 
 import argparse
@@ -47,8 +51,11 @@ CROP_16_9 = (
     ":'if(gt(iw/ih,16/9),trunc(ih/2)*2,trunc(iw*9/16/2)*2)'"
 )
 
-# Zeilenformat: Nummer "Prompt";"Zusatzinfo"  (Zusatzinfo optional)
-LINE_RE = re.compile(r'^(\d+)\s*"(.*)"\s*;\s*(?:"(.*)")?\s*$')
+# Zeilenformat: Nummer "Prompt";"Zusatzinfo";"Vorlage1|Vorlage2"  (Zusatzinfo und Vorlagen optional;
+# Vorlagen relativ zum Ordner der Eingabedatei). Prompts enthalten keine doppelten Anfuehrungszeichen.
+LINE_RE = re.compile(r'^(\d+)\s*"([^"]*)"\s*;\s*(?:"([^"]*)")?\s*(?:;\s*"([^"]*)")?\s*$')
+MAX_REFS = 3                           # Gemini-Bildmodell: hoechstens 3 Bilder pro Anfrage
+REF_MIME_TYPES = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
 
 
 def parse_lines(path):
@@ -62,15 +69,22 @@ def parse_lines(path):
             if not match:
                 print(f"Warnung: Zeile {line_no} entspricht nicht dem Format 'Nummer \"Prompt\";\"Zusatzinfo\"' und wird uebersprungen: {line!r}", file=sys.stderr)
                 continue
-            number_str, prompt, extra = match.groups()
-            number = int(number_str)
-            entries.append((number, prompt, extra or ""))
+            number_str, prompt, extra, refs = match.groups()
+            base = Path(path).resolve().parent
+            ref_paths = [base / r.strip() for r in (refs or "").split("|") if r.strip()]
+            entries.append((int(number_str), prompt, extra or "", ref_paths))
     return entries
 
 
-def content_hash(prompt, extra, model):
-    payload = f"{prompt}\x1f{extra}\x1f{model}\x1f{ASPECT_RATIO}".encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()
+def content_hash(prompt, extra, model, refs=()):
+    """Aenderungs-Hash eines Bilds. Ohne Vorlagen exakt wie frueher (keine unnoetigen Neuerzeugungen);
+    mit Vorlagen geht zusaetzlich der Inhalt jeder Vorlagedatei ein."""
+    payload = f"{prompt}\x1f{extra}\x1f{model}\x1f{ASPECT_RATIO}"
+    for ref in refs:
+        ref = Path(ref)
+        digest = hashlib.sha256(ref.read_bytes()).hexdigest() if ref.is_file() else f"fehlt:{ref.name}"
+        payload += f"\x1fref:{digest}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def load_manifest(output_dir):
@@ -98,11 +112,29 @@ def image_to_jpeg(image_bytes, out_path):
         raise RuntimeError(f"ffmpeg fehlgeschlagen: {result.stderr.decode(errors='replace')}")
 
 
-def request_image(client, model, prompt, extra):
+def reference_parts(refs):
+    """Vorlagebilder als Anfrage-Teile, jeweils mit vorangestellter Beschriftung "Vorlage n:".
+    Wirft FileNotFoundError/ValueError - solche Fehler werden nicht wiederholt."""
+    if len(refs) > MAX_REFS:
+        raise ValueError(f"Hoechstens {MAX_REFS} Vorlagen pro Bild erlaubt, angegeben: {len(refs)}.")
+    parts = []
+    for number, ref in enumerate(refs, start=1):
+        ref = Path(ref)
+        if not ref.is_file():
+            raise FileNotFoundError(f"Vorlage fehlt: {ref}")
+        mime = REF_MIME_TYPES.get(ref.suffix.lower())
+        if mime is None:
+            raise ValueError(f"Vorlage {ref.name}: nur {', '.join(REF_MIME_TYPES)} erlaubt.")
+        parts.append(f"Vorlage {number}:")
+        parts.append(types.Part.from_bytes(data=ref.read_bytes(), mime_type=mime))
+    return parts
+
+
+def request_image(client, model, prompt, extra, refs=()):
     """Ein einzelner Aufruf. Liefert die Bilddaten oder wirft RuntimeError (z.B. NO_IMAGE)."""
     response = client.models.generate_content(
         model=model,
-        contents=prompt,
+        contents=[*reference_parts(refs), prompt] if refs else prompt,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],
             system_instruction=extra if extra else None,
@@ -120,12 +152,12 @@ def request_image(client, model, prompt, extra):
     raise RuntimeError(f"Antwort enthielt kein Bild (finish_reason={candidate.finish_reason}).")
 
 
-def synthesize(client, model, prompt, extra):
+def synthesize(client, model, prompt, extra, refs=()):
     """Bis zu MAX_ATTEMPTS Versuche: Das Bildmodell liefert gelegentlich ohne erkennbaren Grund
     kein Bild (NO_IMAGE) oder antwortet mit einem Serverfehler; ein neuer Versuch klappt oft."""
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
-            return request_image(client, model, prompt, extra)
+            return request_image(client, model, prompt, extra, refs)
         except (RuntimeError, genai_errors.APIError) as exc:
             if isinstance(exc, genai_errors.APIError) and getattr(exc, "code", None) not in RETRYABLE_STATUS_CODES:
                 raise
@@ -135,15 +167,15 @@ def synthesize(client, model, prompt, extra):
             time.sleep(RETRY_DELAY_SECONDS)
 
 
-def is_up_to_date(manifest, output_dir, number, prompt, extra, model):
+def is_up_to_date(manifest, output_dir, number, prompt, extra, refs, model):
     key = f"{number:05d}"
     out_path = os.path.join(output_dir, f"pic_{key}.jpg")
-    return manifest.get(key) == content_hash(prompt, extra, model) and os.path.exists(out_path)
+    return manifest.get(key) == content_hash(prompt, extra, model, refs) and os.path.exists(out_path)
 
 
 def story_jobs():
     """Exportiert alle Geschichten und liefert je Geschichte einen Auftrag
-    (titel, [(nummer, prompt, masterprompt)], pictures-ordner)."""
+    (titel, [(nummer, prompt, masterprompt, vorlagen)], pictures-ordner)."""
     import export_pics  # erst hier: wird nur im Geschichten-Modus gebraucht
 
     jobs = []
@@ -198,18 +230,19 @@ def generate(entries, output_dir, model, force, client):
     os.makedirs(output_dir, exist_ok=True)
     manifest = {} if force else load_manifest(output_dir)
     made = failed = skipped = 0
-    for number, prompt, extra in entries:
+    for number, prompt, extra, refs in entries:
         key = f"{number:05d}"
         out_path = os.path.join(output_dir, f"pic_{key}.jpg")
-        if not force and is_up_to_date(manifest, output_dir, number, prompt, extra, model):
+        if not force and is_up_to_date(manifest, output_dir, number, prompt, extra, refs, model):
             skipped += 1
             continue
 
-        print(f"[pic_{key}] Prompt={prompt[:60]!r}")
+        names = ", ".join(Path(r).name for r in refs)
+        print(f"[pic_{key}] Prompt={prompt[:60]!r}" + (f" Vorlagen: {names}" if refs else ""))
         try:
-            image_bytes = synthesize(client, model, prompt, extra)
+            image_bytes = synthesize(client, model, prompt, extra, refs)
             image_to_jpeg(image_bytes, out_path)
-            manifest[key] = content_hash(prompt, extra, model)
+            manifest[key] = content_hash(prompt, extra, model, refs)
             save_manifest(output_dir, manifest)
             made += 1
         except Exception as exc:
@@ -262,8 +295,9 @@ def main():
         return
     if args.dry_run:
         for _job, t in todo:
-            for number, prompt, _extra in t:
-                print(f"  pic_{number:05d}: {prompt[:70]}")
+            for number, prompt, _extra, refs in t:
+                names = ", ".join(Path(r).name for r in refs)
+                print(f"  pic_{number:05d}: {prompt[:70]}" + (f"  [Vorlagen: {names}]" if refs else ""))
         print("Probelauf - es wurde nichts erzeugt.")
         return
     if not args.yes:

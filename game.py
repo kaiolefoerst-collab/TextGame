@@ -96,6 +96,17 @@ def enrich_with_samples(story: dict, folder: StoryFolder) -> dict:
     return story
 
 
+REFERENCE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp")
+
+
+def reference_files(folder: StoryFolder) -> list[str]:
+    """Dateinamen der Vorlagebilder einer Geschichte, alphabetisch."""
+    if not folder.references_dir.is_dir():
+        return []
+    return sorted(p.name for p in folder.references_dir.iterdir()
+                  if p.is_file() and p.suffix.lower() in REFERENCE_SUFFIXES)
+
+
 def enrich_with_images(story: dict, folder: StoryFolder) -> dict:
     """Haengt `_image` (Bildnummer) an das Element (Standardbild) bzw. an den passenden
     stateImages- oder cutscene-Eintrag - nur, wenn pictures/pic_NNNNN.jpg tatsaechlich existiert.
@@ -103,7 +114,7 @@ def enrich_with_images(story: dict, folder: StoryFolder) -> dict:
     Erwartet eine bereits kopierte Story (wird in-place ergaenzt)."""
     index = load_index(folder.pictures_index)
     for el in story.get("elements", []):
-        for key, _prompt, target in image_entries(el):
+        for key, _prompt, target, _refs in image_entries(el):
             number = index.get(key)
             if number is not None and (folder.pictures_dir / f"pic_{number:05d}.jpg").is_file():
                 target["_image"] = number
@@ -184,18 +195,22 @@ class GameRequestHandler(BaseHTTPRequestHandler):
             payload = enrich_with_images(enrich_with_samples(story, folder), folder)
             # Positionen der Orte fuer den Editor (eigene Datei, nicht Teil der YAML).
             payload["_editorLayout"] = load_index(folder.editor_layout)
+            # Verfuegbare Vorlagebilder (Stories/<Name>/vorlagen/) fuer die Auswahl im Editor.
+            payload["_references"] = reference_files(folder)
             self._send_json(payload)
             return
 
-        # Medien einer Geschichte: /stories/<Name>/samples/<datei> bzw. /stories/<Name>/pictures/<datei>
-        # (nur diese beiden Unterordner - die YAML-Datei und Listen werden nicht ausgeliefert).
+        # Medien einer Geschichte: /stories/<Name>/samples|pictures|vorlagen/<datei>
+        # (nur diese Unterordner - die YAML-Datei und Listen werden nicht ausgeliefert).
         if path.startswith("/stories/"):
             parts = unquote(path[len("/stories/"):]).split("/", 2)
             folder = self.story_folders.get(parts[0]) if parts else None
-            if folder is None or len(parts) != 3 or parts[1] not in ("samples", "pictures"):
+            media_dirs = {"samples": folder.samples_dir, "pictures": folder.pictures_dir,
+                          "vorlagen": folder.references_dir} if folder else {}
+            if len(parts) != 3 or parts[1] not in media_dirs:
                 self.send_error(404, "Nicht gefunden")
                 return
-            media_dir = folder.samples_dir if parts[1] == "samples" else folder.pictures_dir
+            media_dir = media_dirs[parts[1]]
             self._send_from_dir(media_dir.resolve(), parts[2])
             return
 

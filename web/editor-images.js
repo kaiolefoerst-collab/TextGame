@@ -96,6 +96,108 @@ function sceneButton(el, textarea) {
   return btn;
 }
 
+// ---------------------------------------------------------------------
+// Vorlagebilder je Bild-Prompt (hoechstens 3): Dateinamen aus Stories/<Name>/vorlagen/.
+// generate_pictures.py schickt sie mit und nennt sie "Vorlage 1..3" - der Prompt bezieht sich
+// darauf. Feld: imageRefs (zu image) bzw. refs (zu stateImages[].prompt), siehe pics_fields.py.
+// ---------------------------------------------------------------------
+
+const MAX_IMAGE_REFS = 3;
+const REFS_TIP = 'Vorlagen: bis zu drei Bilder aus dem Ordner „vorlagen“ dieser Geschichte. Sie werden beim Erzeugen '
+  + 'zusammen mit dem Prompt an Gemini geschickt und heißen dort „Vorlage 1“, „Vorlage 2“, „Vorlage 3“ (in dieser Reihenfolge).\n'
+  + 'Im Prompt darauf Bezug nehmen, z.B. „Die Glover genau wie auf Vorlage 1, jetzt gelandet in einem dunklen Hangar.“\n'
+  + 'So sieht ein Motiv auf allen Bildern gleich aus. Ändert sich eine Vorlage, wird das Bild beim nächsten Lauf neu erzeugt.\n'
+  + 'Neue Vorlagen: python generate_picprompt.py oder ein Bild in den Ordner legen, dann den Editor neu laden.';
+
+function refImageUrl(name) {
+  return `/stories/${encodeURIComponent(ed.storyId)}/vorlagen/${encodeURIComponent(name)}`;
+}
+
+// Zeile "Vorlagen" unter einem Bild-Prompt. owner[key] ist die Liste der Dateinamen;
+// onChange wird nach jeder Aenderung aufgerufen (z.B. sync der Zwischensequenz).
+function renderRefsRow(owner, key, onChange) {
+  const refs = Array.isArray(owner[key]) ? owner[key] : [];
+  const row = document.createElement('div');
+  row.className = 'field-row refs-row';
+  const label = document.createElement('span');
+  label.className = 'field-label';
+  label.textContent = 'Vorlagen';
+  label.appendChild(infoIcon(REFS_TIP));
+  row.appendChild(label);
+
+  const list = document.createElement('div');
+  list.className = 'ref-list';
+  const changed = () => {
+    if (Array.isArray(owner[key]) && owner[key].length === 0) delete owner[key];
+    if (onChange) onChange();
+    markDirty();
+    renderEditorStack();
+  };
+
+  refs.forEach((name, i) => {
+    const missing = !ed.references.includes(name);
+    const chip = document.createElement('div');
+    chip.className = 'ref-chip' + (missing ? ' is-missing' : '');
+    const num = document.createElement('span');
+    num.className = 'ref-num';
+    num.textContent = `Vorlage ${i + 1}`;
+    chip.appendChild(num);
+    if (!missing) {
+      const img = document.createElement('img');
+      img.src = refImageUrl(name);
+      img.alt = name;
+      chip.appendChild(img);
+    }
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'ref-name';
+    nameSpan.textContent = missing ? `⚠ fehlt: ${name}` : name;
+    chip.appendChild(nameSpan);
+    setTip(chip, missing
+      ? `Die Datei „${name}“ liegt nicht im Ordner „vorlagen“. Ohne sie schlägt das Erzeugen dieses Bilds fehl.`
+      : `Im Prompt als „Vorlage ${i + 1}“ ansprechen.`);
+    chip.appendChild(ruleDeleteButton('Diese Vorlage entfernen.', () => {
+      owner[key].splice(i, 1);
+      changed();
+    }));
+    list.appendChild(chip);
+  });
+
+  const available = ed.references.filter((name) => !refs.includes(name));
+  if (refs.length < MAX_IMAGE_REFS && available.length > 0) {
+    const select = document.createElement('select');
+    select.className = 'ref-add';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '+ Vorlage hinzufügen …';
+    select.appendChild(placeholder);
+    for (const name of available) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      select.appendChild(opt);
+    }
+    setTip(select, REFS_TIP);
+    select.addEventListener('change', () => {
+      if (!select.value) return;
+      owner[key] = [...refs, select.value];
+      changed();
+    });
+    list.appendChild(select);
+  } else if (refs.length === 0) {
+    const note = document.createElement('span');
+    note.className = 'ref-note';
+    note.textContent = 'Keine Vorlagebilder vorhanden (Ordner „vorlagen“ der Geschichte).';
+    list.appendChild(note);
+  } else if (refs.length >= MAX_IMAGE_REFS) {
+    const note = document.createElement('span');
+    note.className = 'ref-note';
+    note.textContent = 'Höchstens drei Vorlagen pro Bild.';
+    list.appendChild(note);
+  }
+  row.appendChild(list);
+  return row;
+}
+
 function promptTextarea(value, placeholder, tip, onInput) {
   const ta = document.createElement('textarea');
   ta.rows = 3;
@@ -155,6 +257,7 @@ function renderImagesSection(el) {
   defRow.appendChild(defBody);
   defRow.appendChild(sceneButton(el, defArea));
   frag.appendChild(defRow);
+  frag.appendChild(renderRefsRow(el, 'imageRefs'));
 
   // Zustandsbilder
   const vocab = collectStateVocabulary();
@@ -275,6 +378,7 @@ function renderStateImageCard(el, entry, index) {
   const preview = imagePreview(entry._image);
   if (preview) body.appendChild(preview);
   card.appendChild(body);
+  card.appendChild(renderRefsRow(entry, 'refs'));
   card.appendChild(sceneButton(el, area));
   return card;
 }
@@ -359,6 +463,7 @@ function renderCutsceneSection(el) {
   if (preview) imgBody.appendChild(preview);
   imgRow.appendChild(imgBody);
   frag.appendChild(imgRow);
+  frag.appendChild(renderRefsRow(c, 'imageRefs', sync));
 
   const grid = document.createElement('div');
   grid.className = 'field-grid';
